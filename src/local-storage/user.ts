@@ -5,10 +5,17 @@ export const setToken = (token: string): void => {
   localStorage.setItem(TOKEN, token);
 };
 
+// export const getToken = (): string | null => {
+//   return localStorage.getItem(TOKEN); // Ensure you're using the correct key
+// };
 export const getToken = (): string | null => {
-  return localStorage.getItem(TOKEN); // Ensure you're using the correct key
+  if (typeof window !== "undefined") {
+    console.log("Checking localStorage for token with key:", TOKEN);
+    return localStorage.getItem(TOKEN);
+  }
+  console.log("window is undefined, returning null");
+  return null;
 };
-
 export const deleteToken = (): void => {
   localStorage.removeItem(TOKEN); // Use removeItem to completely delete the token
 };

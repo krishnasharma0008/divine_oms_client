@@ -77,6 +77,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
           type: "ALL",
           payload: { ...(res.data.data as unknown as CustomerDetail) },
         });
+        setEditMode(false);
       } catch (err) {
         console.error("Error fetching customer details:", err);
         notifyErr(err as string);
@@ -345,12 +346,10 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
           {/* {customerid === "new" ? ( */}
           <button
             type="button"
-            onClick={
-              !editMode ? onSubmitHandler : onEditClickHandler
-            }
+            onClick={!editMode ? onSubmitHandler : onEditClickHandler}
             className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-Chinese-Black-sidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
           >
-            {!editMode ? "Submit Details" : "Apply"}
+            {editMode ? "Submit Details" : "Apply"}
           </button>
           {/* ) : (
             <button

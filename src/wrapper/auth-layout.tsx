@@ -1,29 +1,34 @@
 // app/auth-layout.tsx
-import React, { ReactNode, useEffect } from "react";
-//import LoginContext from "@/context/login-context";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getToken } from "@/local-storage";
 
 const AuthLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  //const { isLogin } = useContext(LoginContext);
   const router = useRouter();
   const pathname = usePathname();
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // State to handle loading
 
   useEffect(() => {
-    //console.log("Auth!isLogin", isLogin);
-    if (!getToken() && pathname !== "/login") {
-      console.log("Redirecting to /login from Auth 1");
+    if (typeof window !== "undefined") {
+      const storedToken = getToken(); // Retrieve token only on the client
+      setToken(storedToken); // Update state
+      setIsLoading(false); // Set loading to false after retrieval
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !token && pathname !== "/login") {
+      console.log("Redirecting to /login from Auth");
       router.push("/login");
     }
-  }, [pathname, router]);
+  }, [isLoading, token, pathname, router]);
 
-  // Display a loading message while checking the login status
-  if (!getToken() && pathname !== "/login") {
-    console.log("Redirecting to /login from Auth 2");
-    return <p>Loading...</p>;
-  } else {
-    return <>{children}</>; // Render children if logged in or on the login page
+  if (isLoading) {
+    return <p>Loading...</p>; // Show loading while checking for token
   }
+
+  return <>{children}</>; // Render children if loaded and logged in
 };
 
 export default AuthLayout;
