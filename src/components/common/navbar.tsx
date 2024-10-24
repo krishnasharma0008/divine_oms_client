@@ -31,6 +31,8 @@ const Navbar: React.FC = () => {
     // // Force a page refresh
     // window.location.reload();
     toggleLogin();
+    push("/");
+    window.location.reload();
   };
 
   const profile = () => {
