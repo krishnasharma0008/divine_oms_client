@@ -13,9 +13,7 @@ const AuthLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     if (!isLogin && pathname !== "/login") {
       //console.log("Redirecting to /login from Auth 1");
       router.push("/login");
-    } else {
-      router.push("/");
-    }
+    } 
   }, [isLogin, pathname, router]);
 
   // Display a loading message while checking the login status
