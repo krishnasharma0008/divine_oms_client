@@ -4,12 +4,12 @@ import {
   setToken,
   deleteToken,
   setMobileNumber,
-  // setUser,
-  // getUser,
-  // deleteUser,
-  // setUserRole,
-  // getUserRole,
-  // deleteUserRole,
+  setUser,
+  //getUser,
+  deleteUser,
+  setUserRole,
+  //getUserRole,
+  deleteUserRole,
 } from "@/local-storage";
 import { loginPasswordApi } from "@/api";
 
@@ -69,8 +69,8 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
         setIsOtpVerified(true);
         setIsLogin(true);
         setToken(res.data.token); // Ensure you're getting the token from the correct path
-        // setUser(res.data.dpname);
-        // setUserRole(res.data.role);
+        setUser(res.data.dpname);
+        setUserRole(res.data.role);
         return true; // Return true for a successful verification
       }
       return false; // Return false if no valid response
@@ -86,14 +86,27 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
       setIsLogin(false);
       setIsOtpVerified(false);
       setEmailOrMobileState(null);
+      deleteUser();
+      deleteUserRole();
     }
   };
 
   useEffect(() => {
     const token = getToken();
-    console.log("Token retrieved at startup:", token); // Log token for debugging
-    setIsLogin(!!token); // Set isLogin based on token presence
+    if (token) {
+      setIsLogin(true); // Token exists, so set the user as logged in
+    } else {
+      setIsLogin(false);
+    }
   }, []);
+
+  // useEffect(() => {
+  //   const token = getToken();
+  //   //console.log("Token retrieved at startup:", token); // Log token for debugging
+  //   console.log("1isLogin", isLogin);
+  //   setIsLogin(!!token); // Set isLogin based on token presence
+  //   console.log("12isLogin", !!isLogin);
+  // }, [isLogin]);
 
   return (
     <LoginContext.Provider

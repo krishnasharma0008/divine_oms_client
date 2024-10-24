@@ -2,22 +2,21 @@
 
 import "./globals.css"; // Global CSS
 import { ThemeProvider } from "@material-tailwind/react";
-import { ReactNode, useEffect, useContext, useState } from "react";
+import { ReactNode, useEffect, useContext } from "react";
 import { usePathname } from "next/navigation";
 import LoaderContext from "@/context/loader-context";
 import { LayoutWrapper, NotificationWrapper, LoaderWrapper } from "@/wrapper";
 import "react-datepicker/dist/react-datepicker.css";
 import AuthLayout from "@/wrapper/auth-layout";
-import { LoginContextProvider } from "@/context/login-context";
-//import { getToken } from "@/local-storage";
+import LoginContext, { LoginContextProvider } from "@/context/login-context";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  //const router = useRouter();
   const { showLoader, hideLoader } = useContext(LoaderContext);
+  const { isLogin } = useContext(LoginContext);
+  //const [isClient, setIsClient] = useState(false);
 
-  const [isClient, setIsClient] = useState(false);
-
+  // Handle loader visibility during route changes
   useEffect(() => {
     showLoader();
     const handleRouteComplete = () => {
@@ -30,26 +29,24 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       clearTimeout(timeoutId);
       hideLoader();
     };
+
+    console.log("pathname from Rootlayout ", pathname);
   }, [pathname, showLoader, hideLoader]);
 
-  useEffect(() => {
-    setIsClient(true); // Client-side only
-  }, []);
-
+  // Check if the current page is the login page
   const isLoginPage = pathname.startsWith("/login");
-
-  if (!isClient) {
-    return null; // Optionally show a loading spinner here
-  }
 
   return (
     <html lang="en">
       <body className="text-sm">
+        {/* Wrapping the application with LoginContextProvider */}
         <LoginContextProvider>
           <NotificationWrapper>
-            {isLoginPage ? (
-              children // Render login page if on the login page
+            {/* If on the login page, render children directly */}
+            {isLoginPage && !isLogin ? (
+              children
             ) : (
+              // For other pages, wrap with AuthLayout and other wrappers
               <AuthLayout>
                 <ThemeProvider>
                   <LoaderWrapper>

@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 
 import Breadcrumb from "./breadcrumb";
 //import { deleteToken, getToken } from "@/local-storage";
-//import { deleteToken } from "@/local-storage";
+//import { getUser, getUserRole } from "@/local-storage";
 import { UserIcon } from "../icons";
 import LoginContext from "@/context/login-context";
 
@@ -77,6 +77,7 @@ const Navbar: React.FC = () => {
                     variant="text"
                     className="mr-2 relative cursor-pointer"
                   >
+                    {/* Welcome{getUser()} */}
                     <UserIcon />
                   </IconButton>
                 </MenuHandler>
