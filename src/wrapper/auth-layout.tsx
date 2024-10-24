@@ -1,5 +1,5 @@
 // app/auth-layout.tsx
-import React, { useContext, ReactNode } from "react";
+import React, { useContext, ReactNode, useEffect } from "react";
 import LoginContext from "@/context/login-context";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -8,8 +8,7 @@ const AuthLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  React.useEffect(() => {
-    console.log("isLogin : ", !isLogin);
+  useEffect(() => {
     if (!isLogin && pathname !== "/login") {
       console.log("Redirecting to /login");
       router.push("/login");

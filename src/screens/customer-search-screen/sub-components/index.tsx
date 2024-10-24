@@ -342,23 +342,25 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
           >
             Close
           </button>
-          {customerid === "new" ? (
-            <button
-              type="button"
-              onClick={onSubmitHandler}
-              className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-Chinese-Black-sidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
-            >
-              Submit Details
-            </button>
-          ) : (
+          {/* {customerid === "new" ? ( */}
+          <button
+            type="button"
+            onClick={
+              !editMode ? onSubmitHandler : onEditClickHandler
+            }
+            className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-Chinese-Black-sidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
+          >
+            {!editMode ? "Submit Details" : "Apply"}
+          </button>
+          {/* ) : (
             <button
               type="button"
               onClick={onEditClickHandler}
               className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
             >
-              {/* Edit */}Apply
+              Apply
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

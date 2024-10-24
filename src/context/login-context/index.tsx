@@ -91,9 +91,9 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const token = getToken();
-    console.log("Token: ", token);
-    setIsLogin(!!token);
-  }, []); // Run once on component mount
+    console.log("Token retrieved at startup:", token); // Log token for debugging
+    setIsLogin(!!token); // Set isLogin based on token presence
+  }, []);
 
   return (
     <LoginContext.Provider
