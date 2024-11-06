@@ -1,4 +1,12 @@
-import { TOKEN, CONTACTNO, OTP, REDIRECTION_ROUTE, USER, ROLE } from "./keys";
+import {
+  TOKEN,
+  CONTACTNO,
+  OTP,
+  REDIRECTION_ROUTE,
+  USER,
+  ROLE,
+  CUSTTYPE,
+} from "./keys";
 
 // Token management
 export const setToken = (token: string): void => {
@@ -83,4 +91,17 @@ export const getUserRole = (): string | null => {
 
 export const deleteUserRole = (): void => {
   localStorage.removeItem(ROLE); // Use removeItem to completely delete the token
+};
+
+// Customer Type
+export const setCustType = (custtype: string): void => {
+  localStorage.setItem(CUSTTYPE, custtype);
+};
+
+export const getCustType = (): string | null => {
+  return localStorage.getItem(CUSTTYPE);
+};
+
+export const deleteCustType = (): void => {
+  localStorage.removeItem(CUSTTYPE); // Use removeItem for consistency
 };

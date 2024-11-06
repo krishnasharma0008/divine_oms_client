@@ -13,6 +13,7 @@ import DatePicker from "@/components/common/date-picker";
 import { CalendarIcon } from "@/components/icons";
 import { getCustomerDetailID, createCustomer } from "@/api/customer";
 import { useCustomerStore } from "@/store/customerStore";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utcPlugin);
 
@@ -62,6 +63,8 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
   const { showLoader, hideLoader } = useContext(LoaderContext);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCustomerDetails = async () => {
@@ -196,6 +199,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
     console.log(payload);
     setCustomer(payload); // Save customer data to zustand store
     onCustomerAdded();
+    router.push("/choose-your-order");
     //setEditMode(true);
   };
 
@@ -346,7 +350,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
           {/* {customerid === "new" ? ( */}
           <button
             type="button"
-            onClick={!editMode ? onSubmitHandler : onEditClickHandler}
+            onClick={editMode ? onSubmitHandler : onEditClickHandler}
             className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-Chinese-Black-sidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
           >
             {editMode ? "Submit Details" : "Apply"}

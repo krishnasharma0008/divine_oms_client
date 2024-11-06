@@ -30,26 +30,60 @@ const RegularConfirmOrderScreen = () => {
     });
   }, [searchParams]);
 
-  // const [selectedShape, setSelectedShape] = useState("");
-  // const [selectedSize, setSelectedSize] = useState("");
-  // const [selectedColorFrom, setSelectedColorFrom] = useState("");
-  // const [selectedColorTo, setSelectedColorTo] = useState("");
-  // const [selectedClarityFrom, setSelectedClarityFrom] = useState("");
-  // const [selectedClarityTo, setSelectedClarityTo] = useState("");
-  // const [selectedPremiumSize, setSelectedPremiumSize] = useState("");
-  // const [selectedPcs, setSelectedPcs] = useState("");
-  // const [premiumPercentage, setPremiumPercentage] = useState("");
-  // const [minValue, setMinValue] = useState("");
-  // const [maxValue, setMaxValue] = useState("");
-  // const [remarks, setRemarks] = useState("");
+  const shapeoptions = [
+    { label: "Select", value: "" },
+    { label: "Round", value: "Round" },
+  ];
+  const sizeoptions = [
+    { label: "Select", value: "" },
+    { label: "0.10 to 0.13", value: "0.10 to 0.13" },
+    { label: "0.14 to 0.17", value: "0.14 to 0.17" },
+    { label: "0.18 to 0.22", value: "0.18 to 0.22" },
+    { label: "0.23 to 0.29", value: "0.23 to 0.29" },
+    { label: "0.30 to 0.38", value: "0.30 to 0.38" },
+    { label: "0.39 to 0.44", value: "0.39 to 0.44" },
+    { label: "0.45 to 0.49", value: "0.45 to 0.49" },
+    { label: "0.50 to 0.59", value: "0.50 to 0.59" },
+    { label: "0.60 to 0.69", value: "0.60 to 0.69" },
+    { label: "0.70 to 0.79", value: "0.70 to 0.79" },
+    { label: "0.80 to 0.89", value: "0.80 to 0.89" },
+    { label: "0.90 to 0.99", value: "0.90 to 0.99" },
+    { label: "1.00 to 1.23", value: "1.00 to 1.23" },
+    { label: "1.24 to 1.49", value: "1.24 to 1.49" },
+    { label: "1.50 to 1.69", value: "1.50 to 1.69" },
+    { label: "1.70 to 1.99", value: "1.70 to 1.99" },
+    { label: "2.00 to 2.49", value: "2.00 to 2.49" },
+    { label: "2.50 to 2.99", value: "2.50 to 2.99" },
+  ];
 
-  const shapeoptions = [{ label: "Round", value: "Round" }];
+  const coloroptions = [
+    { label: "Select", value: "" },
+    { label: "D", value: "D" },
+    { label: "E", value: "E" },
+    { label: "F", value: "F" },
+    { label: "G", value: "G" },
+    { label: "H", value: "H" },
+    { label: "I", value: "I" },
+    { label: "J", value: "J" },
+    { label: "K", value: "K" },
+  ];
 
-  // const handleShapeDropdownChange = (selectedValue: string) => {
-  //   setSelectedShape(selectedValue);
-  // };
+  const clarityptions = [
+    { label: "Select", value: "" },
+    { label: "IF", value: "IF" },
+    { label: "VVS1", value: "VVS1" },
+    { label: "VVS2", value: "VVS2" },
+    { label: "VS1", value: "VS1" },
+    { label: "VS2", value: "VS2" },
+    { label: "SI1", value: "SI1" },
+    { label: "SI2", value: "SI2" },
+  ];
 
-  ///
+  const pcsOptions = Array.from({ length: 50 }, (_, i) => ({
+    label: (i + 1).toString(),
+    value: (i + 1).toString(),
+  }));
+
   const [rows, setRows] = useState([
     {
       shape: "",
@@ -95,14 +129,101 @@ const RegularConfirmOrderScreen = () => {
     setRows(updatedRows);
   };
 
-  // Update row values on change
   const handleChange = (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
-    updatedRows[index] = {
-      ...updatedRows[index],
-      [field]: value,
-    };
-    setRows(updatedRows);
+    const row = updatedRows[index];
+
+    if (field === "colorFrom") {
+      updatedRows[index] = {
+        ...row,
+        colorFrom: value,
+        colorTo: row.colorTo === row.colorFrom ? value : row.colorTo,
+      };
+
+      const colorFromIndex = coloroptions.findIndex(
+        (option) => option.value === value
+      );
+      const colorToIndex = coloroptions.findIndex(
+        (option) => option.value === updatedRows[index].colorTo
+      );
+
+      if (colorToIndex > colorFromIndex) {
+        alert("Color To cannot exceed Color From");
+        updatedRows[index].colorTo = updatedRows[index].colorFrom; // Reset colorTo to match colorFrom
+        setRows(updatedRows);
+        return; // Exit early to prevent invalid update
+      }
+    } else if (field === "colorTo") {
+      const colorFromIndex = row.colorFrom
+        ? coloroptions.findIndex((option) => option.value === row.colorFrom)
+        : -1;
+      const colorToIndex = coloroptions.findIndex(
+        (option) => option.value === value
+      );
+
+      if (colorToIndex < colorFromIndex) {
+        alert("Color To cannot be less than Color From");
+        updatedRows[index].colorTo = row.colorFrom; // Reset colorTo to match colorFrom
+        setRows(updatedRows);
+        return; // Exit early to prevent invalid update
+      }
+
+      updatedRows[index] = {
+        ...row,
+        colorTo: value,
+      };
+    } else if (field === "clarityFrom") {
+      updatedRows[index] = {
+        ...row,
+        clarityFrom: value,
+        clarityTo: row.clarityTo === row.clarityFrom ? value : row.clarityTo,
+      };
+
+      // Restrict clarityTo to not exceed clarityFrom
+      const clarityFromIndex = clarityptions.findIndex(
+        (option) => option.value === value
+      );
+      const clarityToIndex = clarityptions.findIndex(
+        (option) => option.value === updatedRows[index].clarityTo
+      );
+
+      if (clarityToIndex > clarityFromIndex) {
+        alert("Clarity To cannot exceed Clarity From");
+        updatedRows[index].clarityTo = updatedRows[index].clarityFrom; // Reset clarityTo to match clarityFrom
+        setRows(updatedRows); // Update state
+        return; // Exit early
+      }
+    } else if (field === "clarityTo") {
+      // Restrict clarityTo to not exceed clarityFrom
+      const clarityFromIndex = row.clarityFrom
+        ? clarityptions.findIndex((option) => option.value === row.clarityFrom)
+        : -1;
+      const clarityToIndex = clarityptions.findIndex(
+        (option) => option.value === value
+      );
+
+      if (clarityToIndex < clarityFromIndex) {
+        alert("Clarity To cannot be less than Clarity From");
+        console.log("Resetting colorTo to match colorFrom:", row.clarityFrom);
+        updatedRows[index].clarityTo = row.clarityFrom; // Reset to match clarityFrom
+        setRows(updatedRows); // Update state
+        return; // Exit early
+      }
+
+      // Only update `clarityTo` if valid
+      updatedRows[index] = {
+        ...row,
+        clarityTo: value,
+      };
+    } else {
+      // Update other fields normally
+      updatedRows[index] = {
+        ...row,
+        [field]: value,
+      };
+    }
+
+    setRows(updatedRows); // Ensure state is updated at the end
   };
 
   const SumitOrder = () => {
@@ -114,16 +235,6 @@ const RegularConfirmOrderScreen = () => {
   };
 
   return (
-    // <div>
-    //   <h1>New Page</h1>
-    //   <p>Selected Store State: {selectedSValue}</p>
-    //   <p>Selected Value: {selectedValue}</p>
-    //   <p>Order Value: {selectedOrderValue}</p>
-    //   <p>Order For: {selectedOrderForValue}</p>
-    //   <p>Contact: {selectedContact}</p>
-    //   <p>Address: {selectedAdd}</p>
-    //   <p>Selected Date: {selectedDate}</p>
-    // </div>
     <>
       <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded">
         <div className="flex flex-wrap gap-x-4 gap-y-5">
@@ -203,7 +314,7 @@ const RegularConfirmOrderScreen = () => {
               <div className="w-20">
                 <p className="text-[#888]">Shape</p>
               </div>
-              <div className="w-20">
+              <div className="w-[136px]">
                 <p className="text-[#888]">Size</p>
               </div>
               <div className="w-44">
@@ -230,124 +341,6 @@ const RegularConfirmOrderScreen = () => {
                 <p className="text-[#888]">Remarks</p>
               </div>
             </div>
-            {/* <div className="flex flex-row  gap-x-4 ">
-              <div className="w-20">
-                <Dropdown
-                  label=""
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label=""
-                  variant="outlined"
-                  options={shapeoptions} // Example: different options for size
-                  value={selectedSize}
-                  onChange={setSelectedSize}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label="From"
-                  variant="outlined"
-                  options={shapeoptions} // Example: different options for color
-                  value={selectedColorFrom}
-                  onChange={setSelectedColorFrom}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label="To"
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label="From"
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label="To"
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-24">
-                <Dropdown
-                  label=""
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-10">
-                <InputText
-                  type="text"
-                  label=""
-                  value={""}
-                  disabled={false}
-                  className="w-10"
-                />
-              </div>
-              <div className="w-20">
-                <Dropdown
-                  label=""
-                  variant="outlined"
-                  options={shapeoptions}
-                  value={selectedShape}
-                  onChange={handleShapeDropdownChange}
-                  disabled={false}
-                  className="w-[77px]"
-                />
-              </div>
-              <div className="w-10">
-                <InputText
-                  type="text"
-                  label=""
-                  value={""}
-                  disabled={false}
-                  className="w-10"
-                />
-              </div>
-              <div className="w-10">
-                <InputText type="text" label="" value={""} disabled={false} />
-              </div>
-              <div className="w-20">
-                <InputText
-                  type="text"
-                  label=""
-                  value={""}
-                  disabled={false}
-                  className="w-10"
-                />
-              </div>
-            </div> */}
 
             {/* Render rows dynamically */}
             {rows.map((row, index) => (
@@ -362,11 +355,11 @@ const RegularConfirmOrderScreen = () => {
                     disabled={false}
                   />
                 </div>
-                <div className="w-20">
+                <div className="w-[136px]">
                   <Dropdown
                     label=""
                     variant="outlined"
-                    options={shapeoptions}
+                    options={sizeoptions}
                     value={row.size}
                     onChange={(value) => handleChange(index, "size", value)}
                   />
@@ -375,7 +368,7 @@ const RegularConfirmOrderScreen = () => {
                   <Dropdown
                     label="From"
                     variant="outlined"
-                    options={shapeoptions}
+                    options={coloroptions}
                     value={row.colorFrom}
                     onChange={(value) =>
                       handleChange(index, "colorFrom", value)
@@ -386,7 +379,7 @@ const RegularConfirmOrderScreen = () => {
                   <Dropdown
                     label="To"
                     variant="outlined"
-                    options={shapeoptions}
+                    options={coloroptions}
                     value={row.colorTo}
                     onChange={(value) => handleChange(index, "colorTo", value)}
                     disabled={false}
@@ -396,7 +389,7 @@ const RegularConfirmOrderScreen = () => {
                   <Dropdown
                     label="From"
                     variant="outlined"
-                    options={shapeoptions}
+                    options={clarityptions}
                     value={row.clarityFrom}
                     onChange={(value) =>
                       handleChange(index, "clarityFrom", value)
@@ -407,7 +400,7 @@ const RegularConfirmOrderScreen = () => {
                   <Dropdown
                     label="To"
                     variant="outlined"
-                    options={shapeoptions}
+                    options={clarityptions}
                     value={row.clarityTo}
                     onChange={(value) =>
                       handleChange(index, "clarityTo", value)
@@ -443,7 +436,7 @@ const RegularConfirmOrderScreen = () => {
                   <Dropdown
                     label=""
                     variant="outlined"
-                    options={shapeoptions}
+                    options={pcsOptions}
                     value={row.pcs}
                     onChange={(value) => handleChange(index, "pcs", value)}
                     disabled={false}

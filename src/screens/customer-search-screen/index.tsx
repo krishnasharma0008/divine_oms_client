@@ -115,7 +115,7 @@ const CustomerSearchScreen: React.FC = () => {
                     onClick={() => handleSuggestionClick(String(customer.id))}
                     className="cursor-pointer px-4 py-2 hover:bg-gray-100"
                   >
-                    {customer.name} ({customer.email})
+                    {customer.name} {/*({customer.email}) */}
                   </li>
                 ))}
               </ul>

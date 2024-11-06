@@ -3,6 +3,7 @@
 import LoaderContext from "@/context/loader-context";
 import React, { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import { setCustType } from "@/local-storage";
 //import Image from "next/image";
 //import Link from "next/link";
 
@@ -16,21 +17,29 @@ const DashboardScreen = () => {
   const orderfor = (orderType: string) => {
     showLoader();
     setSelectedOrderType(orderType);
-    console.log(selectedOrderType);
-    hideLoader();
-  };
-
-  const orderforselection = () => {
-    showLoader();
-    //console.log(orderType); //
-    if (selectedOrderType === "PJ/Jeweller") {
+    //console.log(selectedOrderType);
+    if (orderType === "PJ/Jeweller") {
+      setCustType("PJ/Jeweller");
       router.push("/pj-customer");
     }
-    if (selectedOrderType === "Retail Customer") {
+    if (orderType === "Retail Customer") {
+      setCustType("Retail Customer");
       router.push("/customer-search");
     }
     hideLoader();
   };
+
+  // const orderforselection = () => {
+  //   showLoader();
+  //   //console.log(orderType); //
+  //   if (selectedOrderType === "PJ/Jeweller") {
+  //     router.push("/pj-customer");
+  //   }
+  //   if (selectedOrderType === "Retail Customer") {
+  //     router.push("/customer-search");
+  //   }
+  //   hideLoader();
+  // };
 
   return (
     <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded items-center justify-center ">
@@ -41,8 +50,8 @@ const DashboardScreen = () => {
             <div
               className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 ${
                 selectedOrderType === "PJ/Jeweller"
-                  ? "border-[#000000]" // Change border color when selected
-                  : "border-[#B0B0B0]" // Default border color
+                  ? "border-[#000000]"
+                  : "border-[#B0B0B0]"
               }`}
               onClick={() => orderfor("PJ/Jeweller")}
             >
@@ -55,12 +64,12 @@ const DashboardScreen = () => {
             <div
               className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 ${
                 selectedOrderType === "Retail Customer"
-                  ? "border-[#000000]" // Change border color when selected
-                  : "border-[#B0B0B0]" // Default border color
+                  ? "border-[#000000]"
+                  : "border-[#B0B0B0]"
               }`}
               onClick={() => orderfor("Retail Customer")}
             >
-              {/* <Link href="/"> */}
+              {/* <Link href="/customer-search?setCustType"> */}
               <p className="font-medium text-xl font-black">Retail Customer</p>
               {/* </Link> */}
             </div>
@@ -68,7 +77,7 @@ const DashboardScreen = () => {
         </div>
       </div>
       {/* Button added below the "Place Order for" section */}
-      <div className="w-96">
+      {/* <div className="w-96">
         <button
           type="button"
           className={`w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none
@@ -78,7 +87,7 @@ const DashboardScreen = () => {
         >
           Apply
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
