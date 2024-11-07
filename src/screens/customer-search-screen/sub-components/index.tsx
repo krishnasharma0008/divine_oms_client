@@ -179,6 +179,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
       console.log("Customer created successfully", res);
       notify("Customer created successfully");
       onCustomerAdded(); // Move this inside the success block
+      router.push("/choose-your-order");
     } catch (err) {
       console.log("Error creating customer", err);
       notifyErr(err as string);
