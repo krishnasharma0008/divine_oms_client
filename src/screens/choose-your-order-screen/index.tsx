@@ -76,14 +76,15 @@ const ChooseYourOrderScreen = () => {
   // };
 
   const Joptions = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
+    { label: "Jeweller 1", value: "Jeweller1" },
+    { label: "Jeweller 2", value: "Jeweller2" },
+    { label: "Jeweller 3", value: "Jeweller3" },
   ];
 
   const options = [
-    { label: "Solitaires", value: "Solitaires" },
-    { label: "Jewellery", value: "Jewellery" },
+    { label: "Store 1", value: "Store1" },
+    { label: "Store 2", value: "Store2" },
+    { label: "Store 3", value: "Store3" },
     // { label: "Pyds", value: "Pyds" },
   ];
 

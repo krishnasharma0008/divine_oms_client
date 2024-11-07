@@ -20,7 +20,7 @@ const DashboardScreen = () => {
     //console.log(selectedOrderType);
     if (orderType === "PJ/Jeweller") {
       setCustType("PJ/Jeweller");
-      router.push("/pj-customer");
+      router.push("/choose-your-order");
     }
     if (orderType === "Retail Customer") {
       setCustType("Retail Customer");
@@ -48,7 +48,7 @@ const DashboardScreen = () => {
           <p className="text-2xl font-black mb-10 underline">Place Order for</p>
           <div className="flex flex-wrap gap-x-12 gap-y-8 justify-center">
             <div
-              className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 ${
+              className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 cursor-pointer ${
                 selectedOrderType === "PJ/Jeweller"
                   ? "border-[#000000]"
                   : "border-[#B0B0B0]"
@@ -62,7 +62,7 @@ const DashboardScreen = () => {
               {/* </Link> */}
             </div>
             <div
-              className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 ${
+              className={`flex h-56 w-80 rounded-xl bg-white p-10 text-center items-center justify-center border-solid border-2 cursor-pointer ${
                 selectedOrderType === "Retail Customer"
                   ? "border-[#000000]"
                   : "border-[#B0B0B0]"
