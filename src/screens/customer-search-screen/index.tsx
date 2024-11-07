@@ -5,7 +5,7 @@ import Image from "next/image";
 import CustomerCreateScreen from "./sub-components";
 import { CustomerDetail } from "@/interface";
 import NotificationContext from "@/context/notification-context";
-import LoaderContext from "@/context/loader-context";
+//import LoaderContext from "@/context/loader-context";
 import { getCustomerDetailValue } from "@/api/customer";
 
 const CustomerSearchScreen: React.FC = () => {
@@ -13,7 +13,7 @@ const CustomerSearchScreen: React.FC = () => {
   const [isAddingCustomer, setIsAddingCustomer] = useState<boolean>(false);
   const [isCustomerID, setIsCustomerID] = useState<string | null>(null);
   const { notifyErr } = useContext(NotificationContext);
-  const { showLoader, hideLoader } = useContext(LoaderContext);
+  //const { showLoader, hideLoader } = useContext(LoaderContext);
   const [customerData, setCustomerDetail] = useState<Array<CustomerDetail>>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
@@ -27,7 +27,7 @@ const CustomerSearchScreen: React.FC = () => {
     }
 
     try {
-      showLoader();
+      //showLoader();
       const result = await getCustomerDetailValue(value);
       setCustomerDetail(result.data.data ?? []);
       setShowSuggestions(true);
@@ -35,7 +35,7 @@ const CustomerSearchScreen: React.FC = () => {
       notifyErr("An error occurred while fetching customer details.");
       console.error(error);
     } finally {
-      hideLoader();
+      //hideLoader();
     }
   };
 

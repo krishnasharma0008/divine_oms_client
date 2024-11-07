@@ -73,7 +73,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
         return;
       }
 
-      showLoader();
+      //showLoader();
       try {
         const res = await getCustomerDetailID(parseInt(`${customerid}`, 10));
         dispatch({
@@ -85,12 +85,12 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
         console.error("Error fetching customer details:", err);
         notifyErr(err as string);
       } finally {
-        hideLoader();
+        //hideLoader();
       }
     };
 
     fetchCustomerDetails();
-  }, [customerid, hideLoader, showLoader, notifyErr]);
+  }, [customerid, notifyErr]); // hideLoader, showLoader,
 
   const onChangeHandlerCreator = (fieldname: string) => {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
