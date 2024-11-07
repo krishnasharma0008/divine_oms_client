@@ -9,7 +9,7 @@ import Dropdown from "@/components/common/dropdown";
 import InputText from "@/components/common/input-text";
 import { Button } from "@/components/common";
 import DatePicker from "@/components/common/date-picker";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import { CalendarIcon } from "@/components";
 //import { CalendarIcon } from "@/components/icons";
 import { useCustomerStore } from "@/store/customerStore";
@@ -34,7 +34,7 @@ const ChooseYourOrderScreen = () => {
   const [selectedCustOrder, setSelectedCustOrder] = useState<string[]>([]); //checkbox
   //const [selectedconsignmen, setSelectedConsignment] = useState(""); //checkbox
 
-  const router = useRouter();
+  //const router = useRouter();
 
   // Access customer data from Zustand store
   const { customer } = useCustomerStore();
@@ -131,18 +131,17 @@ const ChooseYourOrderScreen = () => {
   };
 
   const handleProceed = () => {
-    const queryParams = new URLSearchParams({
-      selectedSValue,
-      selectedValue,
-      //selectedOrderValue,
-      selectedconsignmen: selectedconsignmen.join(","),
-      //selectedOrderForValue,
-      selectedContact,
-      selectedAdd,
-      selectedDate: selectedDate ? selectedDate.toISOString() : "",
-    }).toString();
-
-    router.push(`/regular-confirm-order?${queryParams}`);
+    // const queryParams = new URLSearchParams({
+    //   selectedSValue,
+    //   selectedValue,
+    //   //selectedOrderValue,
+    //   selectedconsignmen: selectedconsignmen.join(","),
+    //   //selectedOrderForValue,
+    //   selectedContact,
+    //   selectedAdd,
+    //   selectedDate: selectedDate ? selectedDate.toISOString() : "",
+    // }).toString();
+    //router.push(`/regular-confirm-order?${queryParams}`);
   };
 
   return (
