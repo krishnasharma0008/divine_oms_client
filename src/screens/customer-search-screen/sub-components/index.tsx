@@ -178,6 +178,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
       const res = await createCustomer(payload); // Await the response
       console.log("Customer created successfully", res);
       notify("Customer created successfully");
+      setCustomer(payload);
       onCustomerAdded(); // Move this inside the success block
       router.push("/choose-your-order");
     } catch (err) {
@@ -197,7 +198,7 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
     console.log("Apply Details");
 
     const payload: CustomerDetail = { ...state };
-    console.log(payload);
+    //console.log(payload);
     setCustomer(payload); // Save customer data to zustand store
     onCustomerAdded();
     router.push("/choose-your-order");
