@@ -88,6 +88,11 @@ const ChooseYourOrderScreen = () => {
     // { label: "Pyds", value: "Pyds" },
   ];
 
+  const Ioptions = [
+    { label: "Solitaire", value: "Solitaire" },
+    { label: "Jewellery", value: "Jewelley" },
+  ];
+
   const Consignmentoptions = [
     { label: "TC B", value: "tcb" },
     { label: "RRO Exhibitation", value: "rroexhibitation" },
@@ -222,7 +227,7 @@ const ChooseYourOrderScreen = () => {
         <div>
           <RadioButton
             name="Select Item Type"
-            options={options}
+            options={Ioptions}
             selectedValue={selectedValue}
             onChange={handleItemTypeChange}
           />
