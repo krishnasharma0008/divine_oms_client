@@ -30,9 +30,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ children }) => {
       <div className="flex h-full w-full flex-col">
         <Navbar />
         <div className="overflow-hidden">
-          <main className="h-[calc(100vh-72px)] overflow-auto px-4 py-10">
-            {children}
-          </main>
+          <main className="h-[90vh] overflow-auto px-4 py-4">{children}</main>
         </div>
       </div>
     </div>

@@ -31,10 +31,7 @@ const TextArea: React.FC<TextAreaProps> = ({
       className={`mb-4 [&>div]:min-w-0 [&>div>Textarea]:min-h-0 ${containerClass}`}
     >
       {label && (
-        <label
-          htmlFor={id}
-          className="block text-sm font-semibold text-black mb-2"
-        >
+        <label htmlFor={id} className="block text-sm text-black mb-2">
           {label}
         </label>
       )}

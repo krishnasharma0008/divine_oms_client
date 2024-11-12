@@ -9,7 +9,7 @@ export interface DropdownProps
   classes?: string;
   label: string;
   options: Array<OptionType>;
-  value: string;
+  value?: string;
   variant?: SelectProps["variant"];
   onChange: (value: string) => void;
 }

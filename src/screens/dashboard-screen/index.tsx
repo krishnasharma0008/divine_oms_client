@@ -43,7 +43,7 @@ const DashboardScreen = () => {
 
   return (
     <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded items-center justify-center ">
-      <div className="flex flex-wrap gap-x-4 gap-y-8 items-center justify-center">
+      <div className="flex flex-wrap gap-x-4 gap-y-2 items-center justify-center">
         <div className="bg-[#F4F4F47A] h-auto w-auto rounded-3xl bg-white p-10 text-center border-[#888786] border-solid border-2">
           <p className="text-2xl font-black mb-10 underline">Place Order for</p>
           <div className="flex flex-wrap gap-x-12 gap-y-8 justify-center">

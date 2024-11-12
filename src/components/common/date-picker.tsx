@@ -37,13 +37,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
   return (
     <div className={`flex flex-col ${className}`}>
       {label && (
-        <label htmlFor={id} className="mb-1">
+        <label htmlFor={id} className="mb-1 text-sm">
           {label}
         </label>
       )}
       <div
         className={`flex p-2.5 rounded justify-between items-center ${
-          showIcon === true ? "border border-black" : "bg-[#eceff1]"
+          showIcon === true ? "border border-[#e5e7eb]" : "bg-[#eceff1]"
         }`}
       >
         <DatePickerTw

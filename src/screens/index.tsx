@@ -7,3 +7,5 @@ export { default as PJCustomerScreen } from "./pj-customer-screen";
 //export { default as CustomerSearchScreen } from "./customer-search-screen";
 export { default as CustomerSearchScreen } from "./customer-search-screen";
 export { default as CustomerCreateScreen } from "./customer-search-screen/sub-components";
+export { default as JewelleyScreen } from "./jewellery-screen";
+export { default as JewelleryDetailScreen } from "./jewellery-detail-screen";

@@ -236,7 +236,7 @@ const RegularConfirmOrderScreen = () => {
 
   return (
     <>
-      <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded">
+      <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded overflow-auto">
         <div className="flex flex-wrap gap-x-4 gap-y-5">
           <div className="w-full rounded-xl bg-white p-4 mx-6 shadow-md">
             <div>

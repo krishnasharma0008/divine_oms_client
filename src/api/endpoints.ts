@@ -34,3 +34,18 @@ export const customerCreateEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
   url: "/retail-customer/",
 };
+
+export const getJewelleryPjCustEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/pj/findcust",
+};
+
+export const getJewelleryPjStoreEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/pj/custlocation",
+};
+
+export const getJewellerySearchEndpoint: Endpoint = {
+  method: HTTP_METHOD.GET,
+  url: "/",
+};

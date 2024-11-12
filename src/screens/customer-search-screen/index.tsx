@@ -16,13 +16,15 @@ const CustomerSearchScreen: React.FC = () => {
   //const { showLoader, hideLoader } = useContext(LoaderContext);
   const [customerData, setCustomerDetail] = useState<Array<CustomerDetail>>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
+    setLoading(true);
     if (value.trim() === "") {
       setShowSuggestions(false);
+      setLoading(false);
       return;
     }
 
@@ -36,6 +38,7 @@ const CustomerSearchScreen: React.FC = () => {
       console.error(error);
     } finally {
       //hideLoader();
+      setLoading(false);
     }
   };
 
@@ -106,9 +109,14 @@ const CustomerSearchScreen: React.FC = () => {
               onChange={handleSearch}
               className="w-full p-3 pl-14 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
             />
+            {loading && (
+              <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
+                <div className="loader"></div>
+              </div>
+            )}
             {/* Dropdown suggestion box */}
             {showSuggestions && customerData.length > 0 && (
-              <ul className="absolute left-0 top-full mt-2 w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
+              <ul className="absolute left-0 top-full  w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
                 {customerData.map((customer) => (
                   <li
                     key={customer.id}
