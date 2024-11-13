@@ -5,7 +5,7 @@ import { DiamondIcon } from "../icons";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  jewelleryItem: JewelleryDetail;
+  jewelleryItem: JewelleryDetail | null;
 }
 
 const JewelDetailModal: React.FC<ModalProps> = ({
@@ -16,26 +16,26 @@ const JewelDetailModal: React.FC<ModalProps> = ({
   if (!isOpen || !jewelleryItem) return null;
 
   const productData = [
-    { label: "Collection", value: jewelleryItem.collection },
-    { label: "Occasion", value: jewelleryItem.occasion },
-    { label: "Style", value: jewelleryItem.style },
-    { label: "Product Type", value: jewelleryItem.producttype },
-    { label: "Gross Weight", value: jewelleryItem.grosswt + " (Apx.)" },
+    { label: "Collection", value: "" },
+    { label: "Occasion", value: "" },
+    { label: "Style", value: "" },
+    { label: "Product Type", value: jewelleryItem.product_category },
+    { label: "Gross Weight", value: jewelleryItem.weight + " (Apx.)" },
   ];
 
   const DiamondData = [
-    { label: "Shape", value: jewelleryItem.shape },
-    { label: "Color", value: jewelleryItem.color },
-    { label: "Clarity", value: jewelleryItem.clarity },
-    { label: "Pieces", value: jewelleryItem.pieces },
-    { label: "Carats Weight", value: jewelleryItem.cts + " (Apx.)" },
-    { label: "Side Diamond Clarity", value: jewelleryItem.sdia },
+    { label: "Shape", value: "" },
+    { label: "Color", value: "" },
+    { label: "Clarity", value: "" },
+    { label: "Pieces", value: "" },
+    { label: "Carats Weight", value: jewelleryItem.weight + " (Apx.)" },
+    { label: "Side Diamond Clarity", value: jewelleryItem.solitaire_slab },
   ];
 
   const MetalData = [
-    { label: "Metal Type", value: jewelleryItem.mtype },
-    { label: "Metal Color", value: jewelleryItem.mcolor },
-    { label: "Metal Weight", value: jewelleryItem.mwt + " (Apx.)" },
+    { label: "Metal Type", value: jewelleryItem.bom_variant_name },
+    { label: "Metal Color", value: "18 KT" },
+    { label: "Metal Weight", value: jewelleryItem.weight + " (Apx.)" },
   ];
 
   return (
@@ -45,7 +45,7 @@ const JewelDetailModal: React.FC<ModalProps> = ({
       aria-labelledby="modal-title"
       aria-hidden={!isOpen}
     >
-      <div className="bg-white p-4 rounded-lg shadow-lg w-3/4 max-w-4xl relative">
+      <div className="bg-white p-4 rounded-lg shadow-lg w-4/5 max-w-5xl relative">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -60,7 +60,7 @@ const JewelDetailModal: React.FC<ModalProps> = ({
           id="modal-title"
           className="text-xl font-semibold mb-4 text-center shadow-md p-2"
         >
-          {jewelleryItem.design_no}
+          {jewelleryItem.item_number}
         </h2>
         <div className="max-h-96 overflow-y-auto">
           {/* Modal Body with Two Equal Width Divs */}
@@ -69,8 +69,8 @@ const JewelDetailModal: React.FC<ModalProps> = ({
             <div className="flex-1 border-r pr-4 mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={jewelleryItem.imgurl}
-                alt={jewelleryItem.design_no}
+                src={jewelleryItem.image_url}
+                alt={jewelleryItem.item_number}
                 className="w-full h-auto object-cover rounded-md"
                 onError={(e) => {
                   e.currentTarget.src = "/jewellery/NoImageBig.jpg"; // Fallback image
@@ -83,13 +83,16 @@ const JewelDetailModal: React.FC<ModalProps> = ({
               {/* Design Number */}
               <div className="flex justify-between pb-2">
                 <span className="font-thin text-lg">
-                  {jewelleryItem.design_no}
+                  {jewelleryItem.product_category}
+                  {" - "}
+                  {jewelleryItem.item_number}
                 </span>
               </div>
 
               {/* Icon Row */}
               <div className="flex items-center space-x-2 pb-2">
-                <div className="h-5 w-5 bg-[#f2d186] rounded-full"></div>
+                <div className="h-5 w-5 bg-[#f2d186] rounded-full mr-2"></div>
+                {jewelleryItem.bom_variant_name}
                 <DiamondIcon className="h-5 w-5" />
               </div>
 
@@ -99,7 +102,7 @@ const JewelDetailModal: React.FC<ModalProps> = ({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/jewellery/q-1.png"
-                    alt={jewelleryItem.design_no}
+                    alt={jewelleryItem.item_number}
                     className="w-[19px] h-[22px] object-cover rounded-md"
                   />
                   <span className="text-sm font-medium">
@@ -111,7 +114,7 @@ const JewelDetailModal: React.FC<ModalProps> = ({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/jewellery/q-2.png"
-                    alt={jewelleryItem.design_no}
+                    alt={jewelleryItem.item_number}
                     className="w-[29px] h-8 object-cover rounded-md"
                   />
                   <span className="text-sm font-medium">On Time Delivery</span>

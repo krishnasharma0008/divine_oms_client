@@ -4,6 +4,7 @@ import { EyeIcon } from "../icons";
 
 export interface JewelleryHomedivProps {
   design_no: string;
+  olddesign_no: string;
   g_wt: string;
   d_size: string;
   imgurl: string;
@@ -12,6 +13,7 @@ export interface JewelleryHomedivProps {
 
 const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   design_no,
+  olddesign_no,
   g_wt,
   d_size,
   imgurl,
@@ -24,7 +26,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   };
 
   return (
-    <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item py-4">
+    <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item py-2">
       <div className="p-4 flex justify-center items-center relative ">
         {/* Image with hover magnify effect */}
         {/* <Link href={`/jewellery-detail/${id}`}> */}
@@ -58,6 +60,15 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
           <div className="w-full flex justify-center">
             <p className="text-center text-gray-700 font-Montserrat text-xl font-semibold leading-6">
               {design_no}
+            </p>
+          </div>
+
+          <div className="flex">
+            <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
+              Old Design no :
+            </p>
+            <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
+              {olddesign_no}
             </p>
           </div>
 

@@ -1,9 +1,39 @@
-export interface JewelleryPJStoreDetail {
+export interface PJCustomerStoreDetail {
   CustomerID: number;
+  Code: string;
+  Location_Type: string;
+  PCustomerCode: string;
+  PJ_Group: string;
+  PJ_Activation_Date: string;
+  Name: string;
+  NickName: string;
   Address: string;
-  ContactNo: string;
+  Country: string;
   State: string;
   City: string;
   PinCode: string;
+  Latitude: string;
+  Longitude: string;
+  CreationDate: string;
+  ModificationDate: string;
+  ContactNo: string;
+  OrderEmail: string;
+  StockEmail: string;
+  AccountsEmail: string;
+  SalesPerson: string;
+  SOR: string;
+  DateOfEstablishment: string;
+  KYC: string;
+  PJ_Active: string;
+  CompanyLogoImage: string;
+  LocationLogoImage: string;
+  WeeklyOff: string;
   PaymentTerms: string;
+  Margin: string;
+  CSA_Limit: string;
+  ASS_Limit: string;
+  Exihibition_Limit: string;
+  Outright_Limit: string;
+  TotalStock: string;
+  StorewiseTarget: string;
 }

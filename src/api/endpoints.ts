@@ -45,7 +45,7 @@ export const getJewelleryPjStoreEndpoint: Endpoint = {
   url: "/pj/custlocation",
 };
 
-export const getJewellerySearchEndpoint: Endpoint = {
-  method: HTTP_METHOD.GET,
-  url: "/",
+export const getJewelleryProdctListEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/pj/find-product",
 };

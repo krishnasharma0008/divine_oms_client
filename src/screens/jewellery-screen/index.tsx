@@ -1,33 +1,34 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
 import { useSearchParams } from "next/navigation";
 import PJDetailModal from "@/components/common/pj-detail-modal";
-//import JewelDetailModal from "@/components/common/jewellery-detail-modal";
-// import { JewelleryDetail } from "@/interface";
-// import LoaderContext from "@/context/loader-context";
-//import { getJewelleryDetailID } from "@/api/jewellery-detail";
-//import NotificationContext from "@/context/notification-context";
-
-const INITIAL_ITEMS = 4; // Initial items to show
-const LOAD_MORE_COUNT = 4; // Number of items to load per click
+import JewelDetailModal from "@/components/common/jewellery-detail-modal";
+import { JewelleryDetail } from "@/interface";
+//import LoaderContext from "@/context/loader-context";
+import { getJewelleryDetailID } from "@/api/jewellery-detail";
+import NotificationContext from "@/context/notification-context";
 
 function JewelleyScreen() {
-  const [category, setCategory] = useState<string>("");
+  //const [category, setCategory] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
-  const [itemsToShow, setItemsToShow] = useState<number>(INITIAL_ITEMS); //data to show
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false); //to show pjdetails
-  //const [isJDetailModalOpen, setIsJDetailModalOpen] = useState<boolean>(false); //to show pjdetails
-  // const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
-  //   Array<JewelleryDetail>
-  // >([]);
-  // const { showLoader, hideLoader } = useContext(LoaderContext);
-  // const { notifyErr } = useContext(NotificationContext);
+  const [isJDetailModalOpen, setIsJDetailModalOpen] = useState<boolean>(false); //to show pjdetails
+  const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
+    Array<JewelleryDetail>
+  >([]);
+  //const { showLoader, hideLoader } = useContext(LoaderContext);
+  const { notifyErr } = useContext(NotificationContext);
+
+  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
+  const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
+  const [selectedJewellery, setSelectedJewellery] =
+    useState<JewelleryDetail | null>(null); //eye click
 
   const searchParams = useSearchParams();
 
@@ -38,16 +39,19 @@ function JewelleyScreen() {
   const selectedValue = searchParams.get("selectedValue");
 
   //const selectedDate = searchParams.get("selectedDate");
-
+  // Fetch initial data and handle updates on search params change
   useEffect(() => {
-    console.log("Received data:", {
-      selectedJValue, //jeweller
-      selectedSValue, // store
-      selectedAdd, //add
-      selectedContact, //contact
-      selectedValue, // item type
-    });
+    setCurrentPage(1); // Reset page to 1 on search param change
+    setSelectedJewelleryItem([]); // Clear previous items
+    FetchListdata(1); // Load first page of new search results
   }, [searchParams]);
+
+  // Fetch data when the page number increments
+  useEffect(() => {
+    if (currentPage > 1) {
+      FetchListdata(currentPage);
+    }
+  }, [currentPage]);
 
   const optionsCategory = [
     { label: "Category 1", value: "category1" },
@@ -56,7 +60,7 @@ function JewelleyScreen() {
   ];
 
   const handleClearAll = () => {
-    setCategory("");
+    //setCategory("");
     setDate("");
     setSelectedCategory([]);
     setSearchText("");
@@ -65,7 +69,7 @@ function JewelleyScreen() {
   const handleSearch = () => {
     setLoading(true); // Show spinner
     console.log("Searching with filters:", {
-      category,
+      //category,
       date,
       selectedcategory,
       searchText,
@@ -77,95 +81,45 @@ function JewelleyScreen() {
     }, 2000);
   };
 
-  const sampleJewelleryData = [
-    {
-      id: 1,
-      design_no: "Design 001",
-      g_wt: "1.30",
-      d_size: "0.14-0.17",
-      imgurl: "/path/to/image1.jpg",
-    },
-    {
-      id: 2,
-      design_no: "Design 002",
-      g_wt: "1.50",
-      d_size: "0.18-0.20",
-      imgurl: "/path/to/image2.jpg",
-    },
-    {
-      id: 3,
-      design_no: "Design 003",
-      g_wt: "1.70",
-      d_size: "0.21-0.25",
-      imgurl: "/path/to/image3.jpg",
-    },
-    {
-      id: 4,
-      design_no: "Design 004",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image4.jpg",
-    },
-    {
-      id: 5,
-      design_no: "Design 005",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image5.jpg",
-    },
-    {
-      id: 6,
-      design_no: "Design 006",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image6.jpg",
-    },
-    {
-      id: 7,
-      design_no: "Design 007",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image7.jpg",
-    },
-    {
-      id: 8,
-      design_no: "Design 008",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image8.jpg",
-    },
-    {
-      id: 9,
-      design_no: "Design 009",
-      g_wt: "1.80",
-      d_size: "0.26-0.30",
-      imgurl: "/path/to/image9.jpg",
-    },
-  ];
+  const FetchListdata = async (pageno: number) => {
+    try {
+      setIsLoadingMore(true);
+      const response = await getJewelleryDetailID(pageno);
+      const newItems = response.data.data ?? [];
+      if (pageno === 1) {
+        setSelectedJewelleryItem(newItems);
+      } else {
+        setSelectedJewelleryItem((prevItems) => [...prevItems, ...newItems]); // Append new data
+      }
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+    } finally {
+      setIsLoadingMore(false); // Ensure reset after fetching
+    }
+  };
 
   const handleLoadMore = () => {
-    setItemsToShow((prev) =>
-      Math.min(prev + LOAD_MORE_COUNT, sampleJewelleryData.length)
-    );
+    //setItemsToShow((prev) => prev + LOAD_MORE_COUNT);
+    console.log("Page_No : ", currentPage);
+    setCurrentPage((prevPage) => prevPage + 1); // Increment page number
   };
 
   const handlePjDetailClick = () => {
     setIsModalOpen(true);
   };
 
-  const handlejewelleryDetailClick = async (jewelleryid: number) => {
-    console.log(jewelleryid);
-    // try {
-    //   showLoader();
-    //   const result = await getJewelleryDetailID(jewelleryid);
-    //   setSelectedJewelleryItem(result.data.data ?? []);
-    // } catch (error) {
-    //   notifyErr("An error occurred while fetching Jewellery details.");
-    //   console.error(error);
-    // } finally {
-    //   hideLoader();
-    // }
-    // setIsJDetailModalOpen(true);
+  const handlejewelleryDetailClick = (jewelleryId: string) => {
+    // Find the specific jewellery item by item_number
+    const foundItem = selectedJewelleryItem.find(
+      (item) => item.item_number === jewelleryId
+    );
+
+    if (foundItem) {
+      setSelectedJewellery(foundItem); // Set the found item to the state
+      setIsJDetailModalOpen(true); // Open the modal
+    } else {
+      console.error("Jewellery item not found.");
+    }
   };
 
   return (
@@ -175,7 +129,7 @@ function JewelleyScreen() {
         <h2 className="text-lg font-semibold mb-4">Filter By</h2>
 
         {/* Buttons */}
-        <div className="flex space-x-2 mb-4">
+        <div className="flex space-x-2 mb-4 max-h-[400px] overflow-y-auto">
           <button
             onClick={handleClearAll}
             className="flex-1 p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
@@ -230,7 +184,7 @@ function JewelleyScreen() {
       </div>
 
       {/* Data Section */}
-      <div className="flex-1 p-4 bg-white rounded-lg shadow-md h-[600px] overflow-y-auto">
+      <div className="flex-1 p-4 bg-white rounded-lg shadow-md">
         {/* Buttons above Data Header */}
         <div className="flex justify-end space-x-2 mb-4">
           <button className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black">
@@ -244,29 +198,38 @@ function JewelleyScreen() {
           </button>
         </div>
         {/* <h2 className="text-lg font-semibold mb-4">Data Section</h2> */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {sampleJewelleryData.slice(0, itemsToShow).map((item, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[350px] overflow-y-auto">
+          {selectedJewelleryItem.map((item, index) => (
             <JewelleryHomeDiv
               key={index}
-              design_no={item.design_no}
-              g_wt={item.g_wt}
-              d_size={item.d_size}
-              imgurl={item.imgurl}
-              onClick={() => handlejewelleryDetailClick(item.id)}
+              olddesign_no={item.old_varient}
+              design_no={item.item_number}
+              g_wt={item.weight}
+              d_size={item.solitaire_slab}
+              imgurl={item.image_url}
+              onClick={() => handlejewelleryDetailClick(item.item_number)}
             />
           ))}
         </div>
         {/* Load More Button */}
-        {itemsToShow < sampleJewelleryData.length && (
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={handleLoadMore}
-              className="px-4 py-2 border border-black bg-black text-white rounded hover:bg-white hover:text-black"
-            >
-              Load More
-            </button>
-          </div>
-        )}
+        {/* {itemsToShow < selectedJewelleryItem.length && ( */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handleLoadMore}
+            className={`w-22 px-4 py-2 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
+              isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? (
+              // Spinner inside the button
+              <div className="w-5 h-5 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
+            ) : (
+              "Load More"
+            )}
+          </button>
+        </div>
+        {/* )} */}
       </div>
       {/* Modal */}
       {isModalOpen && (
@@ -291,14 +254,14 @@ function JewelleyScreen() {
       )}
 
       {/* Modal */}
-      {/* {isJDetailModalOpen && (
+      {isJDetailModalOpen && (
         <JewelDetailModal
           isOpen={isJDetailModalOpen}
           onClose={() => setIsJDetailModalOpen(false)}
           //jewelleryItem={selectedJewelleryItem}
-          jewelleryItem={sampleJewelleryData[0]}
+          jewelleryItem={selectedJewellery}
         />
-      )} */}
+      )}
     </div>
   );
 }

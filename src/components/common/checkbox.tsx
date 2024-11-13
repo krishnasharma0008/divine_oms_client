@@ -30,7 +30,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   return (
     <Card className="w-auto p-4">
       {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col ">
         {options.map((option) => (
           <label key={option.value} className="flex items-center space-x-2">
             <Checkbox
