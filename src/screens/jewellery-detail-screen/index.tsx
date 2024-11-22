@@ -346,9 +346,10 @@ function JewelleryDetailScreen() {
             *The jewellery available in{" "}
             {/* {customisedData?.carat.split("-")[0]} to{" "}
             {customisedData?.carat.split("-")[1]} */}
-            {jewelleryDetails?.Product_range_from_min} to{" "}
-            {jewelleryDetails?.Product_size_from}
-            carat range. Solitaire Pcs {totalPcs}
+            {`${jewelleryDetails?.Product_range_from_min} to ${jewelleryDetails?.Product_range_to_max} carat range. Solitaire Pcs ${totalPcs}`}
+            {/* {jewelleryDetails?.Product_range_from_min} to{" "}
+            {jewelleryDetails?.Product_range_to_max}{" "}
+            carat range. Solitaire Pcs {totalPcs} */}
           </p>
           <div className="flex justify-between items-center mb-2">
             {/* <h2 className="text-lg text-blue-600">
