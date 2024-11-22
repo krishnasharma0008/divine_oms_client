@@ -71,7 +71,7 @@ function JewelleryDetailScreen() {
       );
       setMetalPriceFrom(
         parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-      );
+      );      
     };
     fetchData();
   }, [id]);
