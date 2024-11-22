@@ -87,6 +87,7 @@ function JewelleryStockScreen() {
   // Mock data for the table
   const tableData = [
     {
+      srno: 1,
       slab: "A",
       name: "Divine Solitaire",
       size: "10",
@@ -94,6 +95,7 @@ function JewelleryStockScreen() {
       mrp: 48449,
     },
     {
+      srno: 2,
       slab: "B",
       name: "Divine Mount",
       size: "12",
@@ -179,7 +181,7 @@ function JewelleryStockScreen() {
             <tbody>
               {tableData.map((item, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{index + 1}</td>
+                  <td className="border px-4 py-2">{item.srno}</td>
                   <td className="border px-4 py-2">{item.slab}</td>
                   <td className="border px-4 py-2">{item.name}</td>
                   <td className="border px-4 py-2">{item.size}</td>
