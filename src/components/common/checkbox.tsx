@@ -11,6 +11,7 @@ interface CheckboxGroupProps {
   options: CheckboxOption[];
   selectedValues: string[]; // Array of selected values for multiple checkboxes
   onChange: (value: string[]) => void; // Handler to manage checkbox changes
+  classes?: string;
 }
 
 const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
@@ -18,6 +19,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   options,
   selectedValues,
   onChange,
+  classes,
 }) => {
   const handleCheckboxChange = (value: string) => {
     const newSelectedValues = selectedValues.includes(value)
@@ -28,7 +30,10 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   };
 
   return (
-    <Card className="w-auto p-4">
+    <Card
+      className="w-auto p-4"
+      style={{ borderTop: "1px solid rgb(0 0 0 / 0.1)" }}
+    >
       {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
       <div className="flex flex-col ">
         {options.map((option) => (
@@ -39,7 +44,7 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
               onChange={() => handleCheckboxChange(option.value)}
               //color="black" // Change the color to suit your design
             />
-            <span className="text-black">{option.label}</span>
+            <span className={`${classes} text-black`}>{option.label}</span>
           </label>
         ))}
       </div>

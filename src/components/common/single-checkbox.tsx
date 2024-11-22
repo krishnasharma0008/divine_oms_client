@@ -7,6 +7,7 @@ interface SingleSelectCheckboxProps {
   selectedValue: string;
   //onChange: (value: string | null) => void;
   onChange: (value: string) => void;
+  classes?: string;
 }
 
 const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
@@ -14,6 +15,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
   options,
   selectedValue,
   onChange,
+  classes,
 }) => {
   //const [selected, setSelected] = useState<string | null>(selectedValue);
 
@@ -24,7 +26,10 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
   //   };
 
   return (
-    <Card className="w-auto p-4">
+    <Card
+      className="w-auto p-4"
+      style={{ borderTop: "1px solid rgb(0 0 0 / 0.1)" }}
+    >
       {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
       <div className="flex flex-col space-y-2">
         {options.map((option) => (
@@ -47,7 +52,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
               onChange={() => onChange(option.value)}
               //color="black" // Change the color to suit your design
             />
-            <span className="text-black">{option.label}</span>
+            <span className={`${classes} text-black`}>{option.label}</span>
           </label>
         ))}
       </div>

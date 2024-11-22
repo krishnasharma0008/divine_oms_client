@@ -37,15 +37,26 @@ export const customerCreateEndpoint: Endpoint = {
 
 export const getJewelleryPjCustEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
-  url: "/pj/findcust",
+  url: "/erp/findcust",
 };
 
 export const getJewelleryPjStoreEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
-  url: "/pj/custlocation",
+  url: "/erp/custlocation",
 };
 
 export const getJewelleryProdctListEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
-  url: "/pj/find-product",
+  url: "/erp/find-product",
+};
+
+export const getJewelleryProdctEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/erp/get-product",
+};
+
+//https://api2.divinesolitaires.com/softapi/erp/get-price
+export const getJewelleryProdctPriceEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/erp/get-price",
 };

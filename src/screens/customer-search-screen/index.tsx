@@ -62,7 +62,7 @@ const CustomerSearchScreen: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-auto bg-white flex items-center justify-center">
+    <div className="w-full min-h-screen bg-white flex justify-center">
       <div className="w-full flex flex-col items-center p-8 gap-3">
         <div className="w-full flex justify-between items-center mb-3 relative">
           <div className="relative w-2/3">

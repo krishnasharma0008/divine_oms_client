@@ -18,6 +18,7 @@ module.exports = withMT({
       },
       colors: {
         ...colors,
+        gold: "#f2d186",
         background: "var(--background)",
         foreground: "var(--foreground)",
       },

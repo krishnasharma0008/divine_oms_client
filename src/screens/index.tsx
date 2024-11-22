@@ -9,3 +9,5 @@ export { default as CustomerSearchScreen } from "./customer-search-screen";
 export { default as CustomerCreateScreen } from "./customer-search-screen/sub-components";
 export { default as JewelleyScreen } from "./jewellery-screen";
 export { default as JewelleryDetailScreen } from "./jewellery-detail-screen";
+export { default as JewelleryStockScreen } from "./jewellery-stock-screen";
+export { default as JewelleryCartScreen } from "./jewellery-cart-screen";

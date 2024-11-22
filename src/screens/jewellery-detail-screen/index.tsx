@@ -1,70 +1,265 @@
 "use client";
 
 import ImageGallery from "@/components/common/image-gallery";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ShoppingCartIcon from "@/components/icons/shopping-cart-icon";
+import {
+  getJewelleryProductList,
+  getJewelleryProductPrice,
+} from "@/api/jewellery-detail";
+import NotificationContext from "@/context/notification-context";
+import { JewelleryDetail } from "@/interface";
+import SolitaireCustomisationPopup from "@/components/common/solitaire-customise";
+import { formatByCurrencyINR } from "@/util/format-inr";
+import LoaderContext from "@/context/loader-context";
+
+interface CustomisationOptions {
+  shape: string;
+  color: string;
+  carat: string;
+  clarity: string;
+}
 
 function JewelleryDetailScreen() {
   const { id } = useParams();
-  const [decodedDesignId, setDecodedDesignId] = useState<string | null>(null);
-  const [selectedPcs, setSelectedPcs] = useState<number>(1);
+  //const [selectedPcs, setSelectedPcs] = useState<number>(1);
+  const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
+  const { notifyErr } = useContext(NotificationContext);
+  const [metalColor, setMetalColor] = useState<string>("");
+  const [ringSizeFrom, setRingSizeFrom] = useState<number>(4); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
+  const [ringSizeTo, setRingSizeTo] = useState<number>(16);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [customisedData, setCustomisedData] = useState<CustomisationOptions>(); //parseInt(jewelleryDetails?.Product_size_to.toString() ?? "")
+  const [soliPriceFrom, setSoliPriceFrom] = useState<number>(); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
+  const [soliPriceTo, setSoliPriceTo] = useState<number>();
+  const [metalPrice, setMetalPriceFrom] = useState<number>();
+  const [sDiaPrice, setSDiaPrice] = useState<number>();
+  const { showLoader, hideLoader } = useContext(LoaderContext);
+  //const [images, setImages] = useState<Image[]>([]); //for gallery
+
+  const totalPcs = jewelleryDetails?.Bom?.filter(
+    (item) => item.Item_type === "STONE" && item.Item_group === "SOLITAIRE"
+  ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
+
+  const Metalweight = jewelleryDetails?.Bom?.filter(
+    (item) => item.Item_type === "METAL"
+  ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
+
+  const totalweight = jewelleryDetails?.Bom?.filter(
+    (item) => item.Item_type === "STONE" && item.Item_group === "DIAMOND"
+  ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
+
+  const [selectedQty, setSelectedQty] = useState<number>(totalPcs ?? 1);
 
   useEffect(() => {
-    if (id) {
-      setDecodedDesignId(decodeURIComponent(id as string));
+    if (!id || isNaN(Number(id))) {
+      notifyErr("Invalid jewellery ID.");
+      return;
     }
+    const fetchData = async () => {
+      await FetchData(Number(id));
+      const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
+      setSDiaPrice(parseFloat((diamondPrice * (totalweight ?? 0)).toFixed(2)));
+
+      const metalPrice = await FetchPrice(
+        "GOLD",
+        "",
+        "",
+        metalColor,
+        jewelleryDetails?.Metal_purity ?? ""
+      );
+      setMetalPriceFrom(
+        parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+      );
+    };
+    fetchData();
   }, [id]);
 
-  const images = [
-    {
-      url: "/vtdia/carousel_1.png",
-      thumbnailUrl: "/vtdia/carousel_1.png",
-      title: "Image 1",
-      uid: "0",
-    },
-    {
-      url: "/vtdia/carousel_2.png",
-      thumbnailUrl: "/vtdia/carousel_2.png",
-      title: "Image 2",
-      uid: "1",
-    },
-    {
-      url: "/vtdia/carousel_3.png",
-      thumbnailUrl: "/vtdia/carousel_3.png",
-      title: "Image 3",
-      uid: "2",
-    },
-    {
-      url: "/vtdia/carousel_4.png",
-      thumbnailUrl: "/vtdia/carousel_4.png",
-      title: "Image 4",
-      uid: "3",
-    },
-  ];
+  // useEffect(() => {
+  //   // Set default metal color to the first option
+  //   if (jewelleryDetails?.Metal_color) {
+  //     const defaultColor = jewelleryDetails.Metal_color.split(",")[0].trim();
+  //     setMetalColor(defaultColor);
+  //   }
+  // }, [jewelleryDetails]);
 
-  const imageGalleryImages = images.map((image, index) => ({
-    ...image,
-    uid: index.toString(),
-  }));
+  const FetchData = async (itemId: number) => {
+    //showLoader();
+    try {
+      const response = await getJewelleryProductList(itemId);
+      setJewelleryDetails(response.data.data);
+      if (metalColor === "") {
+        const defaultColor =
+          response.data.data.Metal_color.split(",")[0].trim();
+        setMetalColor(defaultColor);
+      }
+      hideLoader();
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+    } finally {
+      hideLoader();
+    }
+  };
+
+  // Add types for parameters
+  const filterByColorAndFormat = (color: string) => {
+    // Filter the images based on the selected color
+    console.log("Metal Color : ", color);
+
+    const filteredImages = jewelleryDetails?.Images?.filter(
+      (image: { color: string; image_url: string[] }) =>
+        image.color.toLowerCase() === color.toLowerCase()
+    );
+
+    // Return an empty array if no images match the selected color
+    return (
+      filteredImages?.flatMap((image: { image_url: string[] }, index: number) =>
+        image.image_url.map((url: string, i: number) => ({
+          url,
+          thumbnailUrl: url,
+          title: `Image ${i + 1}`,
+          uid: (index * 10 + i).toString(),
+        }))
+      ) || [] // Ensure we return an empty array if no images match
+    );
+  };
 
   const productData = [
-    { label: "Solitaire", value: "" },
-    { label: "Metal Weight", value: "" },
-    { label: "Metal", value: "" },
-    { label: "Ring Size", value: "" },
-    { label: "Side Diamond", value: "" },
+    {
+      label: "Solitaire",
+      value:
+        [
+          customisedData?.shape ? `${customisedData?.shape} ` : "", // Add space after shape if present
+          customisedData?.carat ? `${customisedData?.carat} cts ` : "", // Add space after carat if present
+          customisedData?.color ? `${customisedData?.color} ` : "", // Add space after color if present
+          customisedData?.clarity ? `${customisedData?.clarity} ` : "", // Add space after clarity if present
+        ].join("") || "-", // Join without extra spaces, fallback to "-" if empty
+    },
+    { label: "Metal Weight", value: Metalweight ?? 0 }, // This already handles the fallback
+    {
+      label: "Metal",
+      value: (jewelleryDetails?.Metal_purity ?? 0) + " " + (metalColor ?? "-"),
+    },
+    {
+      label: "Ring Size",
+      value: `${ringSizeFrom} - ${ringSizeTo}`, // Template literals for clearer formatting
+    },
+    {
+      label: "Side Diamond",
+      value: `${totalPcs ?? 0}/${totalweight ?? 0} cts IJ-SI`, // Template literals for clarity
+    },
   ];
 
-  const handlePcsChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPcs(Number(event.target.value));
+  const ringSizes = Array.from({ length: 13 }, (_, i) => i + 4); // Generate sizes 4 to 16
+
+  const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = Number(e.target.value);
+    setRingSizeFrom(selectedValue);
+    if (selectedValue > ringSizeTo) {
+      setRingSizeTo(selectedValue); // Ensure "From" doesn't exceed "To"
+    }
+  };
+
+  const handleToChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = Number(e.target.value);
+    setRingSizeTo(selectedValue);
+    if (selectedValue < ringSizeFrom) {
+      setRingSizeFrom(selectedValue); // Ensure "To" isn't less than "From"
+    }
+  };
+
+  const renderSelectOptions = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedValue = e.target.value;
+    setMetalColor(selectedValue);
+
+    const metalPrice = await FetchPrice(
+      "GOLD",
+      "",
+      "",
+      selectedValue,
+      jewelleryDetails?.Metal_purity ?? ""
+    );
+    setMetalPriceFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
+  };
+
+  const FetchPrice = async (
+    itemgroup: string,
+    slab: string,
+    shape: string,
+    color: string,
+    quality: string
+  ): Promise<number> => {
+    showLoader();
+    try {
+      const response = await getJewelleryProductPrice(
+        itemgroup,
+        slab,
+        shape,
+        color,
+        quality
+      );
+      hideLoader();
+      return response.data.price; // Return the price
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+      return 0; // Default to 0 in case of error
+    }
+  };
+
+  const handleApply = async (data: CustomisationOptions) => {
+    setCustomisedData(data);
+    setIsPopupOpen(false);
+
+    const shape =
+      data.shape === "Round"
+        ? "RND"
+        : data.shape === "Princess"
+        ? "PRN"
+        : data.shape === "Oval"
+        ? "OVL"
+        : data.shape === "Pear"
+        ? "PER"
+        : "";
+    const carat = data.carat?.split("-") || ["0", "0"];
+    const color = data.color?.split(" - ") || ["", ""];
+    const clarity = data.clarity?.split(" - ") || ["", ""];
+
+    try {
+      const SolitaireFrom = await FetchPrice(
+        "SOLITAIRE",
+        carat[0],
+        shape,
+        color[0],
+        clarity[0]
+      );
+
+      const SolitaireTo = await FetchPrice(
+        "SOLITAIRE",
+        carat[1],
+        shape,
+        color[1],
+        clarity[1]
+      );
+
+      setSoliPriceFrom(
+        parseFloat((SolitaireFrom * parseFloat(carat[0])).toFixed(2))
+      );
+      setSoliPriceTo(
+        parseFloat((SolitaireTo * parseFloat(carat[1])).toFixed(2))
+      );
+    } catch (error) {
+      notifyErr("Failed to fetch price details.");
+    }
   };
 
   return (
     <div className="flex bg-white">
       {/* Image Gallery Section */}
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
-        <ImageGallery images={imageGalleryImages} />
+        <ImageGallery images={filterByColorAndFormat(metalColor)} />
         <div className="mt-8 mb-2 border-gray border-y-2">
           <div className="flex-1 text-left mx-1 rounded-lg">
             <h3 className="text-lg font-semibold underline text-blue-600">
@@ -75,10 +270,8 @@ function JewelleryDetailScreen() {
                 key={index}
                 className="p-2 mb-2 flex justify-between items-center"
               >
-                <span className="w-1/2 text-left">{item.label}</span>
-                <span className="w-1/2 text-left">
-                  {item.value || "Not Available"}
-                </span>
+                <span className="w-1/2 text-left">{item.label}&nbsp;:</span>
+                <span className="w-1/2 text-right">{item.value}</span>
               </div>
             ))}
           </div>
@@ -86,22 +279,24 @@ function JewelleryDetailScreen() {
       </div>
 
       {/* Details Section */}
-      <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
-        <div className="flex justify-between items-center mb-8">
+      <div className="bg-white p-4 w-1/2 relative">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg">
             Product Code:{" "}
-            <span className="font-semibold">{decodedDesignId}</span>
+            <span className="font-semibold">
+              {jewelleryDetails?.Item_number}
+            </span>
           </h2>
           <div className="flex items-center space-x-2">
             <label className="block font-medium text-gray-700">QTY</label>
             <select
               className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-              value={selectedPcs}
-              onChange={handlePcsChange}
+              value={selectedQty}
+              onChange={(e) => setSelectedQty(Number(e.target.value))}
             >
-              {Array.from({ length: 50 }, (_, i) => i + 1).map((pcs) => (
-                <option key={pcs} value={pcs}>
-                  {pcs}
+              {Array.from({ length: 50 }, (_, i) => i + 1).map((qty) => (
+                <option key={qty} value={qty}>
+                  {qty}
                 </option>
               ))}
             </select>
@@ -111,8 +306,12 @@ function JewelleryDetailScreen() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold">Divine Solitaire</h2>
             <div className="text-lg">
-              ₹<span className="font-semibold">48,449 apx - </span>₹
-              <span className="font-semibold">68,449 apx</span>
+              <span className="font-semibold">
+                {formatByCurrencyINR(soliPriceFrom ?? 0)} apx -{" "}
+              </span>
+              <span className="font-semibold">
+                {formatByCurrencyINR(soliPriceTo ?? 0)} apx
+              </span>
             </div>
           </div>
 
@@ -121,35 +320,47 @@ function JewelleryDetailScreen() {
               <div>
                 <div className="text-lg mb-2">
                   <span>Shape : </span>
-                  <span className="font-semibold">Round</span>
+                  <span className="font-semibold">{customisedData?.shape}</span>
                 </div>
                 <div className="text-lg mb-2">
                   <span>Color : </span>
-                  <span className="font-semibold">D - E</span>
+                  <span className="font-semibold">{customisedData?.color}</span>
                 </div>
               </div>
               <div>
                 <div className="text-lg mb-2">
                   <span>Carat : </span>
-                  <span className="font-semibold">0.30 - 0.38</span>
+                  <span className="font-semibold">{customisedData?.carat}</span>
                 </div>
                 <div className="text-lg mb-2">
                   <span>Clarity : </span>
-                  <span className="font-semibold">IF - VVSI</span>
+                  <span className="font-semibold">
+                    {customisedData?.clarity}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
           <p className="my-4">
-            *The jewellery available in 0.30 to 0.38 carat range. Solitaire Pcs{" "}
-            {selectedPcs}
+            *The jewellery available in{" "}
+            {/* {customisedData?.carat.split("-")[0]} to{" "}
+            {customisedData?.carat.split("-")[1]} */}
+            {jewelleryDetails?.Product_range_from_min} to{" "}
+            {jewelleryDetails?.Product_size_from}
+            carat range. Solitaire Pcs {totalPcs}
           </p>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg text-blue-600">
+          <div className="flex justify-between items-center mb-2">
+            {/* <h2 className="text-lg text-blue-600">
+              Customise your Divine Solitaire
+            </h2> */}
+            <h2
+              className="text-lg text-blue-600 cursor-pointer"
+              onClick={() => setIsPopupOpen(true)}
+            >
               Customise your Divine Solitaire
             </h2>
             <div className="text-lg underline text-blue-600">
-              <span>Check available Price</span>
+              {/* <span>Check available Price</span> */}
             </div>
           </div>
         </div>
@@ -158,8 +369,14 @@ function JewelleryDetailScreen() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold">Divine Mount</h2>
             <div className="text-lg">
-              ₹<span className="font-semibold">33,443 apx - </span>₹
-              <span className="font-semibold">33,443 apx</span>
+              <span className="font-semibold">
+                {formatByCurrencyINR((metalPrice ?? 0) + (sDiaPrice ?? 0))} apx
+              </span>{" "}
+              -
+              <span className="font-semibold">
+                {" "}
+                {formatByCurrencyINR((metalPrice ?? 0) + (sDiaPrice ?? 0))} apx
+              </span>
             </div>
           </div>
           <div className="flex justify-between">
@@ -167,49 +384,64 @@ function JewelleryDetailScreen() {
               <label className="block text-lg font-medium text-gray-700">
                 Metal Color
               </label>
+              <span className="w-6 h-6 rounded-full bg-gold"></span>&nbsp;
+              {jewelleryDetails?.Metal_purity}
               <select
-                className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                value={selectedPcs}
-                onChange={handlePcsChange}
+                className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
+                value={metalColor}
+                onChange={renderSelectOptions}
               >
-                {Array.from({ length: 50 }, (_, i) => i + 1).map((pcs) => (
-                  <option key={pcs} value={pcs}>
-                    {pcs}
-                  </option>
-                ))}
+                <option value="">Select</option>
+                {jewelleryDetails?.Metal_color.split(",").map(
+                  (item: string, index) => (
+                    <option key={index} value={item}>
+                      <span>{item.trim()}</span>
+                    </option>
+                  )
+                )}
               </select>
             </div>
+
             <div className="text-lg">
               <span>Metal Weight : </span>
-              <span className="font-semibold">300 gms</span>
+              <span className="font-semibold">{Metalweight} gms</span>
             </div>
           </div>
           <div className="flex justify-between mt-4">
-            <div className="flex items-center space-x-2">
-              <label className="block text-lg font-medium text-gray-700">
-                Ring Size :
-              </label>
-              <div className="flex space-x-2">
+            <div className="flex items-center space-x-4">
+              {/* Ring Size From */}
+              <div className="flex items-center space-x-2">
+                <label className="block text-lg font-medium text-gray-700">
+                  From:
+                </label>
                 <select
                   className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                  value={selectedPcs}
-                  onChange={handlePcsChange}
+                  value={ringSizeFrom}
+                  onChange={handleFromChange}
                 >
-                  {Array.from({ length: 16 }, (_, i) => i + 4).map((pcs) => (
-                    <option key={pcs} value={pcs}>
-                      {pcs}
+                  <option value="-">-</option>
+                  {ringSizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
                     </option>
                   ))}
                 </select>
+              </div>
 
+              {/* Ring Size To */}
+              <div className="flex items-center space-x-2">
+                <label className="block text-lg font-medium text-gray-700">
+                  To:
+                </label>
                 <select
                   className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                  value={selectedPcs}
-                  onChange={handlePcsChange}
+                  value={ringSizeTo}
+                  onChange={handleToChange}
                 >
-                  {Array.from({ length: 16 }, (_, i) => i + 4).map((pcs) => (
-                    <option key={pcs} value={pcs}>
-                      {pcs}
+                  <option value="-">-</option>
+                  {ringSizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
                     </option>
                   ))}
                 </select>
@@ -218,9 +450,12 @@ function JewelleryDetailScreen() {
           </div>
           <div className="flex items-center">
             <div className="inline-flex">
-              <label className="w-20 block text-lg font-medium text-gray-700"></label>
+              <label className="block text-lg font-medium text-gray-700"></label>
               <p className="text-sm text-gray-600 mt-2">
                 Ring Size OP Range : 4 to 16.
+                {/* Ring Size OP Range : {ringSizeFrom} to {ringSizeTo}. */}
+                {/* Ring Size OP Range : {jewelleryDetails?.Product_size_from} to{" "}
+                {jewelleryDetails?.Product_size_to}. */}
               </p>
             </div>
           </div>
@@ -228,24 +463,40 @@ function JewelleryDetailScreen() {
             <div className="flex items-center space-x-2">
               <div className="text-lg">
                 <span>Side Daimond :</span>
-                <span className="font-semibold">10/0.6cts IJ SI</span>
+                <span className="font-semibold">
+                  {totalPcs}/ {totalweight} &nbsp;cts IJ-SI
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex w-full space-x-6">
-          <div className="w-full p-2 my-4 border border-black rounded-lg">
-            <div className="flex justify-between items-center">
-              <h2 className="text-sm">Min</h2>
-              <h2 className="text-sm">Max</h2>
-            </div>
-            <div className="flex justify-between items-center">
-              <div className="text-lg">
-                ₹<span className="font-semibold">82,433 apx</span>
+        <div className="flex w-full space-x-2 justify-end">
+          <div className="w-full p-2 my-4">
+            <div className="p-2 my-4 border border-black rounded-lg">
+              <div className="flex justify-between items-center text-center">
+                <h2 className="text-sm">Min</h2>
+                <h2 className="text-sm">Max</h2>
               </div>
-              <div className="text-lg">
-                ₹<span className="font-semibold">1,01,593 apx</span>
+              <div className="flex justify-between items-center">
+                <div className="text-lg">
+                  <span className="font-semibold">
+                    {formatByCurrencyINR(
+                      (soliPriceFrom ?? 0) +
+                        (metalPrice ?? 0) +
+                        (sDiaPrice ?? 0)
+                    )}{" "}
+                    apx
+                  </span>
+                </div>
+                <div className="text-lg">
+                  <span className="font-semibold">
+                    {formatByCurrencyINR(
+                      (soliPriceTo ?? 0) + (metalPrice ?? 0) + (sDiaPrice ?? 0)
+                    )}{" "}
+                    apx
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -257,6 +508,14 @@ function JewelleryDetailScreen() {
           </div>
         </div>
       </div>
+
+      {/* Popup */}
+      <SolitaireCustomisationPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        onApply={handleApply}
+        cts_slab={jewelleryDetails?.Cts_size_slab ?? []}
+      />
     </div>
   );
 }

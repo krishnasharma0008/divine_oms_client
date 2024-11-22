@@ -120,10 +120,11 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
               <img
                 src={filteredImages[selectedImage].url}
                 alt={filteredImages[selectedImage].title}
-                className="center md:w-auto w-60 max-h-full md:max-h-auto md:h-full m-auto object-contain rounded-lg shadow-lg"
+                className="center md:w-auto w-60 max-h-full md:max-h-auto md:h-full m-auto object-contain rounded-lg shadow-md  "
                 style={{
                   height: "100%", // Ensure the image takes up the full height of the container
                   objectFit: "contain", // Maintain aspect ratio while filling the container
+                  borderTop: "1px solid rgb(0 0 0 / 0.1)", // Add a top border to the main image container
                 }}
                 onError={(e) => {
                   const imgElement = e.target as HTMLImageElement;

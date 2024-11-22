@@ -1,32 +1,44 @@
 import React from "react";
-import { EyeIcon } from "../icons";
-//import { useRouter } from "next/navigation";
+//import { EyeIcon } from "../icons";
+import { useRouter } from "next/navigation";
 
 export interface JewelleryHomedivProps {
+  Item_id: number;
   design_no: string;
   olddesign_no: string;
   g_wt: string;
   d_size: string;
   imgurl: string;
-  onClick?: () => void;
+  //onClick?: () => void;
 }
 
 const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
+  Item_id,
   design_no,
   olddesign_no,
   g_wt,
   d_size,
   imgurl,
-  onClick,
+  //onClick,
 }) => {
-  //const router = useRouter();
+  const router = useRouter();
 
   const handleImageClick = () => {
-    //router.push(`/jewellery-detail/${design_no}`);
+    router.push(`/jewellery-detail/${Item_id}`);
+    // Use history.pushState to add Item_id to the history state
+    // history.pushState({ Item_id }, "/jewellery-detail");
+    // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
+  };
+
+  const handleStockClick = () => {
+    //router.push(`/jewellery-stock/${Item_id}`);
+    // Use history.pushState to add Item_id to the history state
+    // history.pushState({ Item_id }, "/jewellery-detail");
+    // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
   };
 
   return (
-    <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item py-2">
+    <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item">
       <div className="p-4 flex justify-center items-center relative ">
         {/* Image with hover magnify effect */}
         {/* <Link href={`/jewellery-detail/${id}`}> */}
@@ -47,13 +59,13 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
         />
         {/* </Link> */}
         {/* View button with eye icon, appears on hover */}
-        <button
+        {/*<button
           className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 w-10 h-10 bg-black text-gray-700 opacity-0 border border-black group-hover:opacity-100 hover:bg-white flex items-center justify-center transition-opacity duration-300"
           title="Quick View"
           onClick={onClick}
         >
           <EyeIcon className="fill-black" />
-        </button>
+        </button>*/}
       </div>
       <div className="p-4">
         <div className="grid gap-3">
@@ -63,13 +75,19 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             </p>
           </div>
 
-          <div className="flex">
-            <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
-              Old Design no :
+          <div className="flex justify-between">
+            <p className="text-left text-gray-700 font-montserrat font-semibold text-base">
+              Old :&nbsp; {olddesign_no}
             </p>
-            <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
-              {olddesign_no}
-            </p>
+
+            <div>
+              <p
+                className="text-right text-sky-600 font-montserrat font-normal text-sm underline-offset-1 cursor-pointer"
+                onClick={handleStockClick}
+              >
+                In Stock
+              </p>
+            </div>
           </div>
 
           <div className="flex justify-between space-x-2">

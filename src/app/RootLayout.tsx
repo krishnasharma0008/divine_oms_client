@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en">
-      <body className="text-sm">
+      <body>
         {/* Wrapping the application with LoginContextProvider */}
         <LoginContextProvider>
           <NotificationWrapper>
