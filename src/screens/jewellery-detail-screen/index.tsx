@@ -59,6 +59,7 @@ function JewelleryDetailScreen() {
     }
     const fetchData = async () => {
       await FetchData(Number(id));
+      console.log("Metal color on page load ", metalColor);
       const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
       setSDiaPrice(parseFloat((diamondPrice * (totalweight ?? 0)).toFixed(2)));
 
@@ -71,10 +72,10 @@ function JewelleryDetailScreen() {
       );
       setMetalPriceFrom(
         parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-      );      
+      );
     };
     fetchData();
-  }, [id]);
+  }, [id, metalColor]);
 
   // useEffect(() => {
   //   // Set default metal color to the first option
@@ -105,7 +106,7 @@ function JewelleryDetailScreen() {
   // Add types for parameters
   const filterByColorAndFormat = (color: string) => {
     // Filter the images based on the selected color
-    console.log("Metal Color : ", color);
+    //console.log("Metal Color : ", color);
 
     const filteredImages = jewelleryDetails?.Images?.filter(
       (image: { color: string; image_url: string[] }) =>
@@ -391,7 +392,7 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={renderSelectOptions}
               >
-                <option value="">Select</option>
+                {/* <option value="">Select</option> */}
                 {jewelleryDetails?.Metal_color.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>
