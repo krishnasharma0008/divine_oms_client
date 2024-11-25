@@ -32,44 +32,89 @@ const SolitaireCustomisationPopup: React.FC<
 
   const options = {
     shape: ["Round", "Princess", "Oval", "Pear"],
-    color: ["D", "E", "F", "G", "H", "I", "J", "K"],
-    //carat: ["0.30 - 0.38", "0.40 - 0.50", "0.60 - 0.75"],
-    clarity: ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"],
+    //clarity: ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"],
     //premiumSize: ["Small", "Medium", "Large"],
     premiumSize: ["-"],
     premiumPercentage: ["5%", "10%", "15%", "20%"],
   };
 
-  // Dynamic color options based on shape
-  const getColorOptions = () =>
-    shape === "Round" ? options.color : options.color.slice(0, 5);
+  const isRound = shape === "Round"; // Check if the shape is Round
 
-  const getClarityOptions = () =>
-    shape === "Round" ? options.clarity : options.clarity.slice(0, 5);
+  const otherRoundColors = ["EF", "GH", "IJ"];
+  const otherRoundColorsCarat = ["EF", "GH"];
+  const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
+
+  const clarities = ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"];
+  const claritiesRound = ["VVS", "VS", "SI"];
+  const claritiesRoundCarat = ["VVS", "VS"];
+
+  // Function to get color options based on the slab
+  const getColorOptions = (slab: string) => {
+    const carat = parseFloat(slab.split("-")[1]);
+
+    if (isRound) {
+      if (carat < 0.18) {
+        return otherRoundColors;
+      } else {
+        return colors;
+      }
+    } else {
+      if (carat >= 0.1 && carat <= 0.17) {
+        return otherRoundColorsCarat;
+      } else {
+        return colors.filter(
+          (color) => color !== "I" && color !== "J" && color !== "K"
+        );
+      }
+    }
+  };
+
+  const getClarityOptions = (slab: string) => {
+    const carat = parseFloat(slab.split("-")[1]);
+
+    if (isRound) {
+      if (carat < 0.18) {
+        return claritiesRound;
+      } else {
+        return clarities;
+      }
+    } else {
+      if (carat >= 0.1 && carat <= 0.17) {
+        return claritiesRoundCarat;
+      } else {
+        return clarities.slice(0, 5);
+      }
+    }
+  };
 
   const getColorTOptions = (colorF: string) => {
-    const colorFIndex = getColorOptions().indexOf(colorF);
-    return getColorOptions().filter((_, index) => index >= colorFIndex);
+    const colorFIndex = getColorOptions(carat).indexOf(colorF);
+    return getColorOptions(carat).filter((_, index) => index >= colorFIndex);
   };
 
   const getClarityTOptions = (clarityF: string) => {
-    const clarityFIndex = getClarityOptions().indexOf(clarityF);
-    return getClarityOptions().filter((_, index) => index >= clarityFIndex);
+    const clarityFIndex = getClarityOptions(carat).indexOf(clarityF);
+    return getClarityOptions(carat).filter(
+      (_, index) => index >= clarityFIndex
+    );
   };
 
   useEffect(() => {
     if (
       colorF &&
-      options.color.indexOf(colorF) > options.color.indexOf(colorT)
+      colorT &&
+      getColorOptions(carat).indexOf(colorF) >
+        getColorOptions(carat).indexOf(colorT)
     ) {
       setColorT(colorF);
     }
-  }, [colorF]);
+  }, [colorF, carat]);
 
   useEffect(() => {
     if (
       clarityF &&
-      options.clarity.indexOf(clarityF) > options.clarity.indexOf(clarityT)
+      getClarityOptions(carat).indexOf(clarityF) >
+        getClarityOptions(carat).indexOf(clarityT)
     ) {
       setClarityT(clarityF);
     }
@@ -119,6 +164,12 @@ const SolitaireCustomisationPopup: React.FC<
     setPremiumPercentage("");
     //setError("");
   };
+
+  // const handleCarats = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const selectedValue = e.target.value;
+  //   console.log("Selected Carats : ",selectedValue);
+  //   setCarat(selectedValue);
+  // };
 
   if (!isOpen) return null;
 
@@ -178,7 +229,7 @@ const SolitaireCustomisationPopup: React.FC<
             <div className="flex space-x-2">
               <DropdownCust
                 label="From"
-                options={getColorOptions()}
+                options={getColorOptions(carat)}
                 value={colorF}
                 onChange={setColorF}
                 error={fieldErrors.colorF}
@@ -203,7 +254,7 @@ const SolitaireCustomisationPopup: React.FC<
             <div className="flex space-x-2">
               <DropdownCust
                 label="From"
-                options={getClarityOptions()}
+                options={getClarityOptions(carat)}
                 value={clarityF}
                 onChange={setClarityF}
                 error={fieldErrors.clarityF}
