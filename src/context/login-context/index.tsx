@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, ReactNode } from "react";
+import React, { useEffect, useState, createContext, ReactNode, useCallback } from "react";
 import {
   getToken,
   setToken,
@@ -34,6 +34,8 @@ type TContext = {
   setEmailOrMobile: (value: string) => void;
   verifyOtp: (otp: string) => Promise<boolean>;
   toggleLogin: () => void;
+  isCartCount: number;
+  updateCartCount: (count: number) => void; // New function to update the cart count
 };
 
 const LoginContext = createContext<TContext>({
@@ -43,6 +45,8 @@ const LoginContext = createContext<TContext>({
   setEmailOrMobile: () => {},
   verifyOtp: async () => false,
   toggleLogin: () => {},
+  isCartCount: 0,
+  updateCartCount: () => {}, // Default empty function
 });
 
 export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
@@ -51,6 +55,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [emailOrMobile, setEmailOrMobileState] = useState<string | null>(null);
   const [isOtpVerified, setIsOtpVerified] = useState<boolean>(false);
+  const [isCartCount, setCartCount] = useState<number>(0);
 
   const handleSetEmailOrMobile = async (value: string) => {
     setEmailOrMobileState(value);
@@ -71,6 +76,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
         setToken(res.data.token); // Ensure you're getting the token from the correct path
         setUser(res.data.dpname);
         setUserRole(res.data.role);
+        setCartCount(res.data.cartcount || 0);
         return true; // Return true for a successful verification
       }
       return false; // Return false if no valid response
@@ -84,6 +90,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     if (isLogin) {
       deleteToken(); // Clear the token from local storage
       setIsLogin(false);
+      setCartCount(0); // Reset cart count on logout
       setIsOtpVerified(false);
       setEmailOrMobileState(null);
       deleteUser();
@@ -91,10 +98,22 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  // Update cart count globally
+  const updateCartCount = useCallback((count: number) => {
+    setCartCount(count);
+    // Optionally, persist the count to localStorage
+    localStorage.setItem("cartCount", count.toString());
+  }, []);
+
+
   useEffect(() => {
     const token = getToken();
     if (token) {
       setIsLogin(true); // Token exists, so set the user as logged in
+      const storedCartCount = localStorage.getItem("cartCount");
+      if (storedCartCount) {
+        setCartCount(Number(storedCartCount));
+      }
     } else {
       setIsLogin(false);
     }
@@ -117,6 +136,8 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
         setEmailOrMobile: handleSetEmailOrMobile,
         verifyOtp,
         toggleLogin,
+        isCartCount,
+        updateCartCount, // Provide the update function
       }}
     >
       {children}

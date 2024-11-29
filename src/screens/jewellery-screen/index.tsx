@@ -10,6 +10,7 @@ import { Jewellery } from "@/interface";
 //import LoaderContext from "@/context/loader-context";
 import { getJewelleryDetailID } from "@/api/jewellery-detail";
 import NotificationContext from "@/context/notification-context";
+import BulkImportModal from "@/components/common/bulk-import-modal";
 
 function JewelleyScreen() {
   //const [category, setCategory] = useState<string>("");
@@ -28,6 +29,8 @@ function JewelleyScreen() {
   const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
   const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
   //const [selectedJewellery, setSelectedJewellery] = useState<JewelleryDetail | null>(null); //eye click
+
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -107,19 +110,9 @@ function JewelleyScreen() {
     setIsModalOpen(true);
   };
 
-  // const handlejewelleryDetailClick = (jewelleryId: string) => {
-  //   // Find the specific jewellery item by item_number
-  //   const foundItem = selectedJewelleryItem.find(
-  //     (item) => item.item_number === jewelleryId
-  //   );
-
-  //   if (foundItem) {
-  //     setSelectedJewellery(foundItem); // Set the found item to the state
-  //     setIsJDetailModalOpen(true); // Open the modal
-  //   } else {
-  //     console.error("Jewellery item not found.");
-  //   }
-  // };
+  const handleBulkImport = () => {
+    //setIsBulkImportOpen(true);
+  };
 
   return (
     <div className="flex max-h-[calc(100vh_-_80px)] overflow-y-auto gap-x-2 m-0.5">
@@ -197,8 +190,11 @@ function JewelleyScreen() {
         {/* Fixed Header */}
         <div className="h-16 bg-white p-4 sticky top-0">
           <div className="flex justify-end space-x-2 mb-4">
-            <button className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black">
-              Bulk Edit
+            <button
+              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+              onClick={handleBulkImport}
+            >
+              Bulk Import
             </button>
             <button
               className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
@@ -216,7 +212,7 @@ function JewelleyScreen() {
             {selectedJewelleryItem.map((item, index) => (
               <JewelleryHomeDiv
                 key={index}
-                Item_id={item.Item_id}
+                //Item_id={item.Item_id}
                 olddesign_no={item.old_varient}
                 design_no={item.item_number}
                 g_wt={item.weight}
@@ -269,6 +265,11 @@ function JewelleyScreen() {
         />
       )}
 
+      {/* Bulk Import Modal */}
+      <BulkImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+      />
       {/* Modal */}
       {/* {isJDetailModalOpen && (
         <JewelDetailModal

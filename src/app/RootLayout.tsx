@@ -9,6 +9,7 @@ import { LayoutWrapper, NotificationWrapper, LoaderWrapper } from "@/wrapper";
 import "react-datepicker/dist/react-datepicker.css";
 import AuthLayout from "@/wrapper/auth-layout";
 import LoginContext, { LoginContextProvider } from "@/context/login-context";
+// import { CartProvider } from "@/context/cart-context";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -50,7 +51,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <AuthLayout>
                 <ThemeProvider>
                   <LoaderWrapper>
-                    <LayoutWrapper>{children}</LayoutWrapper>
+                    {/* <CartProvider> */}
+                      <LayoutWrapper>{children}</LayoutWrapper>
+                    {/* </CartProvider> */}
                   </LoaderWrapper>
                 </ThemeProvider>
               </AuthLayout>

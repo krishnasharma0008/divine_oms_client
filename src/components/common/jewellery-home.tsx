@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 
 export interface JewelleryHomedivProps {
-  Item_id: number;
+  //Item_id: number;
   design_no: string;
   olddesign_no: string;
   g_wt: string;
@@ -13,7 +13,7 @@ export interface JewelleryHomedivProps {
 }
 
 const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
-  Item_id,
+  //Item_id,
   design_no,
   olddesign_no,
   g_wt,
@@ -24,16 +24,16 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   const router = useRouter();
 
   const handleImageClick = () => {
-    router.push(`/jewellery-detail/${Item_id}`);
+    router.push(`/jewellery-detail/${design_no}`);
     // Use history.pushState to add Item_id to the history state
     // history.pushState({ Item_id }, "/jewellery-detail");
     // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
   };
 
   const handleStockClick = () => {
-    //router.push(`/jewellery-stock/${Item_id}`);
+    router.push(`/jewellery-stock/${design_no}`);
     // Use history.pushState to add Item_id to the history state
-    // history.pushState({ Item_id }, "/jewellery-detail");
+    //history.pushState({ Item_id }, "/jewellery-stock");
     // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
   };
 

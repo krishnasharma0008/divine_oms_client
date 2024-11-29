@@ -10,6 +10,7 @@ import React, { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+//import { useCart } from "@/context/cart-context";
 //import { useEffect, useState } from "react";
 
 import Breadcrumb from "./breadcrumb";
@@ -17,10 +18,18 @@ import Breadcrumb from "./breadcrumb";
 //import { getUser, getUserRole } from "@/local-storage";
 import { UserIcon } from "../icons";
 import LoginContext from "@/context/login-context";
+import ShoppingCartIcon from "../icons/shopping-cart-icon";
+// import { CartDetail } from "@/interface";
+// import { getCartDetailList } from "@/api/cart";
+// import { getUser } from "@/local-storage";
+//import LoaderContext from "@/context/loader-context";
 
 const Navbar: React.FC = () => {
   //const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { toggleLogin } = useContext(LoginContext);
+  const { toggleLogin, isCartCount } = useContext(LoginContext);
+  //const [cartData, setCartData] = useState<CartDetail[]>([]);
+  //const { showLoader, hideLoader } = useContext(LoaderContext);
+  //const { cartData } = useCart();
 
   const { push } = useRouter();
 
@@ -35,10 +44,38 @@ const Navbar: React.FC = () => {
     window.location.reload();
   };
 
+  const ViewCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      console.log("Navigating to cart");
+      push("/jewellery-cart");
+    } catch (error) {
+      console.error("Error navigating to cart:", error);
+    }
+  };
+
   const profile = () => {
     //deleteToken();
     push("/profile");
   };
+
+  // useEffect(() => {
+  //   const fetchCartData = async () => {
+  //     showLoader();
+  //     try {
+  //       const res = await getCartDetailList(getUser() ?? "");
+  //       setCartData(res.data.data); // Initialize directly from API
+  //       console.log(res.data.data);
+  //       //setcartData(cartData);
+  //     } catch (error) {
+  //       console.error("Error fetching cart details:", error);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   };
+
+  //   fetchCartData();
+  // }, [showLoader, hideLoader]);
 
   // useEffect(() => {
   //   if (getToken()) {
@@ -68,8 +105,8 @@ const Navbar: React.FC = () => {
             </div>
           </Link>
         </div>
-        <div>
-          <ul className="mx-auto mt-4 flex space-x-6 sm:mx-5 sm:mt-0">
+        <div className="flex w-32">
+          <ul className="mx-auto mt-4 flex space-x-6 sm:mx-0 sm:mt-0">
             <li className="">
               {/* {isLoggedIn ? ( 
               // User is logged in, show dropdown menu*/}
@@ -131,14 +168,51 @@ const Navbar: React.FC = () => {
                   </MenuItem>
                 </MenuList>
               </Menu>
-              {/* ) : (
-                 // User is not logged in, show login link
-                 <Link className="mr-2 relative cursor-pointer" href={"/login"}>
-                   <button className="flex h-8 w-8 items-center justify-center rounded-xl border text-gray-600 hover:text-black hover:shadow">
-                     <UserIcon />
-                   </button>
-                 </Link>
-               )} */}
+            </li>
+          </ul>
+
+          <ul className="mx-auto mt-4 flex space-x-6 sm:mx-0 sm:mt-0">
+            <li>
+              <Menu>
+                <MenuHandler>
+                  <IconButton
+                    variant="text"
+                    className="mr-2 relative cursor-pointer"
+                  >
+                    <div onClick={ViewCart}>
+                      <ShoppingCartIcon />
+                      {isCartCount > 0 && (
+                        <span className="absolute top-0 left-4 text-xs font-semibold text-white bg-red-500 rounded-full px-2 py-1">
+                          {isCartCount}
+                        </span>
+                      )}
+                    </div>
+                  </IconButton>
+                </MenuHandler>
+                {/* <MenuList>
+                  <MenuItem
+                    className="flex items-center gap-2"
+                    onClick={ViewCart}
+                  >
+                    <div className="w-96 bg-white flex justify-between">
+                      <div className="w-1/2">
+                        <button className="px-4 py-1 bg-white text-black">
+                          {cartData.length}
+                          {" Items"}
+                        </button>
+                      </div>
+                      <div className="w-1/2 item-center justify-center bg-black text-white p-2">
+                        <button
+                          className="px-4 py-1 bg-black text-white rounded-md border border-black"
+                          onClick={ViewCart}
+                        >
+                          View Cart
+                        </button>
+                      </div>
+                    </div>
+                  </MenuItem>
+                </MenuList> */}
+              </Menu>
             </li>
           </ul>
         </div>

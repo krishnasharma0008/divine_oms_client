@@ -16,7 +16,7 @@ const DashboardScreen = () => {
     showLoader();
     setSelectedOrderType(orderType);
     setCustType(orderType);
-    if (orderType === "PJ/Jeweller") {
+    if (orderType === "Jeweller") {
       await router.push("/choose-your-order");
     } else if (orderType === "Retail Customer") {
       await router.push("/customer-search");
@@ -32,11 +32,11 @@ const DashboardScreen = () => {
           <div className="flex flex-wrap gap-x-12 gap-y-8 justify-center">
             <div
               className={`flex h-56 w-80 rounded-xl p-10 text-center items-center justify-center border-solid border-2 cursor-pointer transition-colors ${
-                selectedOrderType === "PJ/Jeweller"
+                selectedOrderType === "Jeweller"
                   ? "border-[#000000] bg-gray-100"
                   : "border-[#B0B0B0] bg-white"
               }`}
-              onClick={() => orderfor("PJ/Jeweller")}
+              onClick={() => orderfor("Jeweller")}
             >
               <p className="font-medium text-xl font-black">Jeweller</p>
             </div>

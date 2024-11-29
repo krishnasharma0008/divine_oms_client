@@ -17,7 +17,7 @@ const LoginScreenOtp: React.FC = () => {
   // const [mobileNumber, setMobileNumber] = useState<string>("");
   // useEffect(() => {
   //   setMobileNumber(getMobileNumber() as string);
-  // }, []);
+  // }, []);cartcount
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notifyErr, notify } = useContext(NotificationContext);
   const { verifyOtp, isOtpVerified } = useContext(LoginContext);

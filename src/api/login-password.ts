@@ -8,6 +8,7 @@ export interface LoginResponse {
   message: "SUCCESS" | "FAILURE";
   role: string;
   token: string;
+  cartcount: number;
 }
 
 const loginPasswordApi = (

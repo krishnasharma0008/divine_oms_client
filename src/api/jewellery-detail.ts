@@ -40,7 +40,7 @@ const getJewelleryDetailID = (
   });
 
 const getJewelleryProductList = (
-  item_id: number
+  product_code: string
 ): Promise<AxiosResponse<GetJewelleryProductDetail>> =>
   callWebService(getJewelleryProdctEndpoint.url, {
     method: getJewelleryProdctEndpoint.method,
@@ -48,7 +48,7 @@ const getJewelleryProductList = (
       Authorization: "Bearer " + getToken(),
     },
     data: {
-      item_id: item_id,
+      product_code: product_code,
     },
   });
 

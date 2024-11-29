@@ -2,17 +2,19 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import RadioButton from "@/components/common/input-radio";
-import CheckboxGroup from "@/components/common/checkbox";
+//import CheckboxGroup from "@/components/common/checkbox";
 import Dropdown from "@/components/common/dropdown";
 import InputText from "@/components/common/input-text";
 import { Button, SingleSelectCheckbox } from "@/components/common";
 import { useRouter } from "next/navigation";
 import { useCustomerStore } from "@/store/customerStore";
+import { useCustomerOrderStore } from "@/store/customerorderStore";
 import { getCustType } from "@/local-storage";
 import { PJCustomerStoreDetail } from "@/interface/pj-custome-store";
 import NotificationContext from "@/context/notification-context";
 import TextArea from "@/components/common/input-text-area";
 import { getpjCustomer, getpjStore } from "@/api/pjcustomer-store-detail";
+import { CustomerOrderDetail } from "@/interface";
 
 interface OptionType {
   value: string;
@@ -20,6 +22,7 @@ interface OptionType {
 }
 
 const ChooseYourOrderScreen = () => {
+  const { setCustomerOrder, resetCustomerOrder } = useCustomerOrderStore(); // Use the customer store
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isCustomerName, setIsCustomerName] = useState<string | null>(null);
   const { notifyErr } = useContext(NotificationContext);
@@ -34,9 +37,9 @@ const ChooseYourOrderScreen = () => {
   const [selectedContact, setSelectedContact] = useState("");
   const [selectedAdd, setSelectedAdd] = useState("");
   const [selectedconsignmen, setSelectedConsignment] = useState(""); // Single checkbox
-  const [selectedsor, setSelectedSOR] = useState<string[]>([]); // Checkbox
-  const [selectedoutrightpur, setSelectedOutrightPur] = useState<string[]>([]); // Checkbox
-  const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Checkbox
+  const [selectedsor, setSelectedSOR] = useState(""); // Single checkbox
+  const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
+  const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
 
   const router = useRouter();
 
@@ -79,6 +82,7 @@ const ChooseYourOrderScreen = () => {
   };
 
   const handleSuggestionClick = (id: string) => {
+    console.log("Selected customer", id);
     setIsCustomerName(id);
     getpjstoredata(id); //fetch store data
     setShowSuggestions(false);
@@ -90,8 +94,9 @@ const ChooseYourOrderScreen = () => {
 
   const getpjstoredata = async (custName?: string) => {
     try {
-      console.log("Jeweller Name :", custName);
+      //console.log("Jeweller Name :", custName);
       const response = await getpjStore(custName);
+      //console.log(response.data.data ?? []);
       setStores(response.data.data ?? []);
       //setSelectedSValue(stores[0].CustomerID.toString());
     } catch (error) {
@@ -100,7 +105,7 @@ const ChooseYourOrderScreen = () => {
   };
 
   const handleSDropdownChange = (selectedStoreValue: string) => {
-    console.log("Store Selected:", selectedStoreValue);
+    //console.log("Store Selected:", selectedStoreValue);
     const selectedStore = stores.find(
       (store) => store.CustomerID.toString() === selectedStoreValue
     );
@@ -127,6 +132,16 @@ const ChooseYourOrderScreen = () => {
     setSelectedConsignment(value);
   };
 
+  const handleSOR = (value: string) => {
+    console.log("selected Sale Of Order", value);
+    setSelectedSOR(value);
+  };
+
+  const handleOutPur = (value: string) => {
+    console.log("selected Out Purchase", value);
+    setSelectedOutrightPur(value);
+  };
+
   const handleCustOrder = (value: string) => {
     console.log("selected Customer Order", value);
     setSelectedCustOrder(value);
@@ -141,7 +156,6 @@ const ChooseYourOrderScreen = () => {
     { label: "TC S", value: "tcs" },
     { label: "RRO / Exhibition", value: "rroexhibitation" },
   ];
-
   const SORoptions = [{ label: "Sale or Return(SOR)", value: "sor" }];
   const Outpurchaseoptions = [{ label: "Outright Purchase", value: "outpur" }];
   const CustomerOrderoptions = [
@@ -150,32 +164,91 @@ const ChooseYourOrderScreen = () => {
   ];
 
   const handleProceed = () => {
-    // Find the store based on the selected store ID
+    console.log("handleProceed called", getCustType());
+
+    resetCustomerOrder();
+
     const selectedStore = stores.find(
       (store) => store.CustomerID.toString() === selectedSValue
     );
+    console.log("selectedStore:", selectedStore);
+    console.log("selectedSValue:", selectedSValue);
 
-    // If the selected store exists, update selectedSValue
-    if (selectedStore) {
-      const store_city = selectedStore.City;
-      //console.log(store_city);
+    if (selectedStore && getCustType() === "Jeweller") {
+      console.log("Creating payload for Jeweller");
 
-      const queryParams = new URLSearchParams({
-        isCustomerName: isCustomerName || "", //jeweller
-        store_city, // store
-        selectedAdd, //add
-        selectedContact, //contact
-        selectedValue, // item type
-        //selectedconsignmen,
-      }).toString();
+      const payload: CustomerOrderDetail = {
+        order_for: getCustType() ?? "",
+        customer_id: parseInt(selectedStore.CustomerID.toString()),
+        product_type: selectedValue,
+        consignment_type: selectedconsignmen,
+        sale_or_return: selectedsor,
+        outright_purchase: selectedoutrightpur,
+        customer_order: selectedCustOrder,
+        cust_name: isCustomerName || "",
+        store: selectedStore.City,
+        contactno: selectedContact,
+        address: selectedAdd,
+        exp_dlv_date: "",
+      };
 
-      // Navigate based on the selected item type
-      if (selectedValue === "solitaire") {
-        router.push(`/regular-confirm-order?${queryParams}`);
-      } else if (selectedValue === "jewelley") {
-        router.push(`/jewellery?${queryParams}`);
-      }
+      console.log("payload", payload);
+      setCustomerOrder(payload);
+    } else {
+      console.log("Creating payload for other customer types");
+
+      const payload: CustomerOrderDetail = {
+        order_for: getCustType() ?? "",
+        customer_id: customer?.id,
+        product_type: selectedValue,
+        consignment_type: selectedconsignmen,
+        sale_or_return: selectedsor,
+        outright_purchase: selectedoutrightpur,
+        customer_order: selectedCustOrder,
+        cust_name: customer?.name || "",
+        store: "",
+        contactno: customer?.contactno || "",
+        address: customer?.address || "",
+        exp_dlv_date: "",
+      };
+
+      console.log("payload", payload);
+      setCustomerOrder(payload);
     }
+
+    console.log("selectedValue:", selectedValue);
+
+    if (selectedValue === "solitaire") {
+      console.log("Navigating to /regular-confirm-order");
+      router.push(`/regular-confirm-order`);
+    } else if (selectedValue === "jewelley") {
+      console.log("Navigating to /jewellery");
+      router.push(`/jewellery`);
+    }
+
+    // // If the selected store exists, update selectedSValue
+    // if (selectedStore) {
+    //   const store_city = selectedStore.City;
+
+    //   const queryParams = new URLSearchParams({
+    //     isCustomerName: isCustomerName || "", //jeweller
+    //     store_city, // store
+    //     selectedAdd, //add
+    //     selectedContact, //contact
+    //     selectedValue, // item type
+    //     //selectedconsignmen,
+    //   }).toString();
+
+    //   //console.log("Customerid:", stores);
+    //   return;
+    //   //setCustomerOrder()
+    //   // Navigate based on the selected item type
+    //   if (selectedValue === "solitaire") {
+    //     router.push(`/regular-confirm-order?${queryParams}`);
+    //   } else if (selectedValue === "jewelley") {
+    //     router.push(`/jewellery?${queryParams}`);
+    //   }
+    // }
   };
 
   return (
@@ -189,7 +262,7 @@ const ChooseYourOrderScreen = () => {
       <div className="overflow-y-auto max-h-[48vh] space-y-4 px-4">
         <div className="flex w-full justify-between mt-2">
           <div className="w-full px-4">
-            {getCustType() === "PJ/Jeweller" ? (
+            {getCustType() === "Jeweller" ? (
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                   {/* Magnifying glass SVG */}
@@ -265,14 +338,14 @@ const ChooseYourOrderScreen = () => {
                 <InputText
                   type="text"
                   label="Customer Name"
-                  //value={customer?.name}
+                  value={customer?.name}
                   disabled={true}
                 />
               </div>
             )}
           </div>
           <div className="w-full px-4">
-            {getCustType() === "PJ/Jeweller" && (
+            {getCustType() === "Jeweller" && (
               <Dropdown
                 label="Select Store"
                 variant="outlined"
@@ -291,7 +364,7 @@ const ChooseYourOrderScreen = () => {
             <TextArea
               label="Contact Detail"
               value={
-                getCustType() === "PJ/Jeweller"
+                getCustType() === "Jeweller"
                   ? selectedContact
                   : customer?.contactno
               }
@@ -302,9 +375,7 @@ const ChooseYourOrderScreen = () => {
             <TextArea
               label="Address"
               value={
-                getCustType() === "PJ/Jeweller"
-                  ? selectedAdd
-                  : customer?.address
+                getCustType() === "Jeweller" ? selectedAdd : customer?.address
               }
               disabled={true}
             />
@@ -341,18 +412,18 @@ const ChooseYourOrderScreen = () => {
                 selectedValue={selectedconsignmen}
                 onChange={handleConsignment}
               />
-              <CheckboxGroup
+              <SingleSelectCheckbox
                 title="" /*Sales or Return(SOR)*/
                 options={SORoptions}
-                selectedValues={selectedsor}
-                onChange={setSelectedSOR}
+                selectedValue={selectedsor}
+                onChange={handleSOR}
                 classes="font-semibold"
               />
-              <CheckboxGroup
+              <SingleSelectCheckbox
                 title="" /*"Outright Purchase"*/
                 options={Outpurchaseoptions}
-                selectedValues={selectedoutrightpur}
-                onChange={setSelectedOutrightPur}
+                selectedValue={selectedoutrightpur}
+                onChange={handleOutPur}
                 classes="font-semibold"
               />
               <SingleSelectCheckbox

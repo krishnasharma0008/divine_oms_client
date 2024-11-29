@@ -10,6 +10,10 @@ export interface GetCustomerDetailResponse {
   data: Array<CustomerDetail>;
 }
 
+interface CreateCustomerResponse {
+  id: number;
+}
+
 const getCustomerDetailID = (
   id: number
 ): Promise<AxiosResponse<GetCustomerDetailResponse>> =>
@@ -30,9 +34,23 @@ const getCustomerDetailValue = (
     },
   });
 
+// const createCustomer = (
+//   payload: CustomerDetail
+// ): Promise<AxiosResponse<void>> => {
+//   return callWebService(customerCreateEndpoint.url, {
+//     method: customerCreateEndpoint.method,
+//     maxBodyLength: Infinity,
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: "Bearer " + getToken(),
+//     },
+//     data: payload,
+//   });
+// };
+
 const createCustomer = (
   payload: CustomerDetail
-): Promise<AxiosResponse<void>> => {
+): Promise<AxiosResponse<CreateCustomerResponse>> => {
   return callWebService(customerCreateEndpoint.url, {
     method: customerCreateEndpoint.method,
     maxBodyLength: Infinity,

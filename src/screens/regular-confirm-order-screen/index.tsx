@@ -3,32 +3,36 @@
 import { Button } from "@/components/common";
 import Dropdown from "@/components/common/dropdown";
 import InputText from "@/components/common/input-text";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+//import { useSearchParams } from "next/navigation";
+//import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BinIcon } from "@/components/icons";
 import TextArea from "@/components/common/input-text-area";
+import { useCustomerOrderStore } from "@/store/customerorderStore";
 
 const RegularConfirmOrderScreen = () => {
-  const searchParams = useSearchParams();
+  // Access customer data from Zustand store
+  const { customerOrder } = useCustomerOrderStore();
+  // const searchParams = useSearchParams();
 
-  const selectedSValue = searchParams.get("selectedSValue");
-  const selectedValue = searchParams.get("selectedValue");
-  const selectedOrderValue = searchParams.get("selectedOrderValue");
-  const selectedOrderForValue = searchParams.get("selectedOrderForValue");
-  const selectedContact = searchParams.get("selectedContact");
-  const selectedAdd = searchParams.get("selectedAdd");
-  const selectedDate = searchParams.get("selectedDate");
+  // const selectedSValue = searchParams.get("selectedSValue");
+  // const selectedValue = searchParams.get("selectedValue");
+  // const selectedOrderValue = searchParams.get("selectedOrderValue");
+  // const selectedOrderForValue = searchParams.get("selectedOrderForValue");
+  // const selectedContact = searchParams.get("selectedContact");
+  // const selectedAdd = searchParams.get("selectedAdd");
+  // const selectedDate = searchParams.get("selectedDate");
 
-  useEffect(() => {
-    console.log("Received data:", {
-      selectedValue,
-      selectedOrderValue,
-      selectedOrderForValue,
-      selectedContact,
-      selectedAdd,
-      selectedDate,
-    });
-  }, [searchParams]);
+  // useEffect(() => {
+  //   console.log("Received data:", {
+  //     selectedValue,
+  //     selectedOrderValue,
+  //     selectedOrderForValue,
+  //     selectedContact,
+  //     selectedAdd,
+  //     selectedDate,
+  //   });
+  // }, [searchParams]);
 
   const shapeoptions = [
     { label: "Select", value: "" },
@@ -240,7 +244,9 @@ const RegularConfirmOrderScreen = () => {
         <div className="flex flex-wrap gap-x-4 gap-y-5">
           <div className="w-full rounded-xl bg-white p-4 mx-6 shadow-md">
             <div>
-              <h2 className="font-medium text-2xl pb-4">{selectedSValue}</h2>
+              <h2 className="font-medium text-2xl pb-4">
+                {customerOrder?.store}
+              </h2>
             </div>
             <div className="w-full flex flex-row">
               <div className="w-1/3 flex flex-col">
@@ -261,11 +267,12 @@ const RegularConfirmOrderScreen = () => {
                   >
                     <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"></path>
                   </svg>
+                  {customerOrder?.contactno}
                 </div>
               </div>
               <div className="w-2/3 flex flex-col">
                 <p className="text-[#888]">Address</p>
-                <div className="py-4"></div>
+                <div className="py-4">{customerOrder?.address}</div>
               </div>
             </div>
           </div>
@@ -274,7 +281,7 @@ const RegularConfirmOrderScreen = () => {
             <div className="w-full flex flex-row gap-x-4">
               <div className="w-1/6 flex flex-col">
                 <p className="text-[#888]">Order Type</p>
-                <div className="py-2">{selectedOrderValue}</div>
+                <div className="py-2">{"selectedOrderValue"}</div>
               </div>
 
               <div className="w-1/6 flex flex-col">

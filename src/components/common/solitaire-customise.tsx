@@ -15,11 +15,12 @@ interface SolitaireCustomisationPopupProps {
   onClose: () => void;
   onApply: (data: CustomisationOptions) => void;
   cts_slab: string[];
+  customisedData?: CustomisationOptions;
 }
 
 const SolitaireCustomisationPopup: React.FC<
   SolitaireCustomisationPopupProps
-> = ({ isOpen, onClose, onApply, cts_slab }) => {
+> = ({ isOpen, onClose, onApply, cts_slab, customisedData }) => {
   const [shape, setShape] = useState<string>("");
   const [colorF, setColorF] = useState<string>("");
   const [colorT, setColorT] = useState<string>("");
@@ -32,8 +33,6 @@ const SolitaireCustomisationPopup: React.FC<
 
   const options = {
     shape: ["Round", "Princess", "Oval", "Pear"],
-    //clarity: ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"],
-    //premiumSize: ["Small", "Medium", "Large"],
     premiumSize: ["-"],
     premiumPercentage: ["5%", "10%", "15%", "20%"],
   };
@@ -47,6 +46,28 @@ const SolitaireCustomisationPopup: React.FC<
   const clarities = ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"];
   const claritiesRound = ["VVS", "VS", "SI"];
   const claritiesRoundCarat = ["VVS", "VS"];
+
+  useEffect(() => {
+    if (isOpen) {
+      setShape(customisedData?.shape || "");
+      
+      const defaultColor = customisedData?.color
+        ? customisedData.color.split("-")
+        : ["", ""];
+      setColorF(defaultColor[0] || "");
+      setColorT(defaultColor[1] || "");
+
+      const defaultClarity = customisedData?.clarity
+        ? customisedData.clarity.split("-")
+        : ["", ""];
+      setClarityF(defaultClarity[0] || "");
+      setClarityT(defaultClarity[1] || "");
+
+      setCarat(customisedData?.carat || "");
+      // setPremiumSize(customisedData.premiumSize || "");
+      // setPremiumPercentage(customisedData.premiumPercentage || "");
+    }
+  }, [isOpen, customisedData]);
 
   // Function to get color options based on the slab
   const getColorOptions = (slab: string) => {
@@ -164,12 +185,6 @@ const SolitaireCustomisationPopup: React.FC<
     setPremiumPercentage("");
     //setError("");
   };
-
-  // const handleCarats = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const selectedValue = e.target.value;
-  //   console.log("Selected Carats : ",selectedValue);
-  //   setCarat(selectedValue);
-  // };
 
   if (!isOpen) return null;
 
