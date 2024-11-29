@@ -18,7 +18,7 @@ interface Item {
 }
 
 function JewelleryStockScreen() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -26,14 +26,14 @@ function JewelleryStockScreen() {
 
   useEffect(() => {
     console.log(id);
-    if (!id || isNaN(Number(id))) {
+    if (!id || id.trim() === "") {
       notifyErr("Invalid jewellery ID.");
       return;
     }
-    FetchData(Number(id));
+    FetchData(id);
   }, []);
 
-  const FetchData = async (itemId: number) => {
+  const FetchData = async (itemId: string) => {
     try {
       const response = await getJewelleryProductList(itemId);
       setJewelleryDetails(response.data.data);
