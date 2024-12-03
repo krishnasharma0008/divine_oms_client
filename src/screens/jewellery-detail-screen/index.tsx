@@ -27,7 +27,6 @@ interface CustomisationOptions {
 }
 
 function JewelleryDetailScreen() {
-  //  const { id } = useParams();
   const { id } = useParams<{ id: string }>();
   const { isCartCount, updateCartCount } = useContext(LoginContext); //
   const { customerOrder } = useCustomerOrderStore();
@@ -38,8 +37,8 @@ function JewelleryDetailScreen() {
   const [ringSizeTo, setRingSizeTo] = useState<number>(16);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [customisedData, setCustomisedData] = useState<CustomisationOptions>(); //parseInt(jewelleryDetails?.Product_size_to.toString() ?? "")
-  const [soliPriceFrom, setSoliPriceFrom] = useState<number>(); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
-  const [soliPriceTo, setSoliPriceTo] = useState<number>();
+  const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
+  const [soliPriceTo, setSoliPriceTo] = useState<number>(0);
   const [metalPrice, setMetalPriceFrom] = useState<number>();
   const [sDiaPrice, setSDiaPrice] = useState<number>();
   const { showLoader, hideLoader } = useContext(LoaderContext);
@@ -49,12 +48,14 @@ function JewelleryDetailScreen() {
   const [Metalweight, setMetalweight] = useState<number>(0);
   const [totalweight, setTotalweight] = useState<number>(0);
 
+  const [soliAmtFrom, setSoliAmtFrom] = useState<number>(0);
+  const [soliAmtTo, setSoliAmtTo] = useState<number>(0);
+
   const router = useRouter();
 
-  const [selectedQty, setSelectedQty] = useState<number>(totalPcs ?? 1);
+  const [selectedQty, setSelectedQty] = useState<number>(1);
 
   useEffect(() => {
-    //console.log("Product Code : ", id);
     if (id && id.trim() !== "") {
       console.log("ID is not empty");
       resetCartDetail();
@@ -84,8 +85,6 @@ function JewelleryDetailScreen() {
           color: `${cart.solitaire_color}`, // Assuming color is stored as a string
           carat: cart.solitaire_slab,
           clarity: `${cart.solitaire_quality}`, // Assuming clarity is stored as a string
-          //premiumSize: "",
-          //premiumPercentage: "", // Adjust if needed
         });
 
         setTotalPcs(cart.side_stone_pcs);
@@ -128,13 +127,14 @@ function JewelleryDetailScreen() {
 
         try {
           await FetchData(id);
-          console.log("Jewellery Data : ", jewelleryDetails);
+          //console.log("Jewellery Data : ", jewelleryDetails);
           const totalPcs = jewelleryDetails?.Bom?.filter(
             (item) =>
               item.Item_type === "STONE" && item.Item_group === "SOLITAIRE"
           ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
           console.log("totalPcs : ", totalPcs);
           setTotalPcs(totalPcs ?? 0);
+          setSelectedQty(totalPcs ?? 0);
 
           const Metalweight = jewelleryDetails?.Bom?.filter(
             (item) => item.Item_type === "METAL"
@@ -321,7 +321,7 @@ function JewelleryDetailScreen() {
         color[0],
         clarity[0]
       );
-
+      setSoliPriceFrom(SolitaireFrom);
       const SolitaireTo = await FetchPrice(
         "SOLITAIRE",
         carat[1],
@@ -329,12 +329,18 @@ function JewelleryDetailScreen() {
         color[1],
         clarity[1]
       );
+      setSoliPriceTo(SolitaireTo);
 
-      setSoliPriceFrom(
-        parseFloat((SolitaireFrom * parseFloat(carat[0])).toFixed(2))
+      console.log("SolitaireFrom", SolitaireFrom);
+      setSoliAmtFrom(
+        parseFloat(
+          (SolitaireFrom * parseFloat(carat[0]) * selectedQty).toFixed(2)
+        )
       );
-      setSoliPriceTo(
-        parseFloat((SolitaireTo * parseFloat(carat[1])).toFixed(2))
+      setSoliAmtTo(
+        parseFloat(
+          (SolitaireTo * parseFloat(carat[1]) * selectedQty).toFixed(2)
+        )
       );
     } catch (error) {
       notifyErr("Failed to fetch price details.");
@@ -342,8 +348,6 @@ function JewelleryDetailScreen() {
   };
 
   const handleCart = async () => {
-    // console.log("soliPriceFrom", soliPriceFrom);
-    // console.log("soliPriceTo", soliPriceTo);
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,
@@ -352,24 +356,21 @@ function JewelleryDetailScreen() {
       product_type: customerOrder?.product_type || "", //solitaire or jewellery
       consignment_type: customerOrder?.consignment_type || "",
       sale_or_return: customerOrder?.sale_or_return || "",
-      //outright_purchase: customerOrder?.outright_purchase || false,
       outright_purchase: customerOrder?.outright_purchase !== "",
       customer_order: customerOrder?.customer_order || "",
       exp_dlv_date: null, //new Date(state.dob || Date.now()).toISOString(),
       product_code: jewelleryDetails?.Item_number || "",
       product_qty: selectedQty,
-      product_amt_min:
-        (soliPriceFrom ?? 0) + (metalPrice ?? 0) + (sDiaPrice ?? 0),
-      product_amt_max:
-        (soliPriceTo ?? 0) + (metalPrice ?? 0) + (sDiaPrice ?? 0),
+      product_amt_min: soliAmtFrom + (metalPrice ?? 0) + (sDiaPrice ?? 0),
+      product_amt_max: soliAmtTo + (metalPrice ?? 0) + (sDiaPrice ?? 0),
       solitaire_shape: customisedData?.shape || "",
       solitaire_slab: customisedData?.carat || "",
       solitaire_color: customisedData?.color || "",
       solitaire_quality: customisedData?.clarity || "",
       solitaire_prem_size: "",
       solitaire_prem_pct: 0,
-      solitaire_amt_min: soliPriceFrom ?? 0,
-      solitaire_amt_max: soliPriceTo ?? 0,
+      solitaire_amt_min: soliAmtFrom,
+      solitaire_amt_max: soliAmtTo,
       metal_purity: jewelleryDetails?.Metal_purity || "",
       metal_color: metalColor,
       metal_weight: Metalweight ?? 0,
@@ -380,8 +381,8 @@ function JewelleryDetailScreen() {
       side_stone_color: "IJ",
       side_stone_quality: "SI",
       cart_remarks: cart?.product_code !== "" ? cart?.cart_remarks || "" : "",
+      order_remarks: cart?.order_remarks || "",
     };
-    //console.log(payload); cart?.product_code
     if (cart?.product_code) {
       payload.id = cart.id as number;
     }
@@ -403,6 +404,26 @@ function JewelleryDetailScreen() {
     } finally {
       hideLoader(); // Ensure the loader is hidden in any case
     }
+  };
+
+  const handleQtyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newQty = Number(e.target.value);
+    if (newQty <= 0) {
+      notifyErr("Quantity must be at least 1.");
+      return;
+    }
+
+    const carat = customisedData?.carat?.split("-") || ["0", "0"];
+
+    setSelectedQty(newQty);
+    console.log("soliPriceFrom", soliPriceFrom);
+    console.log("soliPriceTo", soliPriceTo);
+    setSoliAmtFrom(
+      parseFloat((soliPriceFrom * parseFloat(carat[0]) * newQty).toFixed(2))
+    );
+    setSoliAmtTo(
+      parseFloat((soliPriceTo * parseFloat(carat[0]) * newQty).toFixed(2))
+    );
   };
 
   return (
@@ -442,7 +463,7 @@ function JewelleryDetailScreen() {
             <select
               className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
               value={selectedQty}
-              onChange={(e) => setSelectedQty(Number(e.target.value))}
+              onChange={handleQtyChange}
             >
               {Array.from({ length: 50 }, (_, i) => i + 1).map((qty) => (
                 <option key={qty} value={qty}>
@@ -457,10 +478,10 @@ function JewelleryDetailScreen() {
             <h2 className="text-lg font-semibold">Divine Solitaire</h2>
             <div className="text-lg">
               <span className="font-semibold">
-                {formatByCurrencyINR(soliPriceFrom ?? 0)} apx -{" "}
+                {formatByCurrencyINR(soliAmtFrom ?? 0)} apx -{" "}
               </span>
               <span className="font-semibold">
-                {formatByCurrencyINR(soliPriceTo ?? 0)} apx
+                {formatByCurrencyINR(soliAmtTo ?? 0)} apx
               </span>
             </div>
           </div>
@@ -502,9 +523,7 @@ function JewelleryDetailScreen() {
             >
               Customise your Divine Solitaire
             </h2>
-            <div className="text-lg underline text-blue-600">
-              {/* <span>Check available Price</span> */}
-            </div>
+            <div className="text-lg underline text-blue-600"></div>
           </div>
         </div>
 
@@ -534,7 +553,6 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={renderSelectOptions}
               >
-                {/* <option value="">Select</option> */}
                 {jewelleryDetails?.Metal_color.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>
@@ -622,9 +640,7 @@ function JewelleryDetailScreen() {
                 <div className="text-lg">
                   <span className="font-semibold">
                     {formatByCurrencyINR(
-                      (soliPriceFrom ?? 0) +
-                        (metalPrice ?? 0) +
-                        (sDiaPrice ?? 0)
+                      soliAmtFrom + (metalPrice ?? 0) + (sDiaPrice ?? 0)
                     )}{" "}
                     apx
                   </span>
@@ -632,7 +648,7 @@ function JewelleryDetailScreen() {
                 <div className="text-lg">
                   <span className="font-semibold">
                     {formatByCurrencyINR(
-                      (soliPriceTo ?? 0) + (metalPrice ?? 0) + (sDiaPrice ?? 0)
+                      soliAmtTo + (metalPrice ?? 0) + (sDiaPrice ?? 0)
                     )}{" "}
                     apx
                   </span>

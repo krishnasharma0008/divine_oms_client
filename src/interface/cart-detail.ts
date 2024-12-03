@@ -2,8 +2,8 @@ export interface CartDetail {
   id?: number;
   order_for: string;
   customer_id: number;
-  customer_branch: string;
   customer_name: string;
+  customer_branch: string;
   product_type: string;
   consignment_type: string;
   sale_or_return: string;
@@ -32,5 +32,6 @@ export interface CartDetail {
   side_stone_color: string;
   side_stone_quality: string;
   cart_remarks: string;
+  order_remarks: string;
   image_url?: string;
 }

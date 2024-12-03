@@ -54,9 +54,9 @@ const Navbar: React.FC = () => {
     }
   };
 
-  const profile = () => {
+  const OrderList = () => {
     //deleteToken();
-    push("/profile");
+    push("/order-list");
   };
 
   // useEffect(() => {
@@ -105,7 +105,7 @@ const Navbar: React.FC = () => {
             </div>
           </Link>
         </div>
-        <div className="flex w-32">
+        <div className="flex items-center space-x-4 w-32">
           <ul className="mx-auto mt-4 flex space-x-6 sm:mx-0 sm:mt-0">
             <li className="">
               {/* {isLoggedIn ? ( 
@@ -123,25 +123,36 @@ const Navbar: React.FC = () => {
                 <MenuList>
                   <MenuItem
                     className="flex items-center gap-2"
-                    onClick={profile}
+                    onClick={OrderList}
                   >
                     <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
+                      className="h-5 w-5"
                       xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
                     >
+                      <g strokeLinecap="round" strokeWidth="2">
+                        <path d="M8.5 14.5h7.657" />
+                        <path d="M8.5 10.5h7.657" />
+                        <path d="M8.5 6.5h7.657" />
+                        <path d="M5.5 14.5h0" />
+                        <path d="M5.5 10.5h0" />
+                        <path d="M5.5 6.5h0" />
+                      </g>
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M16 8C16 10.1217 15.1571 12.1566 13.6569 13.6569C12.1566 15.1571 10.1217 16 8 16C5.87827 16 3.84344 15.1571 2.34315 13.6569C0.842855 12.1566 0 10.1217 0 8C0 5.87827 0.842855 3.84344 2.34315 2.34315C3.84344 0.842855 5.87827 0 8 0C10.1217 0 12.1566 0.842855 13.6569 2.34315C15.1571 3.84344 16 5.87827 16 8ZM10 5C10 5.53043 9.78929 6.03914 9.41421 6.41421C9.03914 6.78929 8.53043 7 8 7C7.46957 7 6.96086 6.78929 6.58579 6.41421C6.21071 6.03914 6 5.53043 6 5C6 4.46957 6.21071 3.96086 6.58579 3.58579C6.96086 3.21071 7.46957 3 8 3C8.53043 3 9.03914 3.21071 9.41421 3.58579C9.78929 3.96086 10 4.46957 10 5ZM8 9C7.0426 8.99981 6.10528 9.27449 5.29942 9.7914C4.49356 10.3083 3.85304 11.0457 3.454 11.916C4.01668 12.5706 4.71427 13.0958 5.49894 13.4555C6.28362 13.8152 7.13681 14.0009 8 14C8.86319 14.0009 9.71638 13.8152 10.5011 13.4555C11.2857 13.0958 11.9833 12.5706 12.546 11.916C12.147 11.0457 11.5064 10.3083 10.7006 9.7914C9.89472 9.27449 8.9574 8.99981 8 9Z"
-                        fill="#90A4AE"
+                        d="M9.128 20.197H3.444a2.22 2.22 0 01-2.229-2.153V3.152A2.153 2.153 0 013.367.997h15.48A2.153 2.153 0 0121 3.152v8.738"
+                        strokeLinecap="round"
+                        strokeWidth="2"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M16.5 23.499a1.464 1.464 0 01-1.094-.484l-2.963-2.969A1.479 1.479 0 0112 18.985a1.5 1.5 0 01.462-1.078 1.56 1.56 0 012.113.037l1.925 1.931 4.943-4.959a1.543 1.543 0 012.132.02 1.461 1.461 0 01.425 1.04 1.5 1.5 0 01-.45 1.068l-5.993 6.012a1.44 1.44 0 01-1.057.443z"
                       />
                     </svg>
 
                     <Typography variant="small" className="font-medium">
-                      My Profile
+                      My Order
                     </Typography>
                   </MenuItem>
                   <MenuItem
@@ -171,50 +182,14 @@ const Navbar: React.FC = () => {
             </li>
           </ul>
 
-          <ul className="mx-auto mt-4 flex space-x-6 sm:mx-0 sm:mt-0">
-            <li>
-              <Menu>
-                <MenuHandler>
-                  <IconButton
-                    variant="text"
-                    className="mr-2 relative cursor-pointer"
-                  >
-                    <div onClick={ViewCart}>
-                      <ShoppingCartIcon />
-                      {isCartCount > 0 && (
-                        <span className="absolute top-0 left-4 text-xs font-semibold text-white bg-red-500 rounded-full px-2 py-1">
-                          {isCartCount}
-                        </span>
-                      )}
-                    </div>
-                  </IconButton>
-                </MenuHandler>
-                {/* <MenuList>
-                  <MenuItem
-                    className="flex items-center gap-2"
-                    onClick={ViewCart}
-                  >
-                    <div className="w-96 bg-white flex justify-between">
-                      <div className="w-1/2">
-                        <button className="px-4 py-1 bg-white text-black">
-                          {cartData.length}
-                          {" Items"}
-                        </button>
-                      </div>
-                      <div className="w-1/2 item-center justify-center bg-black text-white p-2">
-                        <button
-                          className="px-4 py-1 bg-black text-white rounded-md border border-black"
-                          onClick={ViewCart}
-                        >
-                          View Cart
-                        </button>
-                      </div>
-                    </div>
-                  </MenuItem>
-                </MenuList> */}
-              </Menu>
-            </li>
-          </ul>
+          <div className="relative cursor-pointer" onClick={ViewCart}>
+            <ShoppingCartIcon />
+            {isCartCount > 0 && (
+              <span className="absolute top-0 left-4 flex items-center justify-center text-xs font-light text-white bg-green-500 rounded-full w-4 h-4">
+                {isCartCount}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </header>

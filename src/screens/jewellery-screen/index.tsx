@@ -3,17 +3,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import PJDetailModal from "@/components/common/pj-detail-modal";
-//import JewelDetailModal from "@/components/common/jewellery-detail-modal";
 import { Jewellery } from "@/interface";
 //import LoaderContext from "@/context/loader-context";
 import { getJewelleryDetailID } from "@/api/jewellery-detail";
 import NotificationContext from "@/context/notification-context";
-import BulkImportModal from "@/components/common/bulk-import-modal";
+//import BulkImportModal from "@/components/common/bulk-import-modal";
+import { useCustomerOrderStore } from "@/store/customerorderStore";
+import MessageModal from "@/components/common/message-modal";
+import { ProductCategory } from "@/api/jewellery-filters";
+
+interface OptionType {
+  value: string;
+  label: string;
+}
 
 function JewelleyScreen() {
   //const [category, setCategory] = useState<string>("");
+  const { customerOrder } = useCustomerOrderStore();
   const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>("");
@@ -23,49 +31,44 @@ function JewelleyScreen() {
   const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
     Array<Jewellery>
   >([]);
+
+  const [productCategory, setProductCategory] = useState<OptionType[]>([]);
   //const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notifyErr } = useContext(NotificationContext);
 
   const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
   const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
+  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
   //const [selectedJewellery, setSelectedJewellery] = useState<JewelleryDetail | null>(null); //eye click
 
-  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  //const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
   const searchParams = useSearchParams();
-
-  const selectedJValue = searchParams.get("isCustomerName"); //jeweller
-  const selectedSValue = searchParams.get("store_city"); //store
-  const selectedAdd = searchParams.get("selectedAdd");
-  const selectedContact = searchParams.get("selectedContact");
-  const selectedValue = searchParams.get("selectedValue");
+  const router = useRouter();
 
   //const selectedDate = searchParams.get("selectedDate");
   // Fetch initial data and handle updates on search params change
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
     setSelectedJewelleryItem([]); // Clear previous items
-    FetchListdata(1); // Load first page of new search results
+    FetchListdata("", "", "", 1); // Load first page of new search results
   }, [searchParams]);
 
   // Fetch data when the page number increments
   useEffect(() => {
     if (currentPage > 1) {
-      FetchListdata(currentPage);
+      //FetchListdata("", "", "", currentPage);
+      FetchListdata(searchText, selectedcategory, "", currentPage);
     }
+    FetchProductCategory();
   }, [currentPage]);
-
-  const optionsCategory = [
-    { label: "Category 1", value: "category1" },
-    { label: "Category 2", value: "category2" },
-    { label: "Category 3", value: "category3" },
-  ];
 
   const handleClearAll = () => {
     //setCategory("");
-    setDate("");
-    setSelectedCategory([]);
-    setSearchText("");
+    setDate(""); // Clear the date filter
+    setSelectedCategory([]); // Reset selected categories to an empty array
+    setSearchText(""); // Clear the search text input
+    FetchListdata("", "", "", 1); // Reload data with no filters
   };
 
   const handleSearch = () => {
@@ -77,16 +80,31 @@ function JewelleyScreen() {
       searchText,
     });
 
+    FetchListdata(searchText, selectedcategory, "", 1);
+
     // Simulate search delay
     setTimeout(() => {
       setLoading(false); // Hide spinner once search is done
     }, 2000);
   };
 
-  const FetchListdata = async (pageno: number) => {
+  const FetchListdata = async (
+    item_number: string,
+    product_category: string[] | string,
+    shape: string,
+    pageno: number
+  ) => {
     try {
       setIsLoadingMore(true);
-      const response = await getJewelleryDetailID(pageno);
+      const categoryParam = Array.isArray(product_category)
+        ? product_category.join(",") // Convert to string for API
+        : product_category;
+      const response = await getJewelleryDetailID(
+        item_number,
+        categoryParam,
+        shape,
+        pageno
+      );
       const newItems = response.data.data ?? [];
       if (pageno === 1) {
         setSelectedJewelleryItem(newItems);
@@ -100,9 +118,26 @@ function JewelleyScreen() {
     }
   };
 
+  const FetchProductCategory = async () => {
+    try {
+      setIsLoadingMore(true);
+      const response = await ProductCategory();
+      console.log(response.data.data ?? []);
+      const CategotyOptions = response.data.data.map((item: string) => ({
+        label: item,
+        value: item,
+      }));
+      setProductCategory(CategotyOptions);
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+    } finally {
+      setIsLoadingMore(false); // Ensure reset after fetching
+    }
+  };
+
   const handleLoadMore = () => {
     //setItemsToShow((prev) => prev + LOAD_MORE_COUNT);
-    console.log("Page_No : ", currentPage);
+    //console.log("Page_No : ", currentPage);
     setCurrentPage((prevPage) => prevPage + 1); // Increment page number
   };
 
@@ -112,6 +147,36 @@ function JewelleyScreen() {
 
   const handleBulkImport = () => {
     //setIsBulkImportOpen(true);
+    router.push("/jewellery-bulk-import");
+  };
+
+  const handleImageClick = (design_no: string) => {
+    if (
+      customerOrder?.cust_name === "" ||
+      customerOrder?.cust_name === undefined
+    ) {
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+    router.push(`/jewellery-detail/${design_no}`);
+  };
+
+  const handleStockClick = (design_no: string) => {
+    //alert(customerOrder?.cust_name);
+    if (
+      customerOrder?.cust_name === "" ||
+      customerOrder?.cust_name === undefined
+    ) {
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+    router.push(`/jewellery-stock/${design_no}`);
+  };
+
+  const closeCheckoutModal = () => {
+    setIsCheckoutModalVisible(false);
+    console.log("Proceeding to checkout with selected items:");
+    // Add further checkout logic here
   };
 
   return (
@@ -144,7 +209,7 @@ function JewelleyScreen() {
           <div className="relative mb-4">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search by product code"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               className="w-full p-2 text-black border rounded-md pr-10"
@@ -159,7 +224,7 @@ function JewelleyScreen() {
           {/* Category Filter */}
           <CheckboxGroup
             title="Category"
-            options={optionsCategory}
+            options={productCategory}
             selectedValues={selectedcategory}
             onChange={setSelectedCategory}
           />
@@ -184,7 +249,6 @@ function JewelleyScreen() {
           <h1 className="text-xl font-bold">Left Footer</h1>
         </div> */}
       </div>
-
       {/* Right Div with the remaining width (80%) */}
       <div className="w-4/5 flex flex-col bg-white text-white shadow-md border my-0.5">
         {/* Fixed Header */}
@@ -218,7 +282,8 @@ function JewelleyScreen() {
                 g_wt={item.weight}
                 d_size={item.solitaire_slab}
                 imgurl={item.image_url}
-                //onClick={() => handlejewelleryDetailClick(item.item_number)}
+                onImgClick={() => handleImageClick(item.item_number)}
+                onStkClick={() => handleStockClick(item.item_number)}
               />
             ))}
           </div>
@@ -248,28 +313,23 @@ function JewelleyScreen() {
         <PJDetailModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          //   selectedJValue,//jeweller
-          // selectedSValue, // store
-          // selectedAdd,//add
-          // selectedContact,//contact
-          // selectedValue,// item type
-          selectedJValue={selectedJValue} //jeweller
-          selectedSValue={selectedSValue} // store
-          selectedAdd={selectedAdd} //add
-          selectedContact={selectedContact} //contact
-          selectedValue={selectedValue} // item type
-          // selectedOrderValue={selectedOrderValue}
-          // selectedOrderForValue={selectedOrderForValue}
-
-          // selectedDate={selectedDate}
         />
       )}
-
+      {/* Checkout Confirmation Modal */}
+      {isCheckoutModalVisible && (
+        <MessageModal
+          title="Proceed"
+          //onClose={() => setIsCheckoutModalVisible(false)}
+          onConfirm={closeCheckoutModal}
+        >
+          <p>Please select customer for further process.....</p>
+        </MessageModal>
+      )}
       {/* Bulk Import Modal */}
-      <BulkImportModal
+      {/* <BulkImportModal
         isOpen={isBulkImportOpen}
         onClose={() => setIsBulkImportOpen(false)}
-      />
+      /> */}
       {/* Modal */}
       {/* {isJDetailModalOpen && (
         <JewelDetailModal

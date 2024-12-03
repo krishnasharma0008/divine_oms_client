@@ -76,3 +76,18 @@ export const DeleteCartEndpoint: Endpoint = {
   method: HTTP_METHOD.DELETE,
   url: "cart/",
 };
+
+export const CartOrderRemarkEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "cart/updateorderrem",
+};
+
+export const CreateOrderEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "cart/toorder",
+};
+
+export const GetProductCategoryEndpoint: Endpoint = {
+  method: HTTP_METHOD.GET,
+  url: "erp/get-product-category",
+};

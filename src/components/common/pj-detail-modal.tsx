@@ -1,54 +1,27 @@
-import React, { useMemo } from "react";
+import React from "react";
+import { useCustomerOrderStore } from "@/store/customerorderStore";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedJValue: string | null;
-  selectedSValue: string | null;
-  selectedAdd: string | null;
-  selectedContact: string | null;
-  selectedValue: string | null;
-  // selectedOrderValue: string | null;
-  // selectedOrderForValue: string | null;
-  // selectedDate: string | null;
 }
 
-const PJDetailModal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  selectedJValue,
-  selectedSValue,
-  selectedAdd,
-  selectedContact,
-  selectedValue,
-  // selectedOrderValue,
-  // selectedOrderForValue,
-  // selectedDate,
-}) => {
-  // Memoizing the modal data before the early return
-  const modalData = useMemo(
-    () => [
-      { label: "Partner Jewellery", value: selectedJValue },
-      { label: "Store", value: selectedSValue },
-      { label: "Address", value: selectedAdd },
-      { label: "Contact Detail", value: selectedContact },
-      { label: "Item Type", value: selectedValue },
-      //{ label: "Order Type", value: selectedOrderForValue },
-      { label: "Incentive/Deduction", value: "1 % Extra" },
-      { label: "Delivery", value: "Within 28 working days" },
-      { label: "Price List", value: "Price at the time of booking." },
-      { label: "Courier charges", value: "Not charged" },
-      { label: "Comments", value: "Invoice will go with 1% credit note" },
-      { label: "Expected Date", value: "" },
-    ],
-    [
-      selectedJValue,
-      selectedSValue,
-      selectedAdd,
-      selectedContact,
-      selectedValue,
-    ]
-  );
+const PJDetailModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { customerOrder } = useCustomerOrderStore();
+
+  const modalData = [
+    { label: "Partner Jewellery", value: customerOrder?.cust_name },
+    { label: "Store", value: customerOrder?.store },
+    { label: "Address", value: customerOrder?.address },
+    { label: "Contact Detail", value: customerOrder?.contactno },
+    { label: "Item Type", value: customerOrder?.product_type },
+    { label: "Incentive/Deduction", value: "1 % Extra" },
+    { label: "Delivery", value: "Within 28 working days" },
+    { label: "Price List", value: "Price at the time of booking." },
+    { label: "Courier charges", value: "Not charged" },
+    { label: "Comments", value: "Invoice will go with 1% credit note" },
+    { label: "Expected Date", value: "" },
+  ];
 
   if (!isOpen) return null;
 
@@ -90,9 +63,7 @@ const PJDetailModal: React.FC<ModalProps> = ({
               <span className="w-1/2 font-semibold text-left">
                 {item.label} :-
               </span>
-              <span className="w-1/2 text-left">
-                {item.value || "Not Available"}
-              </span>
+              <span className="w-1/2 text-left">{item.value || "-"}</span>
             </div>
           ))}
         </div>

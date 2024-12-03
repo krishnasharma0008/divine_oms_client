@@ -7,15 +7,26 @@ import {
   CreateCartEndpoint,
   ListCartEndpoint,
   DeleteCartEndpoint,
+  CartOrderRemarkEndpoint,
+  CreateOrderEndpoint,
 } from "./endpoints";
 import callWebService from "./web-service";
 
 export interface GetCartDetailResponse {
   data: Array<CartDetail>;
+  order_remarks: string;
 }
 
 interface CreateCartResponse {
   id: number;
+}
+
+interface CartorderremarkResponse {
+  message: string;
+}
+
+interface CartorderResponse {
+  msg: string;
 }
 
 const getCartDetailList = (
@@ -65,4 +76,38 @@ const DeleteCart = (id: number): Promise<AxiosResponse<{ success: boolean }>> =>
     },
   });
 
-export { getCartDetailList, createCart, DeleteCart };
+const UpdateCartOrderRemark = (
+  username: string,
+  remark: string
+): Promise<AxiosResponse<CartorderremarkResponse>> =>
+  callWebService(CartOrderRemarkEndpoint.url, {
+    method: CartOrderRemarkEndpoint.method,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+    data: {
+      username: username,
+      order_remarks: remark,
+    },
+  });
+
+const CreateOrderRemark = (
+  order_ids: number[]
+): Promise<AxiosResponse<CartorderResponse>> =>
+  callWebService(CreateOrderEndpoint.url, {
+    method: CreateOrderEndpoint.method,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+    data: {
+      ids: order_ids,
+    },
+  });
+
+export {
+  getCartDetailList,
+  createCart,
+  DeleteCart,
+  UpdateCartOrderRemark,
+  CreateOrderRemark,
+};

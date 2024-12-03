@@ -1,6 +1,5 @@
 import React from "react";
 //import { EyeIcon } from "../icons";
-import { useRouter } from "next/navigation";
 
 export interface JewelleryHomedivProps {
   //Item_id: number;
@@ -9,7 +8,8 @@ export interface JewelleryHomedivProps {
   g_wt: string;
   d_size: string;
   imgurl: string;
-  //onClick?: () => void;
+  onImgClick?: () => void;
+  onStkClick?: () => void;
 }
 
 const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
@@ -19,23 +19,10 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   g_wt,
   d_size,
   imgurl,
-  //onClick,
+  onImgClick,
+  onStkClick,
 }) => {
-  const router = useRouter();
-
-  const handleImageClick = () => {
-    router.push(`/jewellery-detail/${design_no}`);
-    // Use history.pushState to add Item_id to the history state
-    // history.pushState({ Item_id }, "/jewellery-detail");
-    // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
-  };
-
-  const handleStockClick = () => {
-    router.push(`/jewellery-stock/${design_no}`);
-    // Use history.pushState to add Item_id to the history state
-    //history.pushState({ Item_id }, "/jewellery-stock");
-    // router.replace("/jewellery-detail"); // Navigate without showing Item_id in the URL
-  };
+  
 
   return (
     <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item">
@@ -54,8 +41,8 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
               imgElement.src = "/jewellery/NoImageBig.jpg";
             }
           }}
-          onClick={handleImageClick}
-          className="w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110"
+          onClick={onImgClick}
+          className="w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110 group-hover:cursor-pointer"
         />
         {/* </Link> */}
         {/* View button with eye icon, appears on hover */}
@@ -83,7 +70,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             <div>
               <p
                 className="text-right text-sky-600 font-montserrat font-normal text-sm underline-offset-1 cursor-pointer"
-                onClick={handleStockClick}
+                onClick={onStkClick}
               >
                 In Stock
               </p>

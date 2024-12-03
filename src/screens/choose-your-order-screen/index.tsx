@@ -164,7 +164,7 @@ const ChooseYourOrderScreen = () => {
   ];
 
   const handleProceed = () => {
-    console.log("handleProceed called", getCustType());
+    //console.log("handleProceed called", getCustType());
 
     resetCustomerOrder();
 

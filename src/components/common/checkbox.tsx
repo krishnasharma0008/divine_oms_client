@@ -35,14 +35,21 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
       style={{ borderTop: "1px solid rgb(0 0 0 / 0.1)" }}
     >
       {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
-      <div className="flex flex-col ">
+      <div
+        className="flex flex-col space-y-2 overflow-y-auto"
+        style={{
+          maxHeight: "160px", // Approximately 4 items tall (adjust as needed)
+        }}
+      >
         {options.map((option) => (
-          <label key={option.value} className="flex items-center space-x-2">
+          <label
+            key={option.value}
+            className="flex items-center space-x-2" // Reduced padding between options
+          >
             <Checkbox
               id={option.value}
               checked={selectedValues.includes(option.value)}
               onChange={() => handleCheckboxChange(option.value)}
-              //color="black" // Change the color to suit your design
             />
             <span className={`${classes} text-black`}>{option.label}</span>
           </label>

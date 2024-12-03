@@ -27,6 +27,9 @@ export interface GetJewelleryProductPrice {
 }
 
 const getJewelleryDetailID = (
+  item_number: string,
+  product_category: string,
+  shape: string,
   pageno: number
 ): Promise<AxiosResponse<GetJewelleryDetailResponse>> =>
   callWebService(getJewelleryProdctListEndpoint.url, {
@@ -35,6 +38,9 @@ const getJewelleryDetailID = (
       Authorization: "Bearer " + getToken(),
     },
     data: {
+      item_number: item_number === "" ? null : item_number,
+      product_category: product_category === "" ? null : product_category,
+      shape: shape === "" ? null : shape,
       pageno: pageno,
     },
   });
