@@ -13,6 +13,7 @@ import NotificationContext from "@/context/notification-context";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
 import MessageModal from "@/components/common/message-modal";
 import { ProductCategory } from "@/api/jewellery-filters";
+import Loader from "@/components/common/loader";
 
 interface OptionType {
   value: string;
@@ -214,11 +215,11 @@ function JewelleyScreen() {
               onChange={(e) => setSearchText(e.target.value)}
               className="w-full p-2 text-black border rounded-md pr-10"
             />
-            {loading && (
+            {/* {loading && (
               <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
                 <div className="loader"></div>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Category Filter */}
@@ -272,21 +273,30 @@ function JewelleyScreen() {
         {/* Scrollable Body */}
         {/* <div className="flex-1 overflow-auto p-4 h-[80vh]"></div> */}
         <div className="flex-1 overflow-y-auto h-[90vh]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2">
-            {selectedJewelleryItem.map((item, index) => (
-              <JewelleryHomeDiv
-                key={index}
-                //Item_id={item.Item_id}
-                olddesign_no={item.old_varient}
-                design_no={item.item_number}
-                g_wt={item.weight}
-                d_size={item.solitaire_slab}
-                imgurl={item.image_url}
-                onImgClick={() => handleImageClick(item.item_number)}
-                onStkClick={() => handleStockClick(item.item_number)}
-              />
-            ))}
-          </div>
+          {loading ? (
+            // Show spinner while loading
+            <div className="flex justify-center items-center h-full">
+              <div>
+                <Loader />{" "}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2">
+              {selectedJewelleryItem.map((item, index) => (
+                <JewelleryHomeDiv
+                  key={index}
+                  //Item_id={item.Item_id}
+                  olddesign_no={item.old_varient}
+                  design_no={item.item_number}
+                  g_wt={item.weight}
+                  d_size={item.solitaire_slab}
+                  imgurl={item.image_url}
+                  onImgClick={() => handleImageClick(item.item_number)}
+                  onStkClick={() => handleStockClick(item.item_number)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Fixed Footer */}
