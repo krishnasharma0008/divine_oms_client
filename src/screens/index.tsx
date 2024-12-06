@@ -13,3 +13,4 @@ export { default as JewelleryStockScreen } from "./jewellery-stock-screen";
 export { default as JewelleryCartScreen } from "./jewellery-cart-screen";
 export { default as JewelleryBulkImportScreen } from "./jewellery-bulk-import-screen";
 export { default as OrderListScreen } from "./order-list-screen";
+export { default as OrderDetailScreen } from "./order-detail-screen";

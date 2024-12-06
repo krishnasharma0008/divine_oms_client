@@ -1,16 +1,18 @@
-export interface CartDetail {
-  id?: number;
+export interface OrderDetail {
+  id: number;
+  username: string;
+  orderno: number;
   order_for: string;
   customer_id: number;
   customer_name: string;
   customer_branch: string;
   product_type: string;
-  Product_category: string; //new ring,coint,pendent
+  product_category: string;
   consignment_type: string;
   sale_or_return: string;
   outright_purchase: boolean;
   customer_order: string;
-  exp_dlv_date: Date | null; // date
+  exp_dlv_date: string;
   product_code: string;
   product_qty: number;
   product_amt_min: number;
@@ -23,20 +25,20 @@ export interface CartDetail {
   solitaire_prem_pct: number;
   solitaire_amt_min: number;
   solitaire_amt_max: number;
-  metal_type: string; //gold,silver new
+  metal_type: string;
   metal_purity: string;
   metal_color: string;
   metal_weight: number;
-  metal_price: number; //new
-  mount_amt_min: number; //new
-  mount_amt_max: number; //new
+  metal_price: number;
   size_from: string;
   size_to: string;
   side_stone_pcs: number;
   side_stone_cts: number;
   side_stone_color: string;
   side_stone_quality: string;
+  mount_amt_min: number;
+  mount_amt_max: number;
   cart_remarks: string;
   order_remarks: string;
-  image_url?: string;
+  image_url: string;
 }

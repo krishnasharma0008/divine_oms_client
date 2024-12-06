@@ -7,7 +7,8 @@ export interface JewelleryDetail {
   Item_id: number;
   Item_number: string;
   Product_name: string;
-  Product_category: string;
+  
+  Product_category: string;//
   Product_sub_category: string;
   Sub_catagory_2: string;
   Sub_catagory_3: string;

@@ -1,114 +1,115 @@
 "use client";
 
-import React, { useEffect } from "react";
+import dayjs from "dayjs";
+import React, { useContext, useEffect } from "react";
 import DataTable, {
   TableColumn,
   TableStyles,
 } from "react-data-table-component";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import { OrderList } from "@/interface/order-list";
+import { getUser } from "@/local-storage";
+import { getOrderList } from "@/api/order";
+import LoaderContext from "@/context/loader-context";
+//import NotificationContext from "@/context/notification-context";
 
 function OrderListScreen() {
-  const router = useRouter();
+  //const router = useRouter();
 
   const [excelData, setExcelData] = React.useState<OrderList[]>([]);
+  const { showLoader, hideLoader } = useContext(LoaderContext);
+  //const { notify, notifyErr } = useContext(NotificationContext);
 
   useEffect(() => {
-    setExcelData([
-      {
-        id: 1,
-        order_date: "2023-12-01",
-        pj_name: "Jeweller A",
-        store_name: "Store X",
-        item_type: "Necklace",
-        order_type: "Custom",
-        order_for: "Customer Y",
-        req_date: "2023-12-10",
-        exp_date: "2023-12-15",
-        view_order: "7781",
-      },
-      // More mock rows
-    ]);
+    getlistdata();
   }, []);
+
+  const getlistdata = async () => {
+    try {
+      showLoader();
+      const result = await getOrderList(getUser() ?? "");
+      console.log(result.data.data ?? []);
+      setExcelData(result.data.data ?? []);
+      hideLoader();
+    } catch (error) {
+      hideLoader();
+      console.log(error);
+    }
+  };
 
   const columns: TableColumn<OrderList>[] = [
     {
-      name: "Sr. No.",
+      name: " # ",
       cell: (row: OrderList, index: number) => index + 1,
       reorder: true,
-      width: "80px",
+      center: true,
+      width: "50px",
     },
     {
       name: "Order Date",
-      selector: (row: OrderList) => row.order_date || "",
-      sortable: true,
+      selector: (row: OrderList) =>
+        row.order_createdat !== null
+          ? dayjs(row.order_createdat).format("DD MMM,YYYY")
+          : "",
+      //sortable: true,
       reorder: true,
+      Alignment: "center",
+      width: "130px",
     },
     {
-      name: "Pj Name",
-      //   cell: (row) => (
-      //     <div
-      //       className={`w-full font-bold py-2 px-4 rounded text-center`}
-
-      //       //onClick={() => onRowClicked(row.id)}
-      //     >
-      //       {row.pj_name}
-      //     </div>
-      //   ),
-      selector: (row: OrderList) => row.pj_name,
-      sortable: true,
+      name: "Name",
+      selector: (row: OrderList) => row.customer_name,
+      //sortable: true,
+      Alignment: "center",
       reorder: true,
-      width: "140px",
     },
     {
       name: "Stores Name",
-      selector: (row: OrderList) => row.store_name || "",
-      sortable: true,
+      selector: (row: OrderList) => row.customer_branch || "",
+      //sortable: true,
       reorder: true,
+      Alignment: "center",
+      width: "120px",
     },
     {
       name: "Item Type",
-      //selector: (row) => (row.createdat !== null ? dayjs(row.createdat).format('DD MMM,YYYY') : ''),
-      selector: (row: OrderList) => row.item_type || "",
-      sortable: true,
+      selector: (row: OrderList) => row.product_type || "",
+      //sortable: true,
       reorder: true,
-    },
-    {
-      name: "Order Type",
-      //selector: (row) => (row.polend !== null ? dayjs(row.polend).format('DD MMM,YYYY') : ''),
-      selector: (row: OrderList) => row.order_type || "",
-      sortable: true,
-      reorder: true,
+      Alignment: "center",
+      width: "120px",
     },
     {
       name: "order for",
       selector: (row: OrderList) => row.order_for,
-      sortable: true,
+      //sortable: true,
       reorder: true,
-    },
-    {
-      name: "Required Date",
-      selector: (row: OrderList) => row.req_date,
-      sortable: true,
-      reorder: true,
+      Alignment: "center",
+      width: "140px",
     },
     {
       name: "Expected  Date",
-      selector: (row: OrderList) => row.exp_date,
-      sortable: true,
+      selector: (row: OrderList) =>
+        row.exp_dlv_date !== null
+          ? dayjs(row.exp_dlv_date).format("DD MMM,YYYY")
+          : "",
+      //sortable: true,
       reorder: true,
+      Alignment: "center",
+      width: "140px",
     },
     {
-      name: "View Order",
+      name: "View",
       cell: (row: OrderList) => (
         <p
-          className="underline cursor-pointer"
-          onClick={() => router.push(`/orders/${row.id}`)}
+          className="underline cursor-pointer text-black"
+          //onClick={() => router.push(`/order-detail/${row.orderno}`)}
         >
-          {row.view_order}
+          {row.orderno}
         </p>
       ),
-      width: "100px",
+      center: true,
+      width: "90px",
     },
   ].map((col) => ({ ...col, name: col.name?.toUpperCase() }));
 
@@ -118,6 +119,9 @@ function OrderListScreen() {
       style: {
         backgroundColor: "#000000",
         color: "white",
+        minHeight: "30px", // Reduce the header height
+        paddingTop: "2px", // Adjust padding
+        paddingBottom: "2px",
       },
     },
     rows: {
@@ -131,7 +135,8 @@ function OrderListScreen() {
         fontSize: "0.875rem",
         borderRightStyle: "solid",
         borderRightWidth: "1px",
-        //alignItems: "center",
+        paddingTop: "2px", // Adjust padding
+        paddingBottom: "2px",
         justifyItems: "center",
       },
     },
@@ -151,11 +156,6 @@ function OrderListScreen() {
             columns={columns}
             data={excelData}
             customStyles={CustomStyles}
-            // onRowClicked={(row) => {
-            //   Object.keys(row).forEach((key) => {
-            //     onRowClicked(key, row[key] ?? "");
-            //   });
-            // }}
             fixedHeader
             fixedHeaderScrollHeight="70vh"
             highlightOnHover

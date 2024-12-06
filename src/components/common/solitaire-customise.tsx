@@ -50,18 +50,21 @@ const SolitaireCustomisationPopup: React.FC<
   useEffect(() => {
     if (isOpen) {
       setShape(customisedData?.shape || "");
-      
-      const defaultColor = customisedData?.color
-        ? customisedData.color.split("-")
-        : ["", ""];
-      setColorF(defaultColor[0] || "");
-      setColorT(defaultColor[1] || "");
 
-      const defaultClarity = customisedData?.clarity
-        ? customisedData.clarity.split("-")
-        : ["", ""];
-      setClarityF(defaultClarity[0] || "");
-      setClarityT(defaultClarity[1] || "");
+      // const defaultColor = customisedData?.color
+      //   ? customisedData.color.split("-")
+      //   : ["", ""];
+      // setColorF(defaultColor[0] || "");
+      // setColorT(defaultColor[1] || "");
+
+      // const defaultClarity = customisedData?.clarity
+      //   ? customisedData.clarity.split("-")
+      //   : ["", ""];
+      // setClarityF(defaultClarity[0] || "");
+      // setClarityT(defaultClarity[1] || "");
+
+      getColorTOptions(customisedData?.carat || "");
+      getClarityOptions(customisedData?.carat || "");
 
       setCarat(customisedData?.carat || "");
       // setPremiumSize(customisedData.premiumSize || "");
@@ -129,7 +132,7 @@ const SolitaireCustomisationPopup: React.FC<
     ) {
       setColorT(colorF);
     }
-  }, [colorF, carat]);
+  }, [colorF, carat, getColorOptions, colorT, setColorT]);
 
   useEffect(() => {
     if (
@@ -139,7 +142,7 @@ const SolitaireCustomisationPopup: React.FC<
     ) {
       setClarityT(clarityF);
     }
-  }, [clarityF]);
+  }, [carat, clarityF, clarityT, getClarityOptions, setClarityT]);
 
   const [fieldErrors, setFieldErrors] = useState<{
     shape?: string;

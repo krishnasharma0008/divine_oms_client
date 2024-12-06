@@ -91,3 +91,13 @@ export const GetProductCategoryEndpoint: Endpoint = {
   method: HTTP_METHOD.GET,
   url: "erp/get-product-category",
 };
+
+export const OrderListEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "order/list",
+};
+
+export const OrderDetailEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "order/orderdetails",
+};

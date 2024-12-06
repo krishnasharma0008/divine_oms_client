@@ -202,6 +202,7 @@ function JewelleryCartScreen() {
       customer_name: item.customer_name || "",
       customer_branch: item.customer_branch || "", // Default to empty string if undefined
       product_type: item.product_type || "", // Default to empty string if undefined
+      Product_category: item.Product_category || "", // new
       consignment_type: item.consignment_type || "", // Default to empty string if undefined
       sale_or_return: item.sale_or_return || "", // Default to empty string if undefined
       outright_purchase: item.outright_purchase || false, // Default to false if undefined
@@ -230,6 +231,10 @@ function JewelleryCartScreen() {
       side_stone_quality: item.side_stone_quality || "SI", // Default to "SI" if undefined
       cart_remarks: item.cart_remarks || "", // Default to empty string if undefined
       order_remarks: item.order_remarks || "",
+      metal_type: item.metal_purity || "",
+      metal_price: item.metal_price || 0,
+      mount_amt_min: item.mount_amt_max || 0,
+      mount_amt_max: item.mount_amt_min || 0,
     };
 
     try {
@@ -280,7 +285,8 @@ function JewelleryCartScreen() {
         selectedItems.forEach(() => {
           updateCartCount(isCartCount - 1); // Decrement for each item
         });
-        window.location.reload(); // Refresh the page upon success
+        //window.location.reload(); // Refresh the page upon success
+        router.push(`/`);
       } else {
         console.error("Unexpected response:", response.data);
       }
@@ -299,7 +305,11 @@ function JewelleryCartScreen() {
 
   // Calculate totals for selected items
   const calculateSelectedTotals = () => {
-    const selectedCartItems = cartData.filter((item) =>
+    // const selectedCartItems = cartData.filter((item) =>
+    //   selectedItems.includes(item.id ?? 0)
+    // );
+
+    const selectedCartItems = (cartData ?? []).filter((item) =>
       selectedItems.includes(item.id ?? 0)
     );
 
@@ -332,8 +342,7 @@ function JewelleryCartScreen() {
           {/* Shopping Bag Section */}
           <div className="w-1/2 flex items-center text-black p-2 rounded-lg">
             <div className="text-2xl font-medium">
-              Shopping Bag {"("} {cartData.length}
-              {" items )"}
+              Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
             </div>
           </div>
 
@@ -352,7 +361,7 @@ function JewelleryCartScreen() {
         </div>
         {/* Cart Items Section */}
         <div className="flex-1 overflow-y-auto h-[90vh] px-4 py-2">
-          {cartData.length > 0 ? (
+          {(cartData ?? []).length > 0 ? (
             cartData.map((item, index) => (
               <div
                 key={index}
@@ -524,7 +533,7 @@ function JewelleryCartScreen() {
 
       {/* Order Summary Section */}
       <div className="p-2 w-full border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
-        {cartData.length > 0 && (
+        {(cartData ?? []).length > 0 && (
           <div className="flex flex-col gap-2 px-6 mt-6">
             <h2 className="text-2xl font-semibold text-gray-800">
               Order Summary
@@ -550,13 +559,13 @@ function JewelleryCartScreen() {
               <span className="text-xl text-gray-600">
                 Required Delivery Date
               </span>
-              <div className="text-lg font-semibold text-black">TBD</div>
+              <div className="text-lg font-semibold text-black">{""}</div>
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-xl text-gray-600">
                 Expected Delivery Date
               </span>
-              <div className="text-lg font-semibold text-black">TBD</div>
+              <div className="text-lg font-semibold text-black">{""}</div>
             </div>
 
             {/* Proceed to Checkout Button */}

@@ -180,8 +180,10 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
       notify("Customer created successfully");
       //setCustomer(payload);
       // Update payload with the ID from the response
+      console.log("Customer id : ", res.data.id);
       payload.id = res.data.id;
       // Update state with the updated payload
+      console.log(payload);
       setCustomer(payload);
       onCustomerAdded(); // Move this inside the success block
       router.push("/choose-your-order");

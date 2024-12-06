@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
 
   const OrderList = () => {
     //deleteToken();
-    //push("/order-list");
+    push("/order-list");
   };
 
   // useEffect(() => {

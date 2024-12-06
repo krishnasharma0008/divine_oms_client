@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware"; // To use localStorage
 import { CustomerOrderDetail } from "@/interface";
 
 interface CustomerOrderState {
@@ -7,8 +8,16 @@ interface CustomerOrderState {
   resetCustomerOrder: () => void;
 }
 
-export const useCustomerOrderStore = create<CustomerOrderState>((set) => ({
-  customerOrder: null,
-  setCustomerOrder: (customerOrder) => set({ customerOrder }),
-  resetCustomerOrder: () => set({ customerOrder: null }),
-}));
+// Zustand store with localStorage persistence
+export const useCustomerOrderStore = create(
+  persist<CustomerOrderState>(
+    (set) => ({
+      customerOrder: null,
+      setCustomerOrder: (customerOrder) => set({ customerOrder }),
+      resetCustomerOrder: () => set({ customerOrder: null }),
+    }),
+    {
+      name: "customer-order-storage", // The key in localStorage
+    }
+  )
+);

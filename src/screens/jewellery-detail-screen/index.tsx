@@ -39,7 +39,9 @@ function JewelleryDetailScreen() {
   const [customisedData, setCustomisedData] = useState<CustomisationOptions>(); //parseInt(jewelleryDetails?.Product_size_to.toString() ?? "")
   const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
   const [soliPriceTo, setSoliPriceTo] = useState<number>(0);
-  const [metalPrice, setMetalPriceFrom] = useState<number>();
+  const [metalPrice, setMetalPrice] = useState<number>();
+  //const [metalPrice, setMetalPriceFrom] = useState<number>();
+  const [metalAmtFrom, setMetalAmtFrom] = useState<number>();
   const [sDiaPrice, setSDiaPrice] = useState<number>();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext);
@@ -112,9 +114,13 @@ function JewelleryDetailScreen() {
             metalColor,
             jewelleryDetails?.Metal_purity ?? ""
           );
-          setMetalPriceFrom(
+          setMetalPrice(metalPrice);
+          setMetalAmtFrom(
             parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
           );
+          // setMetalPriceFrom(
+          //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+          // );
         } catch (error) {
           notifyErr("Failed to fetch price details.");
         }
@@ -134,7 +140,7 @@ function JewelleryDetailScreen() {
           ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
           console.log("totalPcs : ", totalPcs);
           setTotalPcs(totalPcs ?? 0);
-          setSelectedQty(totalPcs ?? 0);
+          //setSelectedQty(totalPcs ?? 0);
 
           const Metalweight = jewelleryDetails?.Bom?.filter(
             (item) => item.Item_type === "METAL"
@@ -150,6 +156,7 @@ function JewelleryDetailScreen() {
           setTotalweight(totalweight ?? 0);
 
           const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
+          console.log("diamondPrice : ", diamondPrice);
           setSDiaPrice(
             parseFloat((diamondPrice * (totalweight ?? 0)).toFixed(2))
           );
@@ -158,13 +165,17 @@ function JewelleryDetailScreen() {
             "GOLD",
             "",
             "",
-            metalColor,
+            jewelleryDetails?.Metal_color ?? "",
             jewelleryDetails?.Metal_purity ?? ""
           );
           console.log("metalPrice :", metalPrice);
-          setMetalPriceFrom(
+          setMetalPrice(metalPrice);
+          setMetalAmtFrom(
             parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
           );
+          // setMetalPriceFrom(
+          //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+          // );
         } catch (error) {
           notifyErr("Failed to fetch initial data.");
         }
@@ -268,7 +279,9 @@ function JewelleryDetailScreen() {
       selectedValue,
       jewelleryDetails?.Metal_purity ?? ""
     );
-    setMetalPriceFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
+    setMetalPrice(metalPrice);
+    setMetalAmtFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
+    //setMetalPriceFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
   };
 
   const FetchPrice = async (
@@ -331,7 +344,7 @@ function JewelleryDetailScreen() {
       );
       setSoliPriceTo(SolitaireTo);
 
-      console.log("SolitaireFrom", SolitaireFrom);
+      //console.log("SolitaireFrom", SolitaireFrom);
       setSoliAmtFrom(
         parseFloat(
           (SolitaireFrom * parseFloat(carat[0]) * selectedQty).toFixed(2)
@@ -354,6 +367,7 @@ function JewelleryDetailScreen() {
       customer_name: customerOrder?.cust_name || "",
       customer_branch: customerOrder?.store || "",
       product_type: customerOrder?.product_type || "", //solitaire or jewellery
+      Product_category: jewelleryDetails?.Product_category || "", // ring,bracelet,coin new field
       consignment_type: customerOrder?.consignment_type || "",
       sale_or_return: customerOrder?.sale_or_return || "",
       outright_purchase: customerOrder?.outright_purchase !== "",
@@ -361,8 +375,8 @@ function JewelleryDetailScreen() {
       exp_dlv_date: null, //new Date(state.dob || Date.now()).toISOString(),
       product_code: jewelleryDetails?.Item_number || "",
       product_qty: selectedQty,
-      product_amt_min: soliAmtFrom + (metalPrice ?? 0) + (sDiaPrice ?? 0),
-      product_amt_max: soliAmtTo + (metalPrice ?? 0) + (sDiaPrice ?? 0),
+      product_amt_min: soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
+      product_amt_max: soliAmtTo + (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
       solitaire_shape: customisedData?.shape || "",
       solitaire_slab: customisedData?.carat || "",
       solitaire_color: customisedData?.color || "",
@@ -371,9 +385,13 @@ function JewelleryDetailScreen() {
       solitaire_prem_pct: 0,
       solitaire_amt_min: soliAmtFrom,
       solitaire_amt_max: soliAmtTo,
+      metal_type: "GOLD", //eg gold,silver
       metal_purity: jewelleryDetails?.Metal_purity || "",
       metal_color: metalColor,
       metal_weight: Metalweight ?? 0,
+      metal_price: metalPrice ?? 0,
+      mount_amt_min: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0), //new
+      mount_amt_max: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0), //new
       size_from: ringSizeFrom.toString() || "",
       size_to: ringSizeTo.toString() || "",
       side_stone_pcs: Number(totalPcs),
@@ -383,6 +401,7 @@ function JewelleryDetailScreen() {
       cart_remarks: cart?.product_code !== "" ? cart?.cart_remarks || "" : "",
       order_remarks: cart?.order_remarks || "",
     };
+    console.log(payload);
     if (cart?.product_code) {
       payload.id = cart.id as number;
     }
@@ -532,12 +551,16 @@ function JewelleryDetailScreen() {
             <h2 className="text-lg font-semibold">Divine Mount</h2>
             <div className="text-lg">
               <span className="font-semibold">
-                {formatByCurrencyINR((metalPrice ?? 0) + (sDiaPrice ?? 0))} apx
+                {formatByCurrencyINR((metalAmtFrom ?? 0) + (sDiaPrice ?? 0))}{" "}
+                apx
               </span>{" "}
               -
               <span className="font-semibold">
                 {" "}
-                {formatByCurrencyINR((metalPrice ?? 0) + (sDiaPrice ?? 0))} apx
+                {formatByCurrencyINR(
+                  (metalAmtFrom ?? 0) + (sDiaPrice ?? 0)
+                )}{" "}
+                apx
               </span>
             </div>
           </div>
@@ -640,7 +663,7 @@ function JewelleryDetailScreen() {
                 <div className="text-lg">
                   <span className="font-semibold">
                     {formatByCurrencyINR(
-                      soliAmtFrom + (metalPrice ?? 0) + (sDiaPrice ?? 0)
+                      soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaPrice ?? 0)
                     )}{" "}
                     apx
                   </span>
@@ -648,7 +671,7 @@ function JewelleryDetailScreen() {
                 <div className="text-lg">
                   <span className="font-semibold">
                     {formatByCurrencyINR(
-                      soliAmtTo + (metalPrice ?? 0) + (sDiaPrice ?? 0)
+                      soliAmtTo + (metalAmtFrom ?? 0) + (sDiaPrice ?? 0)
                     )}{" "}
                     apx
                   </span>

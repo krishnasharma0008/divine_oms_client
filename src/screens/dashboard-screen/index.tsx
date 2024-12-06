@@ -1,7 +1,7 @@
 "use client";
 
 import LoaderContext from "@/context/loader-context";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { setCustType } from "@/local-storage";
 
@@ -11,6 +11,23 @@ const DashboardScreen = () => {
   );
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
+
+  // Clear specific local storage keys on page unload
+  const clearLocalStorage = useCallback(() => {
+    localStorage.removeItem("customer-order-storage"); // Replace "yourSpecificKey" with actual keys to clear
+    localStorage.removeItem("customer-storage");
+    localStorage.removeItem("custtype");
+  }, []);
+
+  useEffect(() => {
+    // Add event listener for beforeunload
+    window.addEventListener("beforeunload", clearLocalStorage);
+
+    // Cleanup the event listener
+    return () => {
+      window.removeEventListener("beforeunload", clearLocalStorage);
+    };
+  }, [clearLocalStorage]);
 
   const orderfor = async (orderType: string) => {
     showLoader();

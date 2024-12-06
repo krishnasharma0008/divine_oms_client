@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -22,6 +22,8 @@ interface OptionType {
 
 function JewelleyScreen() {
   //const [category, setCategory] = useState<string>("");
+  const dataContainer = useRef<HTMLDivElement>(null);
+
   const { customerOrder } = useCustomerOrderStore();
   const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
@@ -66,6 +68,7 @@ function JewelleyScreen() {
 
   const handleClearAll = () => {
     //setCategory("");
+    setCurrentPage(1);
     setDate(""); // Clear the date filter
     setSelectedCategory([]); // Reset selected categories to an empty array
     setSearchText(""); // Clear the search text input
@@ -73,6 +76,7 @@ function JewelleyScreen() {
   };
 
   const handleSearch = () => {
+    setCurrentPage(1);
     setLoading(true); // Show spinner
     console.log("Searching with filters:", {
       //category,
@@ -123,7 +127,7 @@ function JewelleyScreen() {
     try {
       setIsLoadingMore(true);
       const response = await ProductCategory();
-      console.log(response.data.data ?? []);
+      //console.log(response.data.data ?? []);
       const CategotyOptions = response.data.data.map((item: string) => ({
         label: item,
         value: item,
@@ -139,6 +143,12 @@ function JewelleyScreen() {
   const handleLoadMore = () => {
     //setItemsToShow((prev) => prev + LOAD_MORE_COUNT);
     //console.log("Page_No : ", currentPage);
+    const objDiv = dataContainer.current; //document.getElementById("data-div");
+    if (objDiv) {
+      //console.log("Height : ",objDiv.scrollHeight);
+      objDiv.scrollTop = 1100; //objDiv.scrollHeight;
+    }
+
     setCurrentPage((prevPage) => prevPage + 1); // Increment page number
   };
 
@@ -281,7 +291,10 @@ function JewelleyScreen() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2">
+            <div
+              ref={dataContainer}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2"
+            >
               {selectedJewelleryItem.map((item, index) => (
                 <JewelleryHomeDiv
                   key={index}
