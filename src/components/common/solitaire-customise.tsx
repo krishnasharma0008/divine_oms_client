@@ -126,7 +126,7 @@ const SolitaireCustomisationPopup: React.FC<
   useEffect(() => {
     if (
       colorF &&
-      colorT &&
+      //colorT &&
       getColorOptions(carat).indexOf(colorF) >
         getColorOptions(carat).indexOf(colorT)
     ) {
