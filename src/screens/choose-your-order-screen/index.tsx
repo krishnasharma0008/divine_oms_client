@@ -41,6 +41,8 @@ const ChooseYourOrderScreen = () => {
   const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
   const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
 
+  const [orderType, setOrderType] = useState("");
+
   const router = useRouter();
 
   // Access customer data from Zustand store
@@ -127,128 +129,134 @@ const ChooseYourOrderScreen = () => {
     setSelectedValue(value);
   };
 
-  const handleConsignment = (value: string) => {
-    console.log("selected Consignment", value);
-    setSelectedConsignment(value);
+  const handleOrderTypeChange = (value: string) => {
+    console.log("selected Order Type", value);
+    if (value === "tcs" || value === "rroexhibitation") {
+      console.log("selected Consignment", value);
+      setSelectedConsignment(value);
+      setSelectedSOR("");
+      setSelectedOutrightPur("");
+      setSelectedCustOrder("");
+    } else if (value === "sor") {
+      console.log("selected Sale Of Order", value);
+      setSelectedConsignment("");
+      setSelectedSOR(value);
+      setSelectedOutrightPur("");
+      setSelectedCustOrder("");
+    } else if (value === "outpur") {
+      console.log("selected Out Purchase", value);
+      setSelectedConsignment("");
+      setSelectedSOR("");
+      setSelectedOutrightPur(value);
+      setSelectedCustOrder("");
+    } else if (value === "rco" || value === "sco") {
+      console.log("selected Customer Order", value);
+      setSelectedConsignment("");
+      setSelectedSOR("");
+      setSelectedOutrightPur("");
+      setSelectedCustOrder(value);
+    }
+    setOrderType(value);
   };
 
-  const handleSOR = (value: string) => {
-    console.log("selected Sale Of Order", value);
-    setSelectedSOR(value);
-  };
+  // const handleConsignment = (value: string) => {
+  //   console.log("selected Consignment", value);
+  //   setSelectedConsignment(value);
+  //   setOrderType(value);
+  // };
 
-  const handleOutPur = (value: string) => {
-    console.log("selected Out Purchase", value);
-    setSelectedOutrightPur(value);
-  };
+  // const handleSOR = (value: string) => {
+  //   console.log("selected Sale Of Order", value);
+  //   setSelectedSOR(value);
+  //   setOrderType(value);
+  // };
 
-  const handleCustOrder = (value: string) => {
-    console.log("selected Customer Order", value);
-    setSelectedCustOrder(value);
-  };
+  // const handleOutPur = (value: string) => {
+  //   console.log("selected Out Purchase", value);
+  //   setSelectedOutrightPur(value);
+  //   setOrderType(value);
+  // };
+
+  // const handleCustOrder = (value: string) => {
+  //   console.log("selected Customer Order", value);
+  //   setSelectedCustOrder(value);
+  //   setOrderType(value);
+  // };
 
   const Ioptions = [
     { label: "Solitaire", value: "solitaire" },
-    { label: "Jewellery", value: "jewelley" },
+    { label: "Jewellery", value: "jewellery" },
   ];
 
   const Consignmentoptions = [
-    { label: "TC S", value: "tcs" },
+    { label: "TCS", value: "tcs" },
     { label: "RRO / Exhibition", value: "rroexhibitation" },
   ];
   const SORoptions = [{ label: "Sale or Return(SOR)", value: "sor" }];
   const Outpurchaseoptions = [{ label: "Outright Purchase", value: "outpur" }];
   const CustomerOrderoptions = [
     { label: "RCO", value: "rco" },
-    { label: "ACO", value: "aco" },
+    { label: "SCO", value: "sco" },
   ];
 
   const handleProceed = () => {
-    //console.log("handleProceed called", getCustType());
-
+    // Reset customer order before proceeding
     resetCustomerOrder();
 
+    // Find the selected store
     const selectedStore = stores.find(
       (store) => store.CustomerID.toString() === selectedSValue
     );
-    console.log("selectedStore:", selectedStore);
-    console.log("selectedSValue:", selectedSValue);
 
-    if (selectedStore && getCustType() === "Jeweller") {
-      console.log("Creating payload for Jeweller");
-
-      const payload: CustomerOrderDetail = {
-        order_for: getCustType() ?? "",
-        customer_id: parseInt(selectedStore.CustomerID.toString()),
-        product_type: selectedValue,
-        consignment_type: selectedconsignmen,
-        sale_or_return: selectedsor,
-        outright_purchase: selectedoutrightpur,
-        customer_order: selectedCustOrder,
-        cust_name: isCustomerName || "",
-        store: selectedStore.City,
-        contactno: selectedContact,
-        address: selectedAdd,
-        exp_dlv_date: "",
-      };
-
-      console.log("payload", payload);
-      setCustomerOrder(payload);
-    } else {
-      console.log("Creating payload for other customer types");
-
-      const payload: CustomerOrderDetail = {
-        order_for: getCustType() ?? "",
-        customer_id: customer?.id,
-        product_type: selectedValue,
-        consignment_type: selectedconsignmen,
-        sale_or_return: selectedsor,
-        outright_purchase: selectedoutrightpur,
-        customer_order: selectedCustOrder,
-        cust_name: customer?.name || "",
-        store: "",
-        contactno: customer?.contactno || "",
-        address: customer?.address || "",
-        exp_dlv_date: "",
-      };
-
-      console.log("payload", payload);
-      setCustomerOrder(payload);
+    // Validation checks for required fields
+    if (!isCustomerName) {
+      notifyErr("Customer name is required. Please select a customer.");
+      return;
     }
 
-    console.log("selectedValue:", selectedValue);
+    if (!selectedStore || !selectedStore.City) {
+      notifyErr("Store selection is required. Please select a valid store.");
+      return;
+    }
 
+    // Prepare payload based on the customer type
+    const payload: CustomerOrderDetail = {
+      order_for: getCustType() ?? "",
+      customer_id:
+        getCustType() === "Jeweller"
+          ? parseInt(selectedStore.CustomerID.toString())
+          : customer?.id ?? 0,
+      product_type: selectedValue, //itemtype
+      order_type: orderType, //ordertype
+      //consignment_type: selectedconsignmen,
+      //sale_or_return: selectedsor,
+      //outright_purchase: selectedoutrightpur,
+      //customer_order: selectedCustOrder,
+      cust_name:
+        getCustType() === "Jeweller" ? isCustomerName : customer?.name ?? "",
+      store: getCustType() === "Jeweller" ? selectedStore.City : "",
+      contactno:
+        getCustType() === "Jeweller"
+          ? selectedContact
+          : customer?.contactno ?? "",
+      address:
+        getCustType() === "Jeweller" ? selectedAdd : customer?.address ?? "",
+      exp_dlv_date: "",
+      old_varient: "",
+    };
+
+    //console.log("Payload", payload);
+    setCustomerOrder(payload);
+    console.log("Item Type : ", selectedValue);
+
+    // Navigate based on the selected item type
     if (selectedValue === "solitaire") {
       console.log("Navigating to /regular-confirm-order");
       router.push(`/regular-confirm-order`);
-    } else if (selectedValue === "jewelley") {
+    } else if (selectedValue === "jewellery") {
       console.log("Navigating to /jewellery");
       router.push(`/jewellery`);
     }
-
-    // // If the selected store exists, update selectedSValue
-    // if (selectedStore) {
-    //   const store_city = selectedStore.City;
-
-    //   const queryParams = new URLSearchParams({
-    //     isCustomerName: isCustomerName || "", //jeweller
-    //     store_city, // store
-    //     selectedAdd, //add
-    //     selectedContact, //contact
-    //     selectedValue, // item type
-    //     //selectedconsignmen,
-    //   }).toString();
-
-    //   //console.log("Customerid:", stores);
-    //   return;
-    //   //setCustomerOrder()
-    //   // Navigate based on the selected item type
-    //   if (selectedValue === "solitaire") {
-    //     router.push(`/regular-confirm-order?${queryParams}`);
-    //   } else if (selectedValue === "jewelley") {
-    //     router.push(`/jewellery?${queryParams}`);
-    //   }
-    // }
   };
 
   return (
@@ -410,20 +418,20 @@ const ChooseYourOrderScreen = () => {
                 options={Consignmentoptions}
                 //onSelect={handleConsignment}
                 selectedValue={selectedconsignmen}
-                onChange={handleConsignment}
+                onChange={handleOrderTypeChange}
               />
               <SingleSelectCheckbox
                 title="" /*Sales or Return(SOR)*/
                 options={SORoptions}
                 selectedValue={selectedsor}
-                onChange={handleSOR}
+                onChange={handleOrderTypeChange}
                 classes="font-semibold"
               />
               <SingleSelectCheckbox
                 title="" /*"Outright Purchase"*/
                 options={Outpurchaseoptions}
                 selectedValue={selectedoutrightpur}
-                onChange={handleOutPur}
+                onChange={handleOrderTypeChange}
                 classes="font-semibold"
               />
               <SingleSelectCheckbox
@@ -431,7 +439,7 @@ const ChooseYourOrderScreen = () => {
                 options={CustomerOrderoptions}
                 //onSelect={handleConsignment}
                 selectedValue={selectedCustOrder}
-                onChange={handleCustOrder}
+                onChange={handleOrderTypeChange}
               />
             </div>
           </div>

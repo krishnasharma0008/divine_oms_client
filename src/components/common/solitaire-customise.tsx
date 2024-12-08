@@ -43,7 +43,7 @@ const SolitaireCustomisationPopup: React.FC<
   const otherRoundColorsCarat = ["EF", "GH"];
   const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
 
-  const clarities = ["IF", "VVSI", "VVS2", "VS1", "VS2", "SI1", "SI2"];
+  const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
   const claritiesRound = ["VVS", "VS", "SI"];
   const claritiesRoundCarat = ["VVS", "VS"];
 

@@ -40,7 +40,7 @@ const NotificationContextWrapper: React.FC<NotificationContextWrapperProps> = ({
       }}
     >
       {children}
-      <ToastContainer />
+      <ToastContainer autoClose={1000} />
     </NotificationContext.Provider>
   );
 };

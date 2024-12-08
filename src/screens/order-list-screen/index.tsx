@@ -103,7 +103,7 @@ function OrderListScreen() {
       cell: (row: OrderList) => (
         <p
           className="underline cursor-pointer text-black"
-          //onClick={() => router.push(`/order-detail/${row.orderno}`)}
+          //onClick={() => router.push(`/order/order-detail?id=${row.orderno}`)}
         >
           {row.orderno}
         </p>

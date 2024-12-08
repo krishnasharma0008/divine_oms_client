@@ -15,6 +15,7 @@ const PJDetailModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     { label: "Address", value: customerOrder?.address },
     { label: "Contact Detail", value: customerOrder?.contactno },
     { label: "Item Type", value: customerOrder?.product_type },
+    { label: "Order Type", value: customerOrder?.order_type },
     { label: "Incentive/Deduction", value: "1 % Extra" },
     { label: "Delivery", value: "Within 28 working days" },
     { label: "Price List", value: "Price at the time of booking." },

@@ -66,6 +66,15 @@ function JewelleyScreen() {
     FetchProductCategory();
   }, [currentPage]);
 
+  useEffect(() => {
+    if (selectedJewelleryItem.length > 0) {
+      const objDiv = dataContainer.current;
+      if (objDiv) {
+        objDiv.scrollTop = objDiv.scrollHeight; // Scroll to the bottom
+      }
+    }
+  }, [selectedJewelleryItem]);
+
   const handleClearAll = () => {
     //setCategory("");
     setCurrentPage(1);
@@ -141,15 +150,13 @@ function JewelleyScreen() {
   };
 
   const handleLoadMore = () => {
-    //setItemsToShow((prev) => prev + LOAD_MORE_COUNT);
-    //console.log("Page_No : ", currentPage);
+    setCurrentPage((prevPage) => prevPage + 1); // Increment page number
+
     const objDiv = dataContainer.current; //document.getElementById("data-div");
     if (objDiv) {
       //console.log("Height : ",objDiv.scrollHeight);
-      objDiv.scrollTop = 1100; //objDiv.scrollHeight;
+      objDiv.scrollTop = objDiv.scrollHeight;
     }
-
-    setCurrentPage((prevPage) => prevPage + 1); // Increment page number
   };
 
   const handlePjDetailClick = () => {
@@ -158,7 +165,7 @@ function JewelleyScreen() {
 
   const handleBulkImport = () => {
     //setIsBulkImportOpen(true);
-    router.push("/jewellery-bulk-import");
+    router.push("/jewellery/jewellery-bulk-import");
   };
 
   const handleImageClick = (design_no: string) => {
@@ -169,11 +176,13 @@ function JewelleyScreen() {
       setIsCheckoutModalVisible(true);
       return;
     }
-    router.push(`/jewellery-detail/${design_no}`);
+    //router.push(`/jewellery/jewellery-detail/${design_no}`);
+    router.push(`/jewellery/jewellery-detail?id=${design_no}`);
   };
 
   const handleStockClick = (design_no: string) => {
-    //alert(customerOrder?.cust_name);
+    //alert(customerOrder?.cust_name);customerOrder
+
     if (
       customerOrder?.cust_name === "" ||
       customerOrder?.cust_name === undefined
@@ -181,7 +190,7 @@ function JewelleyScreen() {
       setIsCheckoutModalVisible(true);
       return;
     }
-    router.push(`/jewellery-stock/${design_no}`);
+    router.push(`/jewellery/jewellery-stock?id=${design_no}`);
   };
 
   const closeCheckoutModal = () => {
@@ -282,7 +291,11 @@ function JewelleyScreen() {
 
         {/* Scrollable Body */}
         {/* <div className="flex-1 overflow-auto p-4 h-[80vh]"></div> */}
-        <div className="flex-1 overflow-y-auto h-[90vh]">
+        <div
+          ref={dataContainer}
+          className="flex-1 overflow-y-auto h-[90vh]"
+          style={{ maxHeight: "calc(100vh - 100px)" }}
+        >
           {loading ? (
             // Show spinner while loading
             <div className="flex justify-center items-center h-full">
@@ -291,10 +304,7 @@ function JewelleyScreen() {
               </div>
             </div>
           ) : (
-            <div
-              ref={dataContainer}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2">
               {selectedJewelleryItem.map((item, index) => (
                 <JewelleryHomeDiv
                   key={index}

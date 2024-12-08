@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
     e.stopPropagation();
     try {
       console.log("Navigating to cart");
-      push("/jewellery-cart");
+      push("/jewellery/jewellery-cart");
     } catch (error) {
       console.error("Error navigating to cart:", error);
     }
@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
 
   const OrderList = () => {
     //deleteToken();
-    push("/order-list");
+    push("/order");
   };
 
   // useEffect(() => {

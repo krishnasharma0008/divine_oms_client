@@ -21,7 +21,7 @@ export interface JewelleryDetail {
   Remark: string;
   Product_range_from: string;
   Product_range_to: string;
-  old_varient: string;
+  Old_varient: string;
   Product_range_from_min: string;
   Product_range_to_max: string;
   Product_size_from: string;

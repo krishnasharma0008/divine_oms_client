@@ -4,13 +4,15 @@ export interface CartDetail {
   customer_id: number;
   customer_name: string;
   customer_branch: string;
-  product_type: string;
+  order_type: string;
+  product_type: string; //new
   Product_category: string; //new ring,coint,pendent
-  consignment_type: string;
-  sale_or_return: string;
-  outright_purchase: boolean;
-  customer_order: string;
+  //consignment_type: string;
+  //sale_or_return: string;
+  //outright_purchase: boolean;
+  //customer_order: string;
   exp_dlv_date: Date | null; // date
+  old_varient: string; //new
   product_code: string;
   product_qty: number;
   product_amt_min: number;

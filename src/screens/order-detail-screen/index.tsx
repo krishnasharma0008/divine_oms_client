@@ -7,12 +7,14 @@ import DataTable, {
 } from "react-data-table-component";
 import { getOrderDetail } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 
 function OrderDetailScreen() {
-  const { id } = useParams<{ id: string }>();
+  //const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const router = useRouter();
 
   const [orderData, setOrderData] = useState<OrderDetail[]>([]);
@@ -40,7 +42,7 @@ function OrderDetailScreen() {
   };
 
   const handleBackButtonClick = () => {
-    router.push("/order-list");
+    router.push("/order");
   };
 
   // Define columns for DataTable
@@ -202,7 +204,7 @@ function OrderDetailScreen() {
         className={`  ${
           orderData.length > 0 && orderData[0]?.product_type === "jewelley"
             ? "w-full"
-            : "md:w-3/4"
+            : "md:w-3/5"
         }
          bg-white p-4 rounded-lg shadow-lg`}
       >
@@ -281,7 +283,7 @@ function OrderDetailScreen() {
       <div
         className={`w-full  bg-white p-4 rounded-lg shadow-md ${
           orderData.length > 0 && orderData[0]?.product_type === "jewelley"
-            ? "md:w-2/5 mt-4"
+            ? "md:w-3/5 mt-4"
             : ""
         }`}
       >
@@ -296,18 +298,20 @@ function OrderDetailScreen() {
             </div>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Amount</span>
-            <div className="text-lg font-semibold text-gray-800">
+            <span className="text-sm text-gray-600 whitespace-nowrap">
+              Total Amount
+            </span>
+            <div className="text-lg font-semibold text-gray-800 whitespace-nowrap">
               {formatByCurrencyINR(totalAmountMin)} -{" "}
               {formatByCurrencyINR(totalAmountMax)}
             </div>
           </div>
-          <div className="flex justify-between items-center">
+          {/* <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">
               Required Delivery Date
             </span>
             <div className="text-lg font-semibold text-gray-800">{" -- "}</div>
-          </div>
+          </div> */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">
               Expected Delivery Date

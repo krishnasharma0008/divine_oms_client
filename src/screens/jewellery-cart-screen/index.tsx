@@ -150,48 +150,57 @@ function JewelleryCartScreen() {
     }
   };
 
-  // Ensure this function is marked 'async'
   const handleQuantityChange = async (
     cartId: number | undefined,
     increment: boolean
   ) => {
-    // Function implementation
     if (!cartId) return;
 
-    // Update the local state with the new quantity
-    setCartData((prevCartData) => {
-      const updatedData = prevCartData.map((item) =>
-        item.id === cartId
-          ? {
-              ...item,
-              product_qty: Math.max(
-                1,
-                (item.product_qty || 1) + (increment ? 1 : -1)
-              ),
-            }
-          : item
-      );
-      //setcartData(updatedData);
-      const updatedItem = updatedData.find((item) => item.id === cartId);
+    // Update the local state
+    setCartData((prevCartData) =>
+      prevCartData.map((item) => {
+        if (item.id === cartId) {
+          const newProductQty = Math.max(
+            1,
+            (item.product_qty || 1) + (increment ? 1 : -1)
+          );
+          const unitAmtMin = item.product_amt_min / (item.product_qty || 1); // Calculate unit amount min
+          const unitAmtMax = item.product_amt_max / (item.product_qty || 1); // Calculate unit amount max
 
-      if (updatedItem) {
-        const payload: CartDetail = {
-          ...updatedItem,
-          product_qty: updatedItem.product_qty,
-        };
-        try {
-          showLoader();
-          createCart(payload); // 'await' works here because 'handleQuantityChange' is 'async'
-          console.log("Cart Updated successfully");
-        } catch (err) {
-          console.log("Error updating cart", err);
-        } finally {
-          hideLoader();
+          return {
+            ...item,
+            product_qty: newProductQty,
+            product_amt_min: unitAmtMin * newProductQty, // Update amount based on unit price
+            product_amt_max: unitAmtMax * newProductQty, // Update amount based on unit price
+          };
         }
-      }
+        return item;
+      })
+    );
 
-      return updatedData;
-    });
+    // Find the updated item for the payload
+    const updatedItem = cartData.find((item) => item.id === cartId);
+
+    if (updatedItem) {
+      const payload: CartDetail = {
+        ...updatedItem,
+        product_qty: updatedItem.product_qty,
+        product_amt_min: updatedItem.product_amt_min,
+        product_amt_max: updatedItem.product_amt_max,
+      };
+
+      // Update the server
+      try {
+        showLoader();
+        await createCart(payload); // Await the server call
+        console.log("Cart updated successfully");
+      } catch (err) {
+        console.error("Error updating cart:", err);
+        // Optionally show an error message to the user
+      } finally {
+        hideLoader();
+      }
+    }
   };
 
   //const handleCopyItem = async (item: CartDetail) => {
@@ -202,12 +211,14 @@ function JewelleryCartScreen() {
       customer_name: item.customer_name || "",
       customer_branch: item.customer_branch || "", // Default to empty string if undefined
       product_type: item.product_type || "", // Default to empty string if undefined
+      order_type: item.order_type || "", //new
       Product_category: item.Product_category || "", // new
-      consignment_type: item.consignment_type || "", // Default to empty string if undefined
-      sale_or_return: item.sale_or_return || "", // Default to empty string if undefined
-      outright_purchase: item.outright_purchase || false, // Default to false if undefined
-      customer_order: item.customer_order || "", // Default to empty string if undefined
+      //consignment_type: item.consignment_type || "", // Default to empty string if undefined
+      //sale_or_return: item.sale_or_return || "", // Default to empty string if undefined
+      //outright_purchase: item.outright_purchase || false, // Default to false if undefined
+      //customer_order: item.customer_order || "", // Default to empty string if undefined
       exp_dlv_date: item.exp_dlv_date || null, // Default to null if undefined
+      old_varient: item.old_varient || "", //new
       product_code: item.product_code || "", // Default to empty string if undefined
       product_qty: item.product_qty || 1, // Use the updated quantity
       product_amt_min: item.product_amt_min || 0, // Default to 0 if undefined
@@ -267,7 +278,7 @@ function JewelleryCartScreen() {
     } else {
       console.error("Item not found for the given cartId:", cartId);
     }
-    router.push(`/jewellery-detail`);
+    router.push(`/jewellery/jewellery-detail`);
   };
 
   const handleProceedToCheckout = async () => {
@@ -282,9 +293,8 @@ function JewelleryCartScreen() {
       const response = await CreateOrderRemark(selectedItems);
       //console.log("Order successfully created:", response.data.msg);
       if (response.data.msg === "Sucess") {
-        selectedItems.forEach(() => {
-          updateCartCount(isCartCount - 1); // Decrement for each item
-        });
+        const decrementCount = selectedItems.length;
+        updateCartCount(isCartCount - decrementCount); // Batch update cart count
         //window.location.reload(); // Refresh the page upon success
         router.push(`/`);
       } else {
@@ -347,17 +357,19 @@ function JewelleryCartScreen() {
           </div>
 
           {/* Action Buttons */}
-          <div className="w-1/2 flex justify-end space-x-2">
-            <button className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black">
-              Export to Excel
-            </button>
-            <button
-              onClick={handleSelectAll}
-              className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-            >
-              Select All
-            </button>
-          </div>
+          {(cartData ?? []).length > 0 && (
+            <div className="w-1/2 flex justify-end space-x-2">
+              <button className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black">
+                Export to Excel
+              </button>
+              <button
+                onClick={handleSelectAll}
+                className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+              >
+                Select All
+              </button>
+            </div>
+          )}
         </div>
         {/* Cart Items Section */}
         <div className="flex-1 overflow-y-auto h-[90vh] px-4 py-2">
@@ -365,10 +377,10 @@ function JewelleryCartScreen() {
             cartData.map((item, index) => (
               <div
                 key={index}
-                className="relative flex p-4 mb-4 gap-x-4 bg-white border rounded-md hover:shadow-lg transition-transform duration-300"
+                className="relative flex p-4 mb-4 gap-x-2 bg-white border rounded-md hover:shadow-lg transition-transform duration-300"
               >
                 {/* Checkbox for Selecting Item */}
-                <div className="w-1/12 flex items-center">
+                <div className="w-auto flex items-center">
                   <input
                     type="checkbox"
                     checked={selectedItems.includes(item.id ?? 0)}
@@ -406,9 +418,14 @@ function JewelleryCartScreen() {
                   <p className="text-sm text-gray-600">
                     Store : {item.customer_branch || "-"}
                   </p>
-                  <p className="text-xl font-semibold text-gray-600">
-                    {item.product_code}
-                  </p>
+                  <div className="flex items-center justify-left space-x-10">
+                    <p className="text-xl font-semibold text-gray-600">
+                      {item.product_code}
+                    </p>
+                    <p className="text-sm font-sm text-gray-600">
+                      Old : {item.old_varient}
+                    </p>
+                  </div>
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
                       Diamond :{" "}
@@ -532,85 +549,90 @@ function JewelleryCartScreen() {
       </div>
 
       {/* Order Summary Section */}
-      <div className="p-2 w-full border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
-        {(cartData ?? []).length > 0 && (
-          <div className="flex flex-col gap-2 px-6 mt-6">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Order Summary
-            </h2>
+      {(cartData ?? []).length > 0 && (
+        <div className="p-2 w-full border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
+          {(cartData ?? []).length > 0 && (
+            <div className="flex flex-col gap-2 px-6 mt-6">
+              <h2 className="text-2xl font-semibold text-gray-800">
+                Order Summary
+              </h2>
 
-            {/* Total Quantity Section */}
-            <div className="flex justify-between items-center py-2">
-              <span className="text-xl text-gray-600">Total Quantity</span>
-              <div className="text-lg font-semibold text-black">{totalQty}</div>
-            </div>
-
-            {/* Total Amount Section */}
-            <div className="flex justify-between items-center py-2">
-              <span className="text-xl text-gray-600">Total Amount</span>
-              <div className="text-lg font-semibold text-black">
-                {formatByCurrencyINR(totalAmtMin)} -{" "}
-                {formatByCurrencyINR(totalAmtMax)}
+              {/* Total Quantity Section */}
+              <div className="flex justify-between items-center py-2">
+                <span className="text-xl text-gray-600">Total Quantity</span>
+                <div className="text-lg font-semibold text-black">
+                  {totalQty}
+                </div>
               </div>
-            </div>
 
-            {/* Delivery Dates */}
-            <div className="flex justify-between items-center py-2">
+              {/* Total Amount Section */}
+              <div className="flex justify-between items-center py-2">
+                <span className="text-xl text-gray-600">Total Amount</span>
+                <div className="text-lg font-semibold text-black">
+                  {formatByCurrencyINR(totalAmtMin)} -{" "}
+                  {formatByCurrencyINR(totalAmtMax)}
+                </div>
+              </div>
+
+              {/* Delivery Dates */}
+              {/* <div className="flex justify-between items-center py-2">
               <span className="text-xl text-gray-600">
                 Required Delivery Date
               </span>
               <div className="text-lg font-semibold text-black">{""}</div>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-xl text-gray-600">
-                Expected Delivery Date
-              </span>
-              <div className="text-lg font-semibold text-black">{""}</div>
-            </div>
+            </div> */}
+              <div className="flex justify-between items-center py-2">
+                <span className="text-xl text-gray-600">
+                  Expected Delivery Date
+                </span>
+                <div className="text-lg font-semibold text-black">{""}</div>
+              </div>
 
-            {/* Proceed to Checkout Button */}
-            <div className="mt-6 w-full flex items-center justify-center ">
-              <button
-                className="w-full h-10 flex items-center justify-center px-6 py-3 border border-black bg-black text-white rounded-lg hover:bg-white hover:text-black transition duration-300"
-                onClick={handleProceedToCheckout}
-              >
-                Proceed to Checkout
-              </button>
-            </div>
+              {/* Proceed to Checkout Button */}
+              <div className="mt-6 w-full flex items-center justify-center ">
+                <button
+                  className="w-full h-10 flex items-center justify-center px-6 py-3 border border-black bg-black text-white rounded-lg hover:bg-white hover:text-black transition duration-300"
+                  onClick={handleProceedToCheckout}
+                >
+                  Proceed to Checkout
+                </button>
+              </div>
 
-            {/* Remark Section */}
-            <div className="flex justify-center items-center py-2">
-              <span
-                className="text-xl text-black underline cursor-pointer"
-                onClick={() => handleRemarkClick(cartData[0], "order_summary")}
-                //onClick={() => setIsModalVisible(true)}
-              >
-                Add Remark
-              </span>
-            </div>
-            <div className="flex justify-left items-center py-2">
-              <span className="text-sm font-bold text-black">
-                Remark :-&nbsp;
-              </span>
-              <p className="text-sm text-black cursor-pointer hover:underline">
-                {orderSummaryRemark || ""}
-              </p>
-            </div>
+              {/* Remark Section */}
+              <div className="flex justify-center items-center py-2">
+                <span
+                  className="text-xl text-black underline cursor-pointer"
+                  onClick={() =>
+                    handleRemarkClick(cartData[0], "order_summary")
+                  }
+                  //onClick={() => setIsModalVisible(true)}
+                >
+                  Add Remark
+                </span>
+              </div>
+              <div className="flex justify-left items-center py-2">
+                <span className="text-sm font-bold text-black">
+                  Remark :-&nbsp;
+                </span>
+                <p className="text-sm text-black cursor-pointer hover:underline">
+                  {orderSummaryRemark || ""}
+                </p>
+              </div>
 
-            {/* Checkout Confirmation Modal */}
-            {isCheckoutModalVisible && (
-              <MessageModal
-                title="Proceed to Checkout"
-                //onClose={() => setIsCheckoutModalVisible(false)}
-                onConfirm={closeCheckoutModal}
-              >
-                <p>Please select at least one item to proceed to checkout.</p>
-              </MessageModal>
-            )}
-          </div>
-        )}
-      </div>
-
+              {/* Checkout Confirmation Modal */}
+              {isCheckoutModalVisible && (
+                <MessageModal
+                  title="Proceed to Checkout"
+                  //onClose={() => setIsCheckoutModalVisible(false)}
+                  onConfirm={closeCheckoutModal}
+                >
+                  <p>Please select at least one item to proceed to checkout.</p>
+                </MessageModal>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <AddRemarkModal
         isVisible={isModalVisible}
         closeModal={closeModal}
