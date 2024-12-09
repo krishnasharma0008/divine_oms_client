@@ -30,6 +30,8 @@ function JewelleryCartScreen() {
 
   const { setCartDetail, resetCartDetail } = useCartDetailStore();
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
+  const [isCheckoutModalMessageVisible, setIsCheckoutModalMessageVisible] =
+    useState(false); //message popup
   const [orderSummaryRemark, setOrderSummaryRemark] = useState<string>(""); //order remark
   const [rtype, setRtype] = useState<string>(""); //remarktype
 
@@ -295,8 +297,8 @@ function JewelleryCartScreen() {
       if (response.data.msg === "Sucess") {
         const decrementCount = selectedItems.length;
         updateCartCount(isCartCount - decrementCount); // Batch update cart count
+        setIsCheckoutModalMessageVisible(true);
         //window.location.reload(); // Refresh the page upon success
-        router.push(`/`);
       } else {
         console.error("Unexpected response:", response.data);
       }
@@ -311,6 +313,12 @@ function JewelleryCartScreen() {
     setIsCheckoutModalVisible(false);
     //console.log("Proceeding to checkout with selected items:", selectedItems);
     // Add further checkout logic here
+    setIsCheckoutModalMessageVisible(false);
+  };
+
+  const closeCheckoutMessageModal = () => {
+    setIsCheckoutModalMessageVisible(false);
+    router.push(`/`);
   };
 
   // Calculate totals for selected items
@@ -627,6 +635,16 @@ function JewelleryCartScreen() {
                   onConfirm={closeCheckoutModal}
                 >
                   <p>Please select at least one item to proceed to checkout.</p>
+                </MessageModal>
+              )}
+
+              {/* Checkout Confirmation Message */}
+              {isCheckoutModalMessageVisible && (
+                <MessageModal
+                  title="Success"
+                  onConfirm={closeCheckoutMessageModal}
+                >
+                  <p>Your order has been created successfully.</p>
                 </MessageModal>
               )}
             </div>

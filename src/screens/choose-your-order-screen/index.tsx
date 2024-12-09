@@ -33,7 +33,7 @@ const ChooseYourOrderScreen = () => {
 
   const [stores, setStores] = useState<PJCustomerStoreDetail[]>([]); // Store details
   const [selectedSValue, setSelectedSValue] = useState<string>(""); // Selected store state
-  const [selectedValue, setSelectedValue] = useState("jewelley"); // Item type radio button
+  const [selectedValue, setSelectedValue] = useState("jewellery"); // Item type radio button
   const [selectedContact, setSelectedContact] = useState("");
   const [selectedAdd, setSelectedAdd] = useState("");
   const [selectedconsignmen, setSelectedConsignment] = useState(""); // Single checkbox
