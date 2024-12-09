@@ -69,7 +69,7 @@ function OrderListScreen() {
       //sortable: true,
       reorder: true,
       Alignment: "center",
-      width: "120px",
+      width: "200px",
     },
     {
       name: "Item Type",

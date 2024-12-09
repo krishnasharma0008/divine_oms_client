@@ -202,7 +202,7 @@ const ChooseYourOrderScreen = () => {
   const handleProceed = () => {
     // Reset customer order before proceeding
     resetCustomerOrder();
-
+    console.log("Store : ", selectedSValue);
     // Find the selected store
     const selectedStore = stores.find(
       (store) => store.CustomerID.toString() === selectedSValue
@@ -214,7 +214,7 @@ const ChooseYourOrderScreen = () => {
       return;
     }
 
-    if (!selectedStore || !selectedStore.City) {
+    if (!selectedStore || !selectedStore.NickName) {
       notifyErr("Store selection is required. Please select a valid store.");
       return;
     }
@@ -234,7 +234,7 @@ const ChooseYourOrderScreen = () => {
       //customer_order: selectedCustOrder,
       cust_name:
         getCustType() === "Jeweller" ? isCustomerName : customer?.name ?? "",
-      store: getCustType() === "Jeweller" ? selectedStore.City : "",
+      store: getCustType() === "Jeweller" ? selectedStore.NickName : "",
       contactno:
         getCustType() === "Jeweller"
           ? selectedContact
