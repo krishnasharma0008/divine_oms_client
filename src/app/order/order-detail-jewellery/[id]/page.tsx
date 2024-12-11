@@ -1,7 +1,7 @@
 import React from "react";
 
-import { OrderDetailScreen } from "@/screens";
+import { OrderDetailJewelleryScreen } from "@/screens";
 
-const OrderDetailpage: React.FC = () => <OrderDetailScreen />;
+const OrderDetailpage: React.FC = () => <OrderDetailJewelleryScreen />;
 
 export default OrderDetailpage;

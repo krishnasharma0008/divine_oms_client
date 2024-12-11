@@ -6,7 +6,7 @@ import DataTable, {
   TableColumn,
   TableStyles,
 } from "react-data-table-component";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import { OrderList } from "@/interface/order-list";
 import { getUser } from "@/local-storage";
 import { getOrderList } from "@/api/order";
@@ -14,7 +14,7 @@ import LoaderContext from "@/context/loader-context";
 //import NotificationContext from "@/context/notification-context";
 
 function OrderListScreen() {
-  const router = useRouter();
+  //const router = useRouter();
 
   const [excelData, setExcelData] = React.useState<OrderList[]>([]);
   const { showLoader, hideLoader } = useContext(LoaderContext);
@@ -103,11 +103,11 @@ function OrderListScreen() {
       cell: (row: OrderList) => (
         <p
           className="underline cursor-pointer text-black"
-          onClick={() =>
-            router.push(
-              `/order/order-detail-${row.product_type}?id=${row.orderno}`
-            )
-          }
+          // onClick={() =>
+          //   router.push(
+          //     `/order/order-detail-${row.product_type}?id=${row.orderno}`
+          //   )
+          // }
         >
           {row.orderno}
         </p>
