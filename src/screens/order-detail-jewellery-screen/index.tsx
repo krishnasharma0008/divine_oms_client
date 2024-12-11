@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 
-function OrderDetailScreen() {
+function OrderDetailJewelleryScreen() {
   //const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -192,22 +192,9 @@ function OrderDetailScreen() {
     },
   };
   return (
-    <div
-      className={`flex ${
-        orderData.length > 0 && orderData[0]?.product_type === "jewelley"
-          ? "flex-col"
-          : "md:flex-row"
-      } gap-x-4 m-4`}
-    >
+    <div className={`flex flex-row w-full gap-x-2 m-2`}>
       {/* Main Content Section */}
-      <div
-        className={`  ${
-          orderData.length > 0 && orderData[0]?.product_type === "jewelley"
-            ? "w-full"
-            : "md:w-3/5"
-        }
-         bg-white p-4 rounded-lg shadow-lg`}
-      >
+      <div className={`w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg`}>
         <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1>
 
         <div className="w-full flex justify-between">
@@ -281,16 +268,12 @@ function OrderDetailScreen() {
 
       {/* Order Summary Section */}
       <div
-        className={`w-full  bg-white p-4 rounded-lg shadow-md ${
-          orderData.length > 0 && orderData[0]?.product_type === "jewelley"
-            ? "md:w-3/5 mt-4"
-            : ""
-        }`}
+        className={`w-full md:w-1/3 bg-white p-4 rounded-lg shadow-md mt-4 }`}
       >
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Order Summary
         </h2>
-        <div className="space-y-4">
+        <div className="w-full space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Quantity</span>
             <div className="text-lg font-semibold text-gray-800">
@@ -306,12 +289,6 @@ function OrderDetailScreen() {
               {formatByCurrencyINR(totalAmountMax)}
             </div>
           </div>
-          {/* <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">
-              Required Delivery Date
-            </span>
-            <div className="text-lg font-semibold text-gray-800">{" -- "}</div>
-          </div> */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">
               Expected Delivery Date
@@ -330,4 +307,4 @@ function OrderDetailScreen() {
   );
 }
 
-export default OrderDetailScreen;
+export default OrderDetailJewelleryScreen;

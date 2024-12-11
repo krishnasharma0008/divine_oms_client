@@ -51,18 +51,6 @@ const SolitaireCustomisationPopup: React.FC<
     if (isOpen) {
       setShape(customisedData?.shape || "");
 
-      // const defaultColor = customisedData?.color
-      //   ? customisedData.color.split("-")
-      //   : ["", ""];
-      // setColorF(defaultColor[0] || "");
-      // setColorT(defaultColor[1] || "");
-
-      // const defaultClarity = customisedData?.clarity
-      //   ? customisedData.clarity.split("-")
-      //   : ["", ""];
-      // setClarityF(defaultClarity[0] || "");
-      // setClarityT(defaultClarity[1] || "");
-
       getColorTOptions(customisedData?.carat || "");
       getClarityOptions(customisedData?.carat || "");
 

@@ -15,7 +15,7 @@ import { formatByCurrencyINR } from "@/util/format-inr";
 import LoaderContext from "@/context/loader-context";
 import { useRouter } from "next/navigation";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
-import { createCart } from "@/api/cart";
+import { createCart, EditCart } from "@/api/cart";
 import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
 
@@ -416,15 +416,11 @@ function JewelleryDetailScreen() {
       customer_id: customerOrder?.customer_id || 0,
       customer_name: customerOrder?.cust_name || "",
       customer_branch: customerOrder?.store || "",
-      product_type: customerOrder?.product_type || "", //solitaire or jewellery
-      order_type: customerOrder?.order_type || "", //new
-      Product_category: jewelleryDetails?.Product_category || "", // ring,bracelet,coin new field
-      // consignment_type: customerOrder?.consignment_type || "",
-      // sale_or_return: customerOrder?.sale_or_return || "",
-      // outright_purchase: customerOrder?.outright_purchase !== "",
-      // customer_order: customerOrder?.customer_order || "",
-      exp_dlv_date: null, //new Date(state.dob || Date.now()).toISOString(),
-      old_varient: jewelleryDetails?.Old_varient || "", //new
+      product_type: customerOrder?.product_type || "",
+      order_type: customerOrder?.order_type || "",
+      Product_category: jewelleryDetails?.Product_category || "",
+      exp_dlv_date: null,
+      old_varient: jewelleryDetails?.Old_varient || "",
       product_code: jewelleryDetails?.Item_number || "",
       product_qty: selectedQty,
       product_amt_min: soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
@@ -437,43 +433,57 @@ function JewelleryDetailScreen() {
       solitaire_prem_pct: 0,
       solitaire_amt_min: soliAmtFrom,
       solitaire_amt_max: soliAmtTo,
-      metal_type: "GOLD", //eg gold,silver
+      metal_type: "GOLD",
       metal_purity: metalPurity || "",
       metal_color: metalColor,
       metal_weight: Metalweight ?? 0,
       metal_price: metalPrice ?? 0,
-      mount_amt_min: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0), //new
-      mount_amt_max: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0), //new
-      size_from: ringSizeFrom === 0 ? "-" : ringSizeFrom.toString(), //ringSizeFrom.toString() || "",
+      mount_amt_min: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
+      mount_amt_max: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
+      size_from: ringSizeFrom === 0 ? "-" : ringSizeFrom.toString(),
       size_to: ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
       side_stone_pcs: Number(sideDiaTotPcs),
       side_stone_cts: Number(sideDiaTotweight),
       side_stone_color: "IJ",
       side_stone_quality: "SI",
-      cart_remarks: cart?.product_code !== "" ? cart?.cart_remarks || "" : "",
+      cart_remarks: cart?.cart_remarks || "",
       order_remarks: cart?.order_remarks || "",
     };
-    console.log(payload);
+
+    // Attach ID for updates
     if (cart?.product_code) {
       payload.id = cart.id as number;
     }
+
+    console.log("Prepared Payload:", payload);
+
     showLoader();
     try {
-      const res = await createCart(payload); // Await the response
-      if (id && id.trim() !== "") {
-        notify("Cart created successfully");
-        updateCartCount(isCartCount + 1);
-      } else {
+      let res;
+      if (payload.id) {
+        // Use EditCart to update the cart
+        res = await EditCart(payload);
         notify("Cart updated successfully");
+        console.log("Cart operation successful, Response ID:");
+      } else {
+        // Use createCart to insert a new cart item
+        res = await createCart([payload]);
+        notify("Cart created successfully");
+        updateCartCount(isCartCount + 1); // Increment cart count for new items
+        console.log("Cart operation successful, Response ID:", res.data.id);
       }
-      console.log("Cart created successfully", res.data.id);
 
       router.push("/jewellery/jewellery-cart");
-    } catch (err) {
-      console.log("Error creating cart", err);
-      notifyErr(err as string);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Error creating/updating cart:", err.message);
+        notifyErr(`Error: ${err.message || "Something went wrong"}`);
+      } else {
+        console.error("Unknown error occurred:", err);
+        notifyErr("An unknown error occurred");
+      }
     } finally {
-      hideLoader(); // Ensure the loader is hidden in any case
+      hideLoader(); // Ensure the loader is hidden
     }
   };
 

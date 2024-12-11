@@ -1,87 +1,64 @@
 "use client";
 
-import { Button } from "@/components/common";
+import { Button, DropdownCust } from "@/components/common";
 import Dropdown from "@/components/common/dropdown";
 import InputText from "@/components/common/input-text";
 //import { useSearchParams } from "next/navigation";
 //import { useEffect, useState } from "react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { BinIcon } from "@/components/icons";
 import TextArea from "@/components/common/input-text-area";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
+import NotificationContext from "@/context/notification-context";
+import { getJewelleryProductPrice } from "@/api/jewellery-detail";
+import LoaderContext from "@/context/loader-context";
+import { CartDetail } from "@/interface";
+import { createCart } from "@/api/cart";
+import LoginContext from "@/context/login-context";
+import { useRouter } from "next/navigation";
 
 const RegularConfirmOrderScreen = () => {
   // Access customer data from Zustand store
   const { customerOrder } = useCustomerOrderStore();
-  // const searchParams = useSearchParams();
 
-  // const selectedSValue = searchParams.get("selectedSValue");
-  // const selectedValue = searchParams.get("selectedValue");
-  // const selectedOrderValue = searchParams.get("selectedOrderValue");
-  // const selectedOrderForValue = searchParams.get("selectedOrderForValue");
-  // const selectedContact = searchParams.get("selectedContact");
-  // const selectedAdd = searchParams.get("selectedAdd");
-  // const selectedDate = searchParams.get("selectedDate");
+  const { showLoader, hideLoader } = useContext(LoaderContext);
+  const { notify, notifyErr } = useContext(NotificationContext); //
+  const { isCartCount, updateCartCount } = useContext(LoginContext);
 
-  // useEffect(() => {
-  //   console.log("Received data:", {
-  //     selectedValue,
-  //     selectedOrderValue,
-  //     selectedOrderForValue,
-  //     selectedContact,
-  //     selectedAdd,
-  //     selectedDate,
-  //   });
-  // }, [searchParams]);
+  const router = useRouter();
 
-  const shapeoptions = [
-    { label: "Select", value: "" },
-    { label: "Round", value: "Round" },
-  ];
-  const sizeoptions = [
-    { label: "Select", value: "" },
-    { label: "0.10 to 0.13", value: "0.10 to 0.13" },
-    { label: "0.14 to 0.17", value: "0.14 to 0.17" },
-    { label: "0.18 to 0.22", value: "0.18 to 0.22" },
-    { label: "0.23 to 0.29", value: "0.23 to 0.29" },
-    { label: "0.30 to 0.38", value: "0.30 to 0.38" },
-    { label: "0.39 to 0.44", value: "0.39 to 0.44" },
-    { label: "0.45 to 0.49", value: "0.45 to 0.49" },
-    { label: "0.50 to 0.59", value: "0.50 to 0.59" },
-    { label: "0.60 to 0.69", value: "0.60 to 0.69" },
-    { label: "0.70 to 0.79", value: "0.70 to 0.79" },
-    { label: "0.80 to 0.89", value: "0.80 to 0.89" },
-    { label: "0.90 to 0.99", value: "0.90 to 0.99" },
-    { label: "1.00 to 1.23", value: "1.00 to 1.23" },
-    { label: "1.24 to 1.49", value: "1.24 to 1.49" },
-    { label: "1.50 to 1.69", value: "1.50 to 1.69" },
-    { label: "1.70 to 1.99", value: "1.70 to 1.99" },
-    { label: "2.00 to 2.49", value: "2.00 to 2.49" },
-    { label: "2.50 to 2.99", value: "2.50 to 2.99" },
+  const shapeoptions = ["Round", "Princess", "Oval", "Pear"];
+  const premiumSizeOptions = ["-"];
+  const sizeOptions = [
+    "0.10-0.13",
+    "0.14-0.17",
+    "0.18-0.22",
+    "0.23-0.29",
+    "0.30-0.38",
+    "0.39-0.44",
+    "0.45-0.49",
+    "0.50-0.59",
+    "0.60-0.69",
+    "0.70-0.79",
+    "0.80-0.89",
+    "0.90-0.99",
+    "1.00-1.23",
+    "1.24-1.49",
+    "1.50-1.69",
+    "1.70-1.99",
+    "2.00-2.49",
+    "2.50-2.99",
   ];
 
-  const coloroptions = [
-    { label: "Select", value: "" },
-    { label: "D", value: "D" },
-    { label: "E", value: "E" },
-    { label: "F", value: "F" },
-    { label: "G", value: "G" },
-    { label: "H", value: "H" },
-    { label: "I", value: "I" },
-    { label: "J", value: "J" },
-    { label: "K", value: "K" },
-  ];
+  //const isRound = shape === "Round"; // Check if the shape is Round
 
-  const clarityptions = [
-    { label: "Select", value: "" },
-    { label: "IF", value: "IF" },
-    { label: "VVS1", value: "VVS1" },
-    { label: "VVS2", value: "VVS2" },
-    { label: "VS1", value: "VS1" },
-    { label: "VS2", value: "VS2" },
-    { label: "SI1", value: "SI1" },
-    { label: "SI2", value: "SI2" },
-  ];
+  const otherRoundColors = ["EF", "GH", "IJ"];
+  const otherRoundColorsCarat = ["EF", "GH"];
+  const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
+
+  const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
+  const claritiesRound = ["VVS", "VS", "SI"];
+  const claritiesRoundCarat = ["VVS", "VS"];
 
   const pcsOptions = Array.from({ length: 50 }, (_, i) => ({
     label: (i + 1).toString(),
@@ -98,9 +75,9 @@ const RegularConfirmOrderScreen = () => {
       clarityTo: "",
       premiumsize: "",
       premiumper: "",
-      pcs: "",
-      min: "",
-      max: "",
+      pcs: 1,
+      min: 0,
+      max: 0,
       remarks: "",
       isDynamic: false,
     },
@@ -118,13 +95,70 @@ const RegularConfirmOrderScreen = () => {
         clarityTo: "",
         premiumsize: "",
         premiumper: "",
-        pcs: "",
-        min: "",
-        max: "",
+        pcs: 1,
+        min: 0,
+        max: 0,
         remarks: "",
         isDynamic: true,
       },
     ]);
+  };
+
+  // Function to get color options based on the slab
+  const getColorOptions = (shape: string, slab: string) => {
+    const carat = parseFloat(slab.split("-")[1]);
+
+    if (shape === "Round") {
+      if (carat < 0.18) {
+        return otherRoundColors;
+      } else {
+        return colors;
+      }
+    } else {
+      if (carat >= 0.1 && carat <= 0.17) {
+        return otherRoundColorsCarat;
+      } else {
+        return colors.filter(
+          (color) => color !== "I" && color !== "J" && color !== "K"
+        );
+      }
+    }
+  };
+
+  const getClarityOptions = (shape: string, slab: string) => {
+    const carat = parseFloat(slab.split("-")[1]);
+
+    if (shape === "Round") {
+      if (carat < 0.18) {
+        return claritiesRound;
+      } else {
+        return clarities;
+      }
+    } else {
+      if (carat >= 0.1 && carat <= 0.17) {
+        return claritiesRoundCarat;
+      } else {
+        return clarities.slice(0, 5);
+      }
+    }
+  };
+
+  const getColorTOptions = (colorF: string, shape: string, carat: string) => {
+    const colorFIndex = getColorOptions(shape, carat).indexOf(colorF);
+    return getColorOptions(shape, carat).filter(
+      (_, index) => index >= colorFIndex
+    );
+  };
+
+  const getClarityTOptions = (
+    clarityF: string,
+    shape: string,
+    carat: string
+  ) => {
+    const clarityFIndex = getClarityOptions(shape, carat).indexOf(clarityF);
+    return getClarityOptions(shape, carat).filter(
+      (_, index) => index >= clarityFIndex
+    );
   };
 
   // Remove a row by index
@@ -133,109 +167,174 @@ const RegularConfirmOrderScreen = () => {
     setRows(updatedRows);
   };
 
-  const handleChange = (index: number, field: string, value: string) => {
+  const FetchPrice = async (
+    itemgroup: string,
+    slab: string,
+    shape: string,
+    color: string,
+    quality: string
+  ): Promise<number> => {
+    showLoader();
+    try {
+      const shapedata =
+        shape === "Round"
+          ? "RND"
+          : shape === "Princess"
+          ? "PRN"
+          : shape === "Oval"
+          ? "OVL"
+          : shape === "Pear"
+          ? "PER"
+          : "";
+      const response = await getJewelleryProductPrice(
+        itemgroup,
+        slab,
+        shapedata,
+        color,
+        quality
+      );
+      hideLoader();
+      return response.data.price; // Return the price
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+      return 0; // Default to 0 in case of error
+    }
+  };
+
+  const handleChange = async (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
     const row = updatedRows[index];
 
-    if (field === "colorFrom") {
-      updatedRows[index] = {
-        ...row,
-        colorFrom: value,
-        colorTo: row.colorTo === row.colorFrom ? value : row.colorTo,
-      };
-
-      const colorFromIndex = coloroptions.findIndex(
-        (option) => option.value === value
-      );
-      const colorToIndex = coloroptions.findIndex(
-        (option) => option.value === updatedRows[index].colorTo
-      );
-
-      if (colorToIndex > colorFromIndex) {
-        alert("Color To cannot exceed Color From");
-        updatedRows[index].colorTo = updatedRows[index].colorFrom; // Reset colorTo to match colorFrom
-        setRows(updatedRows);
-        return; // Exit early to prevent invalid update
-      }
-    } else if (field === "colorTo") {
-      const colorFromIndex = row.colorFrom
-        ? coloroptions.findIndex((option) => option.value === row.colorFrom)
-        : -1;
-      const colorToIndex = coloroptions.findIndex(
-        (option) => option.value === value
-      );
-
-      if (colorToIndex < colorFromIndex) {
-        alert("Color To cannot be less than Color From");
-        updatedRows[index].colorTo = row.colorFrom; // Reset colorTo to match colorFrom
-        setRows(updatedRows);
-        return; // Exit early to prevent invalid update
-      }
-
-      updatedRows[index] = {
-        ...row,
-        colorTo: value,
-      };
-    } else if (field === "clarityFrom") {
-      updatedRows[index] = {
-        ...row,
-        clarityFrom: value,
-        clarityTo: row.clarityTo === row.clarityFrom ? value : row.clarityTo,
-      };
-
-      // Restrict clarityTo to not exceed clarityFrom
-      const clarityFromIndex = clarityptions.findIndex(
-        (option) => option.value === value
-      );
-      const clarityToIndex = clarityptions.findIndex(
-        (option) => option.value === updatedRows[index].clarityTo
-      );
-
-      if (clarityToIndex > clarityFromIndex) {
-        alert("Clarity To cannot exceed Clarity From");
-        updatedRows[index].clarityTo = updatedRows[index].clarityFrom; // Reset clarityTo to match clarityFrom
-        setRows(updatedRows); // Update state
-        return; // Exit early
-      }
-    } else if (field === "clarityTo") {
-      // Restrict clarityTo to not exceed clarityFrom
-      const clarityFromIndex = row.clarityFrom
-        ? clarityptions.findIndex((option) => option.value === row.clarityFrom)
-        : -1;
-      const clarityToIndex = clarityptions.findIndex(
-        (option) => option.value === value
-      );
-
-      if (clarityToIndex < clarityFromIndex) {
-        alert("Clarity To cannot be less than Clarity From");
-        console.log("Resetting colorTo to match colorFrom:", row.clarityFrom);
-        updatedRows[index].clarityTo = row.clarityFrom; // Reset to match clarityFrom
-        setRows(updatedRows); // Update state
-        return; // Exit early
-      }
-
-      // Only update `clarityTo` if valid
-      updatedRows[index] = {
-        ...row,
-        clarityTo: value,
-      };
-    } else {
-      // Update other fields normally
+    // Skip price fetching for remarks field
+    if (field === "remarks") {
       updatedRows[index] = {
         ...row,
         [field]: value,
       };
+      setRows(updatedRows);
+      return; // Early return to skip price fetching logic for remarks
     }
 
-    setRows(updatedRows); // Ensure state is updated at the end
+    // Check if all required fields are filled before fetching prices
+    const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo } = row;
+
+    if (shape && size && colorFrom && colorTo && clarityFrom && clarityTo) {
+      const caratRange = size.split("-");
+      const [minCarat, maxCarat] = caratRange;
+
+      try {
+        const [minPrice, maxPrice] = await Promise.all([
+          FetchPrice("SOLITAIRE", minCarat, shape, colorFrom, clarityFrom),
+          FetchPrice("SOLITAIRE", maxCarat, shape, colorTo, clarityTo),
+        ]);
+
+        row.min =
+          parseFloat(minPrice.toFixed(2)) * parseFloat(minCarat.toString());
+        row.max =
+          parseFloat(maxPrice.toFixed(2)) * parseFloat(maxCarat.toString());
+      } catch (error) {
+        notifyErr("Failed to fetch prices. Please try again.");
+      }
+    }
+
+    if (field === "pcs") {
+      const caratRange = row.size.split("-");
+      const [minCarat, maxCarat] = caratRange;
+      const minPrice = await FetchPrice(
+        "SOLITAIRE",
+        minCarat,
+        row.shape,
+        row.colorFrom,
+        row.clarityFrom
+      );
+      const maxPrice = await FetchPrice(
+        "SOLITAIRE",
+        maxCarat,
+        row.shape,
+        row.colorTo,
+        row.clarityTo
+      );
+      row.min = parseFloat(
+        (minPrice * parseFloat(minCarat) * parseInt(value)).toFixed(2)
+      );
+      row.max = parseFloat(
+        (maxPrice * parseFloat(maxCarat) * parseInt(value)).toFixed(2)
+      );
+    }
+
+    updatedRows[index] = {
+      ...row,
+      [field]: value,
+    };
+
+    setRows(updatedRows);
   };
 
-  const SumitOrder = () => {
-    // Log or send the `rows` state which contains the data to be saved
-    console.log(rows);
-    // Here, you could make an API call to save the data
-    // Example:
-    // axios.post('/api/saveData', { rows }).then(response => console.log('Saved successfully', response));
+  const SumitOrder = async () => {
+    const allPayloads: CartDetail[] = rows
+      .filter(
+        (row) =>
+          row.shape &&
+          row.size &&
+          row.colorFrom &&
+          row.colorTo &&
+          row.clarityFrom &&
+          row.clarityTo
+      )
+      .map((row) => ({
+        // Populate the payload similar to the current logic
+        order_for: customerOrder?.order_for || "",
+        customer_id: customerOrder?.customer_id || 0,
+        customer_name: customerOrder?.cust_name || "",
+        customer_branch: customerOrder?.store || "",
+        product_type: customerOrder?.product_type || "",
+        order_type: customerOrder?.order_type || "",
+        Product_category: "",
+        exp_dlv_date: null,
+        old_varient: "",
+        product_code: "",
+        product_qty: row.pcs,
+        product_amt_min: row.min,
+        product_amt_max: row.max,
+        solitaire_shape: row.shape || "",
+        solitaire_slab: row.size || "",
+        solitaire_color: `${row.colorFrom} - ${row.colorTo}` || "",
+        solitaire_quality: `${row.clarityFrom} - ${row.clarityTo}` || "",
+        solitaire_prem_size: row.premiumsize,
+        solitaire_prem_pct: parseFloat(row.premiumper ?? 0),
+        solitaire_amt_min: row.min,
+        solitaire_amt_max: row.max,
+        metal_type: "",
+        metal_purity: "",
+        metal_color: "",
+        metal_weight: 0,
+        metal_price: 0,
+        mount_amt_min: 0,
+        mount_amt_max: 0,
+        size_from: "-",
+        size_to: "-",
+        side_stone_pcs: 0,
+        side_stone_cts: 0,
+        side_stone_color: "",
+        side_stone_quality: "",
+        cart_remarks: row.remarks,
+        order_remarks: "",
+      }));
+
+    try {
+      showLoader();
+      await createCart(allPayloads);
+      //notify(res.data.id.toString());
+      updateCartCount(isCartCount + rows.length); // Increment cart count by the number of rows
+      notify("All rows submitted successfully!");
+
+      router.push("/jewellery/jewellery-cart");
+    } catch (err) {
+      console.error("Error submitting data:", err);
+      notifyErr("An error occurred while submitting the order.");
+    } finally {
+      hideLoader();
+    }
   };
 
   return (
@@ -353,82 +452,91 @@ const RegularConfirmOrderScreen = () => {
             {rows.map((row, index) => (
               <div className="flex flex-row gap-x-4" key={index}>
                 <div className="w-20">
-                  <Dropdown
+                  <DropdownCust
                     label=""
-                    variant="outlined"
                     options={shapeoptions}
                     value={row.shape}
-                    onChange={(value) => handleChange(index, "shape", value)}
-                    disabled={false}
+                    onChange={(value: string) =>
+                      handleChange(index, "shape", value)
+                    }
+                    //error={fieldErrors.shape}
+                    classes="w-full"
                   />
                 </div>
                 <div className="w-[136px]">
-                  <Dropdown
+                  <DropdownCust
                     label=""
-                    variant="outlined"
-                    options={sizeoptions}
+                    options={sizeOptions}
                     value={row.size}
-                    onChange={(value) => handleChange(index, "size", value)}
+                    onChange={(value: string) =>
+                      handleChange(index, "size", value)
+                    }
+                    //error={fieldErrors.carat}
+                    classes="w-full"
                   />
                 </div>
-                <div className="w-20">
-                  <Dropdown
+                <div className="w-20 -mt-5">
+                  <DropdownCust
                     label="From"
-                    variant="outlined"
-                    options={coloroptions}
+                    options={getColorOptions(row.shape, row.size)}
+                    //options={getColorTOptions(row.colorFrom, row.shape, row.size)}
                     value={row.colorFrom}
                     onChange={(value) =>
                       handleChange(index, "colorFrom", value)
                     }
                   />
                 </div>
-                <div className="w-20">
-                  <Dropdown
+                <div className="w-20 -mt-5">
+                  <DropdownCust
                     label="To"
-                    variant="outlined"
-                    options={coloroptions}
+                    options={getColorTOptions(
+                      row.colorFrom,
+                      row.shape,
+                      row.size
+                    )}
                     value={row.colorTo}
                     onChange={(value) => handleChange(index, "colorTo", value)}
-                    disabled={false}
                   />
                 </div>
-                <div className="w-20">
-                  <Dropdown
+                <div className="w-20 -mt-5">
+                  <DropdownCust
                     label="From"
-                    variant="outlined"
-                    options={clarityptions}
+                    options={getClarityOptions(row.shape, row.size)}
                     value={row.clarityFrom}
                     onChange={(value) =>
                       handleChange(index, "clarityFrom", value)
                     }
                   />
                 </div>
-                <div className="w-20">
-                  <Dropdown
+                <div className="w-20 -mt-5">
+                  <DropdownCust
                     label="To"
-                    variant="outlined"
-                    options={clarityptions}
+                    //options={getClarityOptions(row.shape, row.size)}
+                    options={getClarityTOptions(
+                      row.clarityFrom,
+                      row.shape,
+                      row.size
+                    )}
                     value={row.clarityTo}
                     onChange={(value) =>
                       handleChange(index, "clarityTo", value)
                     }
-                    disabled={false}
                   />
                 </div>
                 <div className="w-24">
-                  <Dropdown
+                  <DropdownCust
                     label=""
-                    variant="outlined"
-                    options={shapeoptions}
+                    options={premiumSizeOptions}
                     value={row.premiumsize}
                     onChange={(value) =>
                       handleChange(index, "premiumsize", value)
                     }
-                    disabled={false}
+                    //error={fieldErrors.premiumSize}
+                    classes="w-full"
                   />
                 </div>
                 {/* Repeat for clarity, pcs, min, max, remarks */}
-                <div className="w-10">
+                <div className="w-10 mt-2">
                   <InputText
                     type="text"
                     label=""
@@ -439,46 +547,37 @@ const RegularConfirmOrderScreen = () => {
                     className="w-10"
                   />
                 </div>
-                <div className="w-20">
+                <div className="w-20 mt-2">
                   <Dropdown
                     label=""
                     variant="outlined"
                     options={pcsOptions}
-                    value={row.pcs}
+                    value={row.pcs.toString()}
                     onChange={(value) => handleChange(index, "pcs", value)}
                     disabled={false}
                     className="w-[77px]"
                   />
                 </div>
-                <div className="w-10">
+                <div className="w-20 mt-2">
                   <InputText
                     type="text"
                     //label="Min"
-                    value={row.min}
-                    onChange={(e) => handleChange(index, "min", e.target.value)}
+                    value={row.min.toString()}
+                    //onChange={(e) => handleChange(index, "min", e.target.value)}
                     placeholder="Min"
-                    className="w-10"
+                    className="w-20"
                   />
                 </div>
-                <div className="w-10">
+                <div className="w-20 mt-2">
                   <InputText
                     type="text"
                     placeholder="Max"
-                    value={row.max}
-                    onChange={(e) => handleChange(index, "max", e.target.value)}
-                    className="w-10"
+                    value={row.max.toString()}
+                    //onChange={(e) => handleChange(index, "max", e.target.value)}
+                    className="w-20"
                   />
                 </div>
-                <div className="w-32">
-                  {/* <InputText
-                    type="text"
-                    label=""
-                    value={row.remarks}
-                    onChange={(e) =>
-                      handleChange(index, "remarks", e.target.value)
-                    }
-                    className="w-10"
-                  /> */}
+                <div className="w-32 mt-2">
                   <TextArea
                     value={row.remarks}
                     onChange={(e) =>

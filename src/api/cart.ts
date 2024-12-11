@@ -9,6 +9,7 @@ import {
   DeleteCartEndpoint,
   CartOrderRemarkEndpoint,
   CreateOrderEndpoint,
+  EditCartEndpoint,
 } from "./endpoints";
 import callWebService from "./web-service";
 
@@ -21,12 +22,24 @@ interface CreateCartResponse {
   id: number;
 }
 
+interface EditCartResponse {
+  msg: string;
+}
+
 interface CartorderremarkResponse {
   message: string;
 }
 
+interface cart_to_order_info {
+  ids: string;
+  product_type: string;
+  orderno: number;
+}
+
 interface CartorderResponse {
+  cart_to_order_info: Array<cart_to_order_info>;
   msg: string;
+  success: boolean;
 }
 
 const getCartDetailList = (
@@ -42,23 +55,25 @@ const getCartDetailList = (
     },
   });
 
-// const createCart = (payload: CartDetail): Promise<AxiosResponse<CreateCartResponse>> => {
-//   return callWebService(CreateCartEndpoint.url, {
-//     method: CreateCartEndpoint.method,
-//     maxBodyLength: Infinity,
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: "Bearer " + getToken(),
-//     },
-//     data: payload,
-//   });
-// };
-
 const createCart = (
-  payload: CartDetail
+  payload: Array<CartDetail> // CartDetail
 ): Promise<AxiosResponse<CreateCartResponse>> => {
   return callWebService(CreateCartEndpoint.url, {
     method: CreateCartEndpoint.method,
+    maxBodyLength: Infinity,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + getToken(),
+    },
+    data: payload,
+  });
+};
+
+const EditCart = (
+  payload: CartDetail // CartDetail
+): Promise<AxiosResponse<EditCartResponse>> => {
+  return callWebService(EditCartEndpoint.url, {
+    method: EditCartEndpoint.method,
     maxBodyLength: Infinity,
     headers: {
       "Content-Type": "application/json",
@@ -91,7 +106,7 @@ const UpdateCartOrderRemark = (
     },
   });
 
-const CreateOrderRemark = (
+const CreateOrder = (
   order_ids: number[]
 ): Promise<AxiosResponse<CartorderResponse>> =>
   callWebService(CreateOrderEndpoint.url, {
@@ -107,7 +122,8 @@ const CreateOrderRemark = (
 export {
   getCartDetailList,
   createCart,
+  EditCart,
   DeleteCart,
   UpdateCartOrderRemark,
-  CreateOrderRemark,
+  CreateOrder,
 };

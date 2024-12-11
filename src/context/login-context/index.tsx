@@ -1,4 +1,10 @@
-import React, { useEffect, useState, createContext, ReactNode, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  createContext,
+  ReactNode,
+  useCallback,
+} from "react";
 import {
   getToken,
   setToken,
@@ -95,6 +101,10 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
       setEmailOrMobileState(null);
       deleteUser();
       deleteUserRole();
+      localStorage.removeItem("customer-order-storage"); // Replace "yourSpecificKey" with actual keys to clear
+      localStorage.removeItem("customer-storage");
+      localStorage.removeItem("custtype");
+      localStorage.removeItem("cartCount");
     }
   };
 
@@ -104,7 +114,6 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     // Optionally, persist the count to localStorage
     localStorage.setItem("cartCount", count.toString());
   }, []);
-
 
   useEffect(() => {
     const token = getToken();

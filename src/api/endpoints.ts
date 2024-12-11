@@ -61,9 +61,15 @@ export const getJewelleryProdctPriceEndpoint: Endpoint = {
   url: "/erp/get-price",
 };
 
-//cart
+//create cart
 export const CreateCartEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
+  url: "cart/",
+};
+
+//Edit cart
+export const EditCartEndpoint: Endpoint = {
+  method: HTTP_METHOD.PUT,
   url: "cart/",
 };
 
@@ -78,7 +84,7 @@ export const DeleteCartEndpoint: Endpoint = {
 };
 
 export const CartOrderRemarkEndpoint: Endpoint = {
-  method: HTTP_METHOD.POST,
+  method: HTTP_METHOD.PUT,
   url: "cart/updateorderrem",
 };
 

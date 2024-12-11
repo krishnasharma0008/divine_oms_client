@@ -4,8 +4,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCart,
-  CreateOrderRemark,
+  CreateOrder,
   DeleteCart,
+  EditCart,
   getCartDetailList,
   UpdateCartOrderRemark,
 } from "@/api/cart";
@@ -18,6 +19,12 @@ import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
 import MessageModal from "@/components/common/message-modal";
 
+interface cart_to_order_info {
+  ids: string;
+  product_type: string;
+  orderno: number;
+}
+
 function JewelleryCartScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { isCartCount, updateCartCount } = useContext(LoginContext);
@@ -25,6 +32,7 @@ function JewelleryCartScreen() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentProductCode, setCurrentProductCode] = useState<string>(""); // Store product code
+  const [currentId, setCurrentId] = useState<number>(0); // Store product code
   const [currentRemark, setCurrentRemark] = useState<string>(""); // Store remark
   const [selectedItems, setSelectedItems] = useState<number[]>([]); // Store selected items
 
@@ -34,6 +42,8 @@ function JewelleryCartScreen() {
     useState(false); //message popup
   const [orderSummaryRemark, setOrderSummaryRemark] = useState<string>(""); //order remark
   const [rtype, setRtype] = useState<string>(""); //remarktype
+
+  const [cartMsg, setCartMsg] = useState<cart_to_order_info[]>([]);
 
   const router = useRouter();
 
@@ -55,12 +65,13 @@ function JewelleryCartScreen() {
   }, [showLoader, hideLoader]);
 
   const navigateToShopping = () => {
-    router.push("/jewellery");
+    router.push("/");
   };
 
   const handleRemarkClick = (item: CartDetail, rtype: string) => {
     if (rtype === "cart") {
-      setCurrentProductCode(item.product_code || ""); // Store the product_code
+      setCurrentProductCode(item.product_code); // Store the
+      setCurrentId(Number(item.id ?? 0));
       setCurrentRemark(item.cart_remarks || "");
     }
     setRtype(rtype);
@@ -71,16 +82,25 @@ function JewelleryCartScreen() {
     console.log(rtype);
     if (rtype === "cart") {
       // Update the cart data to reflect the new remark
-      const updatedCartData = cartData.map((item) =>
-        item.product_code === currentProductCode
-          ? { ...item, cart_remarks: newRemark } // Update the remark for the item
-          : item
-      );
+      const updatedCartData = cartData.map((item) => {
+        if (item.product_type === "jewellery") {
+          return item.product_code === currentProductCode
+            ? { ...item, cart_remarks: newRemark } // Update jewellery item
+            : item;
+        } else {
+          return item.id === currentId
+            ? { ...item, cart_remarks: newRemark } // Update other items
+            : item;
+        }
+      });
 
       setCartData(updatedCartData); // Set the new cart data with updated remarks
       //setcartData(updatedCartData); // Optionally, send the updated remark to the server
-      const updatedItem = updatedCartData.find(
-        (item) => item.product_code === currentProductCode
+      // Find the updated item
+      const updatedItem = updatedCartData.find((item) =>
+        item.product_type === "jewellery"
+          ? item.product_code === currentProductCode
+          : item.id === currentId
       );
 
       if (updatedItem) {
@@ -88,9 +108,10 @@ function JewelleryCartScreen() {
         // Call API to save the remark, assuming createCart is used for this
         showLoader();
         try {
-          createCart(payload); // This would send the updated remark to the server
+          EditCart(payload); // This would send the updated remark to the server
           setCurrentRemark("");
           setCurrentProductCode("");
+          setCurrentId(0);
         } catch (err) {
           console.error("Error saving remark:", err);
         } finally {
@@ -158,111 +179,116 @@ function JewelleryCartScreen() {
   ) => {
     if (!cartId) return;
 
-    // Update the local state
-    setCartData((prevCartData) =>
-      prevCartData.map((item) => {
-        if (item.id === cartId) {
-          const newProductQty = Math.max(
-            1,
-            (item.product_qty || 1) + (increment ? 1 : -1)
-          );
-          const unitAmtMin = item.product_amt_min / (item.product_qty || 1); // Calculate unit amount min
-          const unitAmtMax = item.product_amt_max / (item.product_qty || 1); // Calculate unit amount max
+    // Compute the updated item first
+    let updatedItem: CartDetail | null = null;
 
-          return {
-            ...item,
-            product_qty: newProductQty,
-            product_amt_min: unitAmtMin * newProductQty, // Update amount based on unit price
-            product_amt_max: unitAmtMax * newProductQty, // Update amount based on unit price
-          };
-        }
-        return item;
-      })
-    );
+    const updatedCartData = cartData.map((item) => {
+      if (item.id === cartId) {
+        const newProductQty = Math.max(
+          1,
+          (item.product_qty || 1) + (increment ? 1 : -1)
+        );
 
-    // Find the updated item for the payload
-    const updatedItem = cartData.find((item) => item.id === cartId);
+        // Calculate unit amounts
+        const unitAmtMin = item.product_amt_min / (item.product_qty || 1);
+        const unitAmtMax = item.product_amt_max / (item.product_qty || 1);
 
+        // Construct updated item
+        updatedItem = {
+          ...item,
+          product_qty: newProductQty,
+          product_amt_min: unitAmtMin * newProductQty,
+          product_amt_max: unitAmtMax * newProductQty,
+        };
+
+        return updatedItem; // Update this item in the array
+      }
+      return item;
+    });
+
+    // Update the state with the modified cart data
+    setCartData(updatedCartData);
+
+    // Log and proceed with the updated item
     if (updatedItem) {
-      const payload: CartDetail = {
-        ...updatedItem,
-        product_qty: updatedItem.product_qty,
-        product_amt_min: updatedItem.product_amt_min,
-        product_amt_max: updatedItem.product_amt_max,
-      };
+      console.log("Updated item:", updatedItem);
 
-      // Update the server
       try {
         showLoader();
-        await createCart(payload); // Await the server call
+
+        // Send the updated item to the server
+        await EditCart(updatedItem);
         console.log("Cart updated successfully");
       } catch (err) {
         console.error("Error updating cart:", err);
-        // Optionally show an error message to the user
       } finally {
         hideLoader();
       }
+    } else {
+      console.error("Error: Updated item not found");
     }
   };
 
   //const handleCopyItem = async (item: CartDetail) => {
   const handleCopyItem = async (item: CartDetail) => {
     const payload: CartDetail = {
-      order_for: item.order_for || "", // Default to empty string if undefined
-      customer_id: item.customer_id || 0, // Default to 0 if undefined
+      order_for: item.order_for || "",
+      customer_id: item.customer_id || 0,
       customer_name: item.customer_name || "",
-      customer_branch: item.customer_branch || "", // Default to empty string if undefined
-      product_type: item.product_type || "", // Default to empty string if undefined
-      order_type: item.order_type || "", //new
-      Product_category: item.Product_category || "", // new
-      //consignment_type: item.consignment_type || "", // Default to empty string if undefined
-      //sale_or_return: item.sale_or_return || "", // Default to empty string if undefined
-      //outright_purchase: item.outright_purchase || false, // Default to false if undefined
-      //customer_order: item.customer_order || "", // Default to empty string if undefined
-      exp_dlv_date: item.exp_dlv_date || null, // Default to null if undefined
-      old_varient: item.old_varient || "", //new
-      product_code: item.product_code || "", // Default to empty string if undefined
-      product_qty: item.product_qty || 1, // Use the updated quantity
-      product_amt_min: item.product_amt_min || 0, // Default to 0 if undefined
-      product_amt_max: item.product_amt_max || 0, // Default to 0 if undefined
-      solitaire_shape: item.solitaire_shape || "", // Default to empty string if undefined
-      solitaire_slab: item.solitaire_slab || "", // Default to empty string if undefined
-      solitaire_color: item.solitaire_color || "", // Default to empty string if undefined
-      solitaire_quality: item.solitaire_quality || "", // Default to empty string if undefined
-      solitaire_prem_size: item.solitaire_prem_size || "", // Default to empty string if undefined
-      solitaire_prem_pct: item.solitaire_prem_pct || 0, // Default to 0 if undefined
-      solitaire_amt_min: item.solitaire_amt_min || 0, // Default to 0 if undefined
-      solitaire_amt_max: item.solitaire_amt_max || 0, // Default to 0 if undefined
-      metal_purity: item.metal_purity || "", // Default to empty string if undefined
-      metal_color: item.metal_color || "", // Default to empty string if undefined
-      metal_weight: item.metal_weight || 0, // Default to 0 if undefined
-      size_from: item.size_from || "", // Default to empty string if undefined
-      size_to: item.size_to || "", // Default to empty string if undefined
-      side_stone_pcs: item.side_stone_pcs || 0, // Default to 0 if undefined
-      side_stone_cts: item.side_stone_cts || 0, // Default to 0 if undefined
-      side_stone_color: item.side_stone_color || "IJ", // Default to "IJ" if undefined
-      side_stone_quality: item.side_stone_quality || "SI", // Default to "SI" if undefined
-      cart_remarks: item.cart_remarks || "", // Default to empty string if undefined
+      customer_branch: item.customer_branch || "",
+      product_type: item.product_type || "",
+      order_type: item.order_type || "",
+      Product_category: item.Product_category || "",
+      exp_dlv_date: item.exp_dlv_date || null,
+      old_varient: item.old_varient || "",
+      product_code: item.product_code || "",
+      product_qty: item.product_qty || 1,
+      product_amt_min: item.product_amt_min || 0,
+      product_amt_max: item.product_amt_max || 0,
+      solitaire_shape: item.solitaire_shape || "",
+      solitaire_slab: item.solitaire_slab || "",
+      solitaire_color: item.solitaire_color || "",
+      solitaire_quality: item.solitaire_quality || "",
+      solitaire_prem_size: item.solitaire_prem_size || "",
+      solitaire_prem_pct: item.solitaire_prem_pct || 0,
+      solitaire_amt_min: item.solitaire_amt_min || 0,
+      solitaire_amt_max: item.solitaire_amt_max || 0,
+      metal_purity: item.metal_purity || "",
+      metal_color: item.metal_color || "",
+      metal_weight: item.metal_weight || 0,
+      size_from: item.size_from || "",
+      size_to: item.size_to || "",
+      side_stone_pcs: item.side_stone_pcs || 0,
+      side_stone_cts: item.side_stone_cts || 0,
+      side_stone_color: item.side_stone_color || "IJ",
+      side_stone_quality: item.side_stone_quality || "SI",
+      cart_remarks: item.cart_remarks || "",
       order_remarks: item.order_remarks || "",
-      metal_type: item.metal_purity || "",
+      metal_type: item.metal_type || "",
       metal_price: item.metal_price || 0,
-      mount_amt_min: item.mount_amt_max || 0,
-      mount_amt_max: item.mount_amt_min || 0,
+      mount_amt_min: item.mount_amt_min || 0,
+      mount_amt_max: item.mount_amt_max || 0,
     };
 
     try {
       showLoader();
-      const res = await createCart(payload); // Await the response
-      console.log("Cart created successfully", res.data.id);
-      const newCartItem = {
-        ...payload,
-        id: res.data.id,
-      };
+      const res = await createCart([payload]); // Create the cart item
+      console.log("Cart created successfully:", res.data.id);
 
-      // Add the new cart item to the existing cart data
-      setCartData([...cartData, newCartItem]);
+      // if (res.data.id) {
+      //   const newCartItem: CartDetail = {
+      //     ...payload,
+      //     id: res.data.id, // Use the new ID from the response
+      //   };
+      const newCartItem: CartDetail = { ...payload };
+      // Add the new cart item to the state
+      setCartData((prevCartData) => [...prevCartData, newCartItem]);
+      // } else {
+      //   console.error("API did not return a valid ID.");
+      // }
     } catch (err) {
-      console.log("Error updating cart", err);
+      console.error("Error creating cart:", err);
+      // Notify the user of the error
     } finally {
       hideLoader();
     }
@@ -285,27 +311,31 @@ function JewelleryCartScreen() {
 
   const handleProceedToCheckout = async () => {
     if (selectedItems.length === 0) {
-      setIsCheckoutModalVisible(true); // Show the modal if no items are selected
-      //console.log(selectedItems.join(","));
+      setIsCheckoutModalVisible(true);
       return;
     }
-    //console.log(selectedItems);
+
     try {
-      showLoader(); // Ensure the loader is displayed during the API call
-      const response = await CreateOrderRemark(selectedItems);
-      //console.log("Order successfully created:", response.data.msg);
+      showLoader();
+      const response = await CreateOrder(selectedItems);
+      console.log("Order successfully created:", response.data);
+
+      // Set cartMsg with the cart_to_order_info array from the response
+      if (response.data && response.data.cart_to_order_info) {
+        setCartMsg(response.data.cart_to_order_info);
+      }
+
       if (response.data.msg === "Sucess") {
         const decrementCount = selectedItems.length;
-        updateCartCount(isCartCount - decrementCount); // Batch update cart count
+        updateCartCount(isCartCount - decrementCount);
         setIsCheckoutModalMessageVisible(true);
-        //window.location.reload(); // Refresh the page upon success
       } else {
         console.error("Unexpected response:", response.data);
       }
     } catch (error) {
-      console.error("Error creating order remark:", error);
+      console.error("Error creating order:", error);
     } finally {
-      hideLoader(); // Ensure the loader is hidden, even in case of errors
+      hideLoader();
     }
   };
 
@@ -400,7 +430,19 @@ function JewelleryCartScreen() {
                 <div className="w-1/3 overflow-hidden rounded-lg">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={item.image_url ?? ""}
+                    src={
+                      item.product_type === "jewellery"
+                        ? item.image_url ?? ""
+                        : item.product_type === "solitaire" &&
+                          item.solitaire_shape === "Round"
+                        ? "/solitaire/image7.png"
+                        : item.product_type === "solitaire" &&
+                          item.solitaire_shape === "Princess"
+                        ? "/solitaire/image8.png"
+                        : item.solitaire_shape === "Oval"
+                        ? "/solitaire/image9.png"
+                        : "/solitaire/image_9.png"
+                    }
                     alt=""
                     width={200}
                     height={60}
@@ -426,18 +468,20 @@ function JewelleryCartScreen() {
                   <p className="text-sm text-gray-600">
                     Store : {item.customer_branch || "-"}
                   </p>
-                  <div className="flex items-center justify-left space-x-10">
-                    <p className="text-xl font-semibold text-gray-600">
-                      {item.product_code}
-                    </p>
-                    <p className="text-sm font-sm text-gray-600">
-                      Old : {item.old_varient}
-                    </p>
-                  </div>
+                  {item.product_type === "jewellery" && (
+                    <div className="flex items-center justify-left space-x-10">
+                      <p className="text-xl font-semibold text-gray-600">
+                        {item.product_code}
+                      </p>
+                      <p className="text-sm font-sm text-gray-600">
+                        Old : {item.old_varient}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
                       Diamond :{" "}
-                      {`${item.solitaire_slab || "-"}ct ${
+                      {`${item.solitaire_slab || "-"} cts ${
                         item.solitaire_shape || "-"
                       } ${item.solitaire_color || "-"} ${
                         item.solitaire_quality || "-"
@@ -463,26 +507,34 @@ function JewelleryCartScreen() {
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Metal Color :{" "}
-                    {`${item.metal_color || "-"} ${item.metal_purity || "-"}`}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Side Diamonds :{" "}
-                    {item.side_stone_cts
-                      ? `${item.side_stone_cts.toFixed(2)}cts`
-                      : "-"}{" "}
-                    {item.side_stone_color ? `${item.side_stone_color}` : "-"}{" "}
-                    {item.side_stone_quality
-                      ? `${item.side_stone_quality}`
-                      : "-"}
-                  </p>
-                  <p className="flex text-sm text-gray-600">
-                    Gross Weight :&nbsp;
-                    <p className="font-semibold text-black">
-                      {item.metal_weight || "-"}
-                    </p>
-                  </p>
+                  {item.product_type === "jewellery" && (
+                    <>
+                      <p className="text-sm text-gray-600">
+                        Metal Color :{" "}
+                        {`${item.metal_color || "-"} ${
+                          item.metal_purity || "-"
+                        }`}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Side Diamonds :{" "}
+                        {item.side_stone_cts
+                          ? `${item.side_stone_cts.toFixed(2)}cts`
+                          : "-"}{" "}
+                        {item.side_stone_color
+                          ? `${item.side_stone_color}`
+                          : "-"}{" "}
+                        {item.side_stone_quality
+                          ? `${item.side_stone_quality}`
+                          : "-"}
+                      </p>
+                      <p className="flex text-sm text-gray-600">
+                        Gross Weight :&nbsp;
+                        <p className="font-semibold text-black">
+                          {item.metal_weight || "-"}
+                        </p>
+                      </p>
+                    </>
+                  )}
                   <p className="flex text-sm text-gray-600">
                     Amount : Min :&nbsp;
                     <p className="font-semibold text-black">
@@ -498,6 +550,7 @@ function JewelleryCartScreen() {
                     </p>{" "}
                   </p>
                   {/* Clickable Remark */}
+
                   <div className="flex items-center justify-left">
                     <p
                       className="flex text-sm font-bold text-black cursor-pointer underline cursor-pointer"
@@ -509,23 +562,25 @@ function JewelleryCartScreen() {
                       &nbsp;:&nbsp;{item.cart_remarks || ""}
                     </p>
                   </div>
-                  <div className="w-full justify-end ml-2 flex space-x-2">
-                    {/* Copy Button */}
-                    <button
-                      className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-                      onClick={() => handleCopyItem(item)}
-                    >
-                      Copy
-                    </button>
+                  {item.product_type === "jewellery" && (
+                    <div className="w-full justify-end ml-2 flex space-x-2">
+                      {/* Copy Button */}
+                      <button
+                        className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                        onClick={() => handleCopyItem(item)}
+                      >
+                        Copy
+                      </button>
 
-                    {/* Edit Button */}
-                    <button
-                      className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-                      onClick={() => handleEdit(item?.id)}
-                    >
-                      Edit
-                    </button>
-                  </div>
+                      {/* Edit Button */}
+                      <button
+                        className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                        onClick={() => handleEdit(item?.id)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
                 </div>
                 {/* Delete Item Button */}
                 <button
@@ -645,6 +700,17 @@ function JewelleryCartScreen() {
                   onConfirm={closeCheckoutMessageModal}
                 >
                   <p>Your order has been created successfully.</p>
+
+                  {/*console.log("cartMsg:", cartMsg)*/}
+
+                  {Array.isArray(cartMsg) &&
+                    cartMsg.length > 0 &&
+                    cartMsg.map((item, index) => (
+                      <div key={index}>
+                        <p>Product Type: {item.product_type}</p>
+                        <p>Order Number: {item.orderno}</p>
+                      </div>
+                    ))}
                 </MessageModal>
               )}
             </div>
