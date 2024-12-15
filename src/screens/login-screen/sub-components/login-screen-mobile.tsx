@@ -88,7 +88,7 @@ const LoginScreenMobileInput: React.FC = () => {
         notifyErr(NOTIFICATION_MESSAGES.LOGIN_FAIL);
       }
       console.log("Navigating to dashboard...");
-      router.push("/");
+      //router.push("/");
       // } else {
       //   notifyErr("Invalid Email or Mobile Number");
       // }
