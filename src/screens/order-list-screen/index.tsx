@@ -8,9 +8,10 @@ import DataTable, {
 } from "react-data-table-component";
 //import { useRouter } from "next/navigation";
 import { OrderList } from "@/interface/order-list";
-import { getUser } from "@/local-storage";
+import { getToken, getUser } from "@/local-storage";
 import { getOrderList } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
+import Link from "next/link";
 //import NotificationContext from "@/context/notification-context";
 
 function OrderListScreen() {
@@ -27,13 +28,19 @@ function OrderListScreen() {
   const getlistdata = async () => {
     try {
       showLoader();
-      const result = await getOrderList(getUser() ?? "");
-      console.log(result.data.data ?? []);
-      setExcelData(result.data.data ?? []);
+      const result = await getOrderList(getUser() ?? "", 1, getToken() ?? "");
+      const data = result.data.data ?? [];
+      if (Array.isArray(data)) {
+        setExcelData(data);
+      } else {
+        console.log("Error: Data is not an array");
+      }
       hideLoader();
     } catch (error) {
       hideLoader();
       console.log(error);
+      // Optionally notify the user about the error here
+      // notifyErr("Failed to fetch orders");
     }
   };
 
@@ -51,7 +58,7 @@ function OrderListScreen() {
         row.order_createdat !== null
           ? dayjs(row.order_createdat).format("DD MMM,YYYY")
           : "",
-      //sortable: true,
+      sortable: true,
       reorder: true,
       Alignment: "center",
       width: "130px",
@@ -59,14 +66,14 @@ function OrderListScreen() {
     {
       name: "Name",
       selector: (row: OrderList) => row.customer_name,
-      //sortable: true,
-      Alignment: "center",
+      sortable: true,
       reorder: true,
+      Alignment: "center",
     },
     {
       name: "Stores Name",
       selector: (row: OrderList) => row.customer_branch || "",
-      //sortable: true,
+      sortable: true,
       reorder: true,
       Alignment: "center",
       width: "200px",
@@ -74,26 +81,26 @@ function OrderListScreen() {
     {
       name: "Item Type",
       selector: (row: OrderList) => row.product_type || "",
-      //sortable: true,
+      sortable: true,
       reorder: true,
       Alignment: "center",
       width: "120px",
     },
     {
-      name: "order for",
+      name: "Order For",
       selector: (row: OrderList) => row.order_for,
-      //sortable: true,
+      sortable: true,
       reorder: true,
       Alignment: "center",
       width: "140px",
     },
     {
-      name: "Expected  Date",
+      name: "Expected Date",
       selector: (row: OrderList) =>
         row.exp_dlv_date !== null
           ? dayjs(row.exp_dlv_date).format("DD MMM,YYYY")
           : "",
-      //sortable: true,
+      sortable: true,
       reorder: true,
       Alignment: "center",
       width: "140px",
@@ -101,16 +108,25 @@ function OrderListScreen() {
     {
       name: "View",
       cell: (row: OrderList) => (
-        <p
-          className="underline cursor-pointer text-black"
-          // onClick={() =>
-          //   router.push(
-          //     `/order/order-detail-${row.product_type}?id=${row.orderno}`
-          //   )
-          // }
+        <Link
+          href={`/order/order-detail-${row.product_type}?id=${row.orderno}`}
+          //target="_blank"
+          rel="noopener noreferrer"
         >
           {row.orderno}
-        </p>
+        </Link>
+        // <p
+        //   className="underline cursor-pointer text-black"
+        //   onClick={() => {
+        //     // console.log("Product Type:", row.product_type);
+        //     // console.log("Order Number:", row.orderno);
+        //     // router.push(
+        //     //   `/order/order-detail-${row.product_type}?id=${row.orderno}`
+        //     // );
+        //   }}
+        // >
+        //   {row.orderno}
+        // </p>
       ),
       center: true,
       width: "90px",
@@ -135,11 +151,10 @@ function OrderListScreen() {
     },
     cells: {
       style: {
-        //padding: "0px",
         fontSize: "0.875rem",
         borderRightStyle: "solid",
         borderRightWidth: "1px",
-        paddingTop: "2px", // Adjust padding
+        paddingTop: "2px",
         paddingBottom: "2px",
         justifyItems: "center",
       },
@@ -164,6 +179,8 @@ function OrderListScreen() {
             fixedHeaderScrollHeight="70vh"
             highlightOnHover
             noHeader
+            progressPending={excelData.length === 0} // Add loading state if no data
+            progressComponent={<span>Loading...</span>} // Display loading text
           />
         </div>
       </div>

@@ -1,34 +1,78 @@
-// app/auth-layout.tsx
 import React, { ReactNode, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { getToken } from "@/local-storage";
+import { useRouter } from "next/navigation";
+import {
+  getToken,
+  //deleteToken,
+  //getAdminToken,
+  //deleteAdminToken,
+} from "@/local-storage";
 
-const AuthLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
+const AuthLayout: React.FC<{ children: ReactNode; requireAdmin?: boolean }> = ({
+  children,
+  requireAdmin = false,
+}) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // State to handle loading
+  const [authState, setAuthState] = useState<
+    "loading" | "authenticated" | "unauthenticated"
+  >("loading");
+  const [isClient, setIsClient] = useState(false); // Track client-side rendering
+
+  const isTokenValid = (token: string): boolean => {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = JSON.parse(atob(base64));
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      // if (requireAdmin && jsonPayload.designation !== "Admin") {
+      //   return false;
+      // }
+
+      return jsonPayload.exp > currentTime;
+    } catch (error) {
+      console.error("Token validation error:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedToken = getToken(); // Retrieve token only on the client
-      setToken(storedToken); // Update state
-      setIsLoading(false); // Set loading to false after retrieval
-    }
+    setIsClient(true); // Ensure this is done only on the client
   }, []);
 
   useEffect(() => {
-    if (!isLoading && !token && pathname !== "/login") {
-      console.log("Redirecting to /login from Auth");
-      router.push("/login");
-    }
-  }, [isLoading, token, pathname, router]);
+    if (!isClient) return; // Skip authentication logic on SSR
 
-  if (isLoading) {
-    return <p>Loading...</p>; // Show loading while checking for token
+    const checkAuthentication = () => {
+      //const token = requireAdmin ? getAdminToken() : getToken();
+      const token = getToken();
+      console.log("token : ", token);
+      if (token && isTokenValid(token.replace("Bearer ", ""))) {
+        setAuthState("authenticated");
+      } else {
+        //requireAdmin ? deleteAdminToken() : deleteToken();
+        setAuthState("unauthenticated");
+      }
+    };
+
+    checkAuthentication();
+  }, [isClient, requireAdmin]);
+
+  useEffect(() => {
+    console.log("authState: ", authState);
+    if (authState === "unauthenticated") {
+      router.push(requireAdmin ? "/admin/login" : "/login");
+    }
+  }, [authState, router, requireAdmin]);
+
+  if (authState === "loading" || !isClient) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
-  return <>{children}</>; // Render children if loaded and logged in
+  return <>{children}</>;
 };
 
 export default AuthLayout;

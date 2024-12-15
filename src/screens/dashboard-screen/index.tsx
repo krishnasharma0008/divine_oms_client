@@ -14,18 +14,20 @@ const DashboardScreen = () => {
 
   // Clear specific local storage keys on page unload
   const clearLocalStorage = useCallback(() => {
-    localStorage.removeItem("customer-order-storage"); // Replace "yourSpecificKey" with actual keys to clear
+    localStorage.removeItem("customer-order-storage");
     localStorage.removeItem("customer-storage");
     localStorage.removeItem("custtype");
   }, []);
 
   useEffect(() => {
-    // Add event listener for beforeunload
-    window.addEventListener("beforeunload", clearLocalStorage);
+    const handleBeforeUnload = () => {
+      clearLocalStorage();
+    };
 
-    // Cleanup the event listener
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
-      window.removeEventListener("beforeunload", clearLocalStorage);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [clearLocalStorage]);
 
@@ -52,8 +54,14 @@ const DashboardScreen = () => {
                 selectedOrderType === "Jeweller"
                   ? "border-[#000000] bg-gray-100"
                   : "border-[#B0B0B0] bg-white"
+              } ${
+                selectedOrderType && selectedOrderType !== "Jeweller"
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
               }`}
-              onClick={() => orderfor("Jeweller")}
+              onClick={() =>
+                selectedOrderType !== "Jeweller" && orderfor("Jeweller")
+              }
             >
               <p className="font-medium text-xl font-black">Jeweller</p>
             </div>
@@ -62,8 +70,15 @@ const DashboardScreen = () => {
                 selectedOrderType === "Retail Customer"
                   ? "border-[#000000] bg-gray-100"
                   : "border-[#B0B0B0] bg-white"
+              } ${
+                selectedOrderType && selectedOrderType !== "Retail Customer"
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
               }`}
-              onClick={() => orderfor("Retail Customer")}
+              onClick={() =>
+                selectedOrderType !== "Retail Customer" &&
+                orderfor("Retail Customer")
+              }
             >
               <p className="font-medium text-xl font-black">Retail Customer</p>
             </div>

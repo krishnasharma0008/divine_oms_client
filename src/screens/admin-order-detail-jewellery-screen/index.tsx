@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import DataTable, {
   TableColumn,
   TableStyles,
@@ -10,10 +10,9 @@ import LoaderContext from "@/context/loader-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
-import { getToken } from "@/local-storage";
+import { getAdminToken } from "@/local-storage";
 
-function OrderDetailJewelleryScreen() {
-  //const { id } = useParams<{ id: string }>();
+function AdminOrderDetailJewelleryScreen() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const router = useRouter();
@@ -31,7 +30,7 @@ function OrderDetailJewelleryScreen() {
   const fetchOrderDetails = async (orderno: number) => {
     try {
       showLoader();
-      const response = await getOrderDetail(orderno, getToken() ?? "");
+      const response = await getOrderDetail(orderno, getAdminToken() ?? "");
       const { data, order_remarks } = response.data;
       setOrderData(data ?? []);
       setOrderRemarks(order_remarks);
@@ -43,10 +42,9 @@ function OrderDetailJewelleryScreen() {
   };
 
   const handleBackButtonClick = () => {
-    router.push("/order");
+    router.push("/admin/order");
   };
 
-  // Define columns for DataTable
   const columns: TableColumn<OrderDetail>[] = [
     {
       name: "#",
@@ -146,161 +144,117 @@ function OrderDetailJewelleryScreen() {
     },
   ];
 
-  // Calculate totals
-  const totalQty = orderData.reduce(
-    (total, order) => total + order.product_qty,
-    0
-  );
-  const totalAmountMin = orderData.reduce(
-    (total, order) => total + order.product_amt_min,
-    0
-  );
-  const totalAmountMax = orderData.reduce(
-    (total, order) => total + order.product_amt_max,
-    0
-  );
+  const totalQty = useMemo(() => {
+    return orderData.reduce((total, order) => total + order.product_qty, 0);
+  }, [orderData]);
 
-  // Define table custom styles
+  const totalAmountMin = useMemo(() => {
+    return orderData.reduce((total, order) => total + order.product_amt_min, 0);
+  }, [orderData]);
+
+  const totalAmountMax = useMemo(() => {
+    return orderData.reduce((total, order) => total + order.product_amt_max, 0);
+  }, [orderData]);
+
   const CustomStyles: TableStyles = {
     headRow: {
       style: {
         backgroundColor: "rgb(243 244 246)",
         color: "rgb(55 65 81)",
-        minHeight: "30px", // Reduce the header height
-        paddingTop: "2px", // Adjust padding
-        paddingBottom: "2px",
-        border: "1px",
+        minHeight: "30px",
       },
     },
     rows: {
       style: {
-        minHeight: "30px", // override the row height
-        whiteSpace: "nowrap", // Prevent text wrapping, content stays on a single line
-        overflow: "hidden", // Hide overflow text if it's too long
-        textOverflow: "ellipsis", // Add ellipsis for overflow text
+        minHeight: "30px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     },
     cells: {
       style: {
-        //padding: "0px",
         fontSize: "0.875rem",
         borderRightStyle: "solid",
         borderRightWidth: "1px",
-        paddingTop: "2px", // Adjust padding
+        paddingTop: "2px",
         paddingBottom: "2px",
-        justifyItems: "center",
       },
     },
   };
+
   return (
-    <div className={`flex flex-row w-full gap-x-2 m-2`}>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
       {/* Main Content Section */}
-      <div className={`w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg`}>
-        <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1>
-
-        <div className="w-full flex justify-between">
-          <div className="w-full">
-            <p className="flex text-lg text-gray-600 font-semibold italic">
-              Order ID:
-              <p className="text-lg text-black italic font-bold mb-4"> {id}</p>
-            </p>
-          </div>
-          <div className="w-full">
-            <p className="flex text-lg text-gray-600 font-semibold italic">
-              Order Item:
-              <p className="text-lg text-black italic font-bold mb-4">
-                {" "}
-                {totalQty}
-              </p>
-            </p>
-          </div>
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={handleBackButtonClick}
-              className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:text-black hover:bg-white focus:outline-none"
-            >
-              Back
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <DataTable
-            columns={columns}
-            data={orderData}
-            responsive
-            customStyles={CustomStyles}
-            fixedHeader
-            fixedHeaderScrollHeight="50vh"
-            highlightOnHover
-            striped
-          />
-
-          {/* Custom Footer Row */}
-          <div
-            style={{
-              marginTop: "10px",
-              paddingTop: "10px",
-              borderTop: "2px solid #e0e0e0",
-            }}
+      <div className="col-span-2 bg-white p-4 rounded-lg shadow-lg">
+        {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">
+          Admin Order Details
+        </h1> */}
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-lg font-semibold text-gray-600">
+            Order ID: <span className="text-black font-bold">{id}</span>
+          </p>
+          <button
+            onClick={handleBackButtonClick}
+            className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:bg-white hover:text-black border"
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                fontWeight: "bold",
-              }}
-            >
-              <div style={{ marginRight: "20px" }}>
-                <span>Total :</span>
-              </div>
-              <div style={{ width: "150px", textAlign: "center" }}>
-                <span>{totalQty}</span>
-              </div>
-              <div style={{ width: "300px", textAlign: "center" }}>
-                <span>{`${formatByCurrencyINR(
-                  totalAmountMin
-                )} - ${formatByCurrencyINR(totalAmountMax)}`}</span>
-              </div>
+            Back
+          </button>
+        </div>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          {orderData.length > 0 ? (
+            <DataTable
+              columns={columns}
+              data={orderData}
+              responsive
+              customStyles={CustomStyles}
+              fixedHeader
+              fixedHeaderScrollHeight="50vh"
+              highlightOnHover
+              striped
+            />
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No order details found.
+            </p>
+          )}
+          <div className="mt-4 border-t pt-4 flex justify-end font-bold">
+            <div className="mr-4">Total:</div>
+            <div className="w-24 text-center">{totalQty}</div>
+            <div className="w-48 text-center">
+              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
+                totalAmountMax
+              )}`}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Order Summary Section */}
-      <div
-        className={`w-full md:w-1/3 bg-white p-4 rounded-lg shadow-md mt-4 }`}
-      >
+      {/* Sidebar Section */}
+      <div className="bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Order Summary
         </h2>
-        <div className="w-full space-y-4">
+        <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Quantity</span>
-            <div className="text-lg font-semibold text-gray-800">
+            <span className="text-lg font-semibold text-gray-800">
               {totalQty}
-            </div>
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 whitespace-nowrap">
-              Total Amount
+            <span className="text-sm text-gray-600">Total Amount</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
+                totalAmountMax
+              )}`}
             </span>
-            <div className="text-lg font-semibold text-gray-800 whitespace-nowrap">
-              {formatByCurrencyINR(totalAmountMin)} -{" "}
-              {formatByCurrencyINR(totalAmountMax)}
-            </div>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">
-              Expected Delivery Date
+            <span className="text-sm text-gray-600">Remarks</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderRemarks || "--"}
             </span>
-            <div className="text-lg font-semibold text-gray-800">{" -- "}</div>
-          </div>
-          <div className="flex justify-between items-center py-2 border-t mt-4">
-            <span className="text-xl text-gray-600">Remarks</span>
-            <div className="text-lg font-semibold text-gray-800">
-              {orderRemarks}
-            </div>
           </div>
         </div>
       </div>
@@ -308,4 +262,4 @@ function OrderDetailJewelleryScreen() {
   );
 }
 
-export default OrderDetailJewelleryScreen;
+export default AdminOrderDetailJewelleryScreen;

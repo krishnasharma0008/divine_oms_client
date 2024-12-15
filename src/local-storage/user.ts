@@ -1,5 +1,6 @@
 import {
   TOKEN,
+  ADMINTOKEN,
   CONTACTNO,
   OTP,
   REDIRECTION_ROUTE,
@@ -18,7 +19,7 @@ export const setToken = (token: string): void => {
 // };
 export const getToken = (): string | null => {
   if (typeof window !== "undefined") {
-    console.log("Checking localStorage for token with key:", TOKEN);
+    //console.log("Checking localStorage for token with key:", TOKEN);
     return localStorage.getItem(TOKEN);
   }
   console.log("window is undefined, returning null");
@@ -26,6 +27,26 @@ export const getToken = (): string | null => {
 };
 export const deleteToken = (): void => {
   localStorage.removeItem(TOKEN); // Use removeItem to completely delete the token
+};
+
+// Admin Token management
+export const setAdminToken = (admintoken: string): void => {
+  localStorage.setItem(ADMINTOKEN, admintoken);
+};
+
+export const getAdminToken = (): string | null => {
+  if (typeof window !== "undefined") {
+    //console.log("Checking localStorage for token with key:", ADMINTOKEN);
+    return localStorage.getItem(ADMINTOKEN);
+  }
+  //console.log("window is undefined, returning null");
+  return null;
+};
+export const deleteAdminToken = (): string | null => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(ADMINTOKEN); // Use removeItem to completely delete the token
+  }
+  return null;
 };
 
 // Mobile number management

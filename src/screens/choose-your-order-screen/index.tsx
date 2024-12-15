@@ -159,30 +159,6 @@ const ChooseYourOrderScreen = () => {
     setOrderType(value);
   };
 
-  // const handleConsignment = (value: string) => {
-  //   console.log("selected Consignment", value);
-  //   setSelectedConsignment(value);
-  //   setOrderType(value);
-  // };
-
-  // const handleSOR = (value: string) => {
-  //   console.log("selected Sale Of Order", value);
-  //   setSelectedSOR(value);
-  //   setOrderType(value);
-  // };
-
-  // const handleOutPur = (value: string) => {
-  //   console.log("selected Out Purchase", value);
-  //   setSelectedOutrightPur(value);
-  //   setOrderType(value);
-  // };
-
-  // const handleCustOrder = (value: string) => {
-  //   console.log("selected Customer Order", value);
-  //   setSelectedCustOrder(value);
-  //   setOrderType(value);
-  // };
-
   const Ioptions = [
     { label: "Solitaire", value: "solitaire" },
     { label: "Jewellery", value: "jewellery" },
@@ -209,14 +185,18 @@ const ChooseYourOrderScreen = () => {
     );
 
     // Validation checks for required fields
-    if (!isCustomerName) {
+    if (getCustType() === "Jeweller" && !isCustomerName) {
+      notifyErr("Customer name is required. Please select a customer.");
+      return;
+    } else if (getCustType() === "Retail Customer" && !customer?.name) {
       notifyErr("Customer name is required. Please select a customer.");
       return;
     }
-
-    if (!selectedStore || !selectedStore.NickName) {
-      notifyErr("Store selection is required. Please select a valid store.");
-      return;
+    if (getCustType() === "Jeweller") {
+      if (!selectedStore || !selectedStore.NickName) {
+        notifyErr("Store selection is required. Please select a valid store.");
+        return;
+      }
     }
 
     // Prepare payload based on the customer type
@@ -224,17 +204,16 @@ const ChooseYourOrderScreen = () => {
       order_for: getCustType() ?? "",
       customer_id:
         getCustType() === "Jeweller"
-          ? parseInt(selectedStore.CustomerID.toString())
+          ? Number(selectedStore?.CustomerID)
           : customer?.id ?? 0,
       product_type: selectedValue, //itemtype
       order_type: orderType, //ordertype
-      //consignment_type: selectedconsignmen,
-      //sale_or_return: selectedsor,
-      //outright_purchase: selectedoutrightpur,
-      //customer_order: selectedCustOrder,
       cust_name:
-        getCustType() === "Jeweller" ? isCustomerName : customer?.name ?? "",
-      store: getCustType() === "Jeweller" ? selectedStore.NickName : "",
+        getCustType() === "Jeweller"
+          ? isCustomerName ?? ""
+          : customer?.name ?? "",
+
+      store: getCustType() === "Jeweller" ? selectedStore?.NickName ?? "" : "",
       contactno:
         getCustType() === "Jeweller"
           ? selectedContact

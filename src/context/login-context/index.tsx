@@ -9,39 +9,23 @@ import {
   getToken,
   setToken,
   deleteToken,
-  setMobileNumber,
   setUser,
-  //getUser,
   deleteUser,
   setUserRole,
-  //getUserRole,
   deleteUserRole,
+  deleteAdminToken,
 } from "@/local-storage";
 import { loginPasswordApi } from "@/api";
-
-// Example function to simulate sending OTP (replace with actual API call)
-const sendOtpToUser = async (emailOrMobile: string) => {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      if (emailOrMobile) {
-        console.log(`OTP sent to: ${emailOrMobile}`);
-        resolve();
-      } else {
-        reject(new Error("Failed to send OTP"));
-      }
-    }, 1000);
-  });
-};
 
 type TContext = {
   isLogin: boolean;
   emailOrMobile: string | null;
   isOtpVerified: boolean;
   setEmailOrMobile: (value: string) => void;
-  verifyOtp: (otp: string) => Promise<boolean>;
+  verifyOtp: (username: string, otp: string) => Promise<boolean>;
   toggleLogin: () => void;
   isCartCount: number;
-  updateCartCount: (count: number) => void; // New function to update the cart count
+  updateCartCount: (count: number) => void;
 };
 
 const LoginContext = createContext<TContext>({
@@ -52,7 +36,7 @@ const LoginContext = createContext<TContext>({
   verifyOtp: async () => false,
   toggleLogin: () => {},
   isCartCount: 0,
-  updateCartCount: () => {}, // Default empty function
+  updateCartCount: () => {},
 });
 
 export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
@@ -63,78 +47,65 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   const [isOtpVerified, setIsOtpVerified] = useState<boolean>(false);
   const [isCartCount, setCartCount] = useState<number>(0);
 
-  const handleSetEmailOrMobile = async (value: string) => {
-    setEmailOrMobileState(value);
-    setMobileNumber(value);
-    try {
-      await sendOtpToUser(value);
-    } catch (error) {
-      console.error("Failed to send OTP:", error);
-    }
-  };
-
-  const verifyOtp = async (otp: string): Promise<boolean> => {
-    try {
-      const res = await loginPasswordApi(emailOrMobile as string, otp);
-      if (res && res.data && res.data.token) {
-        setIsOtpVerified(true);
-        setIsLogin(true);
-        setToken(res.data.token); // Ensure you're getting the token from the correct path
-        setUser(res.data.dpname);
-        setUserRole(res.data.role);
-        setCartCount(res.data.cartcount || 0);
-        return true; // Return true for a successful verification
+  const validateToken = useCallback(() => {
+    const token = getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT
+        if (payload.exp * 1000 > Date.now()) {
+          setIsLogin(true);
+          return true;
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
       }
-      return false; // Return false if no valid response
-    } catch (error) {
-      console.error("OTP verification failed:", error);
-      return false; // Handle error and return false
     }
-  };
+    toggleLogin(); // Clear data if token is invalid
+    return false;
+  }, []);
 
-  const toggleLogin = () => {
-    if (isLogin) {
-      deleteToken(); // Clear the token from local storage
-      setIsLogin(false);
-      setCartCount(0); // Reset cart count on logout
-      setIsOtpVerified(false);
-      setEmailOrMobileState(null);
-      deleteUser();
-      deleteUserRole();
-      localStorage.removeItem("customer-order-storage"); // Replace "yourSpecificKey" with actual keys to clear
-      localStorage.removeItem("customer-storage");
-      localStorage.removeItem("custtype");
-      localStorage.removeItem("cartCount");
-    }
-  };
+  const verifyOtp = useCallback(
+    async (username: string, otp: string): Promise<boolean> => {
+      try {
+        const res = await loginPasswordApi(username, otp);
+        if (res?.data?.token) {
+          setIsOtpVerified(true);
+          setIsLogin(true);
+          setToken(res.data.token);
+          setUser(username);
+          setUserRole(res.data.designation);
+          setCartCount(res.data.cartcount || 0);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("OTP verification failed:", error);
+        return false;
+      }
+    },
+    []
+  );
 
-  // Update cart count globally
+  const toggleLogin = useCallback(() => {
+    deleteAdminToken();
+    deleteToken();
+    deleteUser();
+    deleteUserRole();
+    localStorage.clear(); // Clear all keys
+    setIsLogin(false);
+    setIsOtpVerified(false);
+    setCartCount(0);
+    setEmailOrMobileState(null);
+  }, []);
+
   const updateCartCount = useCallback((count: number) => {
     setCartCount(count);
-    // Optionally, persist the count to localStorage
     localStorage.setItem("cartCount", count.toString());
   }, []);
 
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      setIsLogin(true); // Token exists, so set the user as logged in
-      const storedCartCount = localStorage.getItem("cartCount");
-      if (storedCartCount) {
-        setCartCount(Number(storedCartCount));
-      }
-    } else {
-      setIsLogin(false);
-    }
-  }, []);
-
-  // useEffect(() => {
-  //   const token = getToken();
-  //   //console.log("Token retrieved at startup:", token); // Log token for debugging
-  //   console.log("1isLogin", isLogin);
-  //   setIsLogin(!!token); // Set isLogin based on token presence
-  //   console.log("12isLogin", !!isLogin);
-  // }, [isLogin]);
+    validateToken();
+  }, [validateToken]);
 
   return (
     <LoginContext.Provider
@@ -142,15 +113,14 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
         isLogin,
         emailOrMobile,
         isOtpVerified,
-        setEmailOrMobile: handleSetEmailOrMobile,
+        setEmailOrMobile: setEmailOrMobileState,
         verifyOtp,
         toggleLogin,
         isCartCount,
-        updateCartCount, // Provide the update function
+        updateCartCount,
       }}
     >
       {children}
-      {/* {isLogin ? <Dashboard /> : <LoginScreen />} */}
     </LoginContext.Provider>
   );
 };

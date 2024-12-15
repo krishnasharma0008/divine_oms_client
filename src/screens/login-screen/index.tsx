@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation"; // Import usePathname
 import LoginScreenMobileInput from "./sub-components/login-screen-mobile";
-import LoginScreenOtp from "./sub-components/login-screen-otp";
+//import LoginScreenOtp from "./sub-components/login-screen-otp";
 
 const LoginScreen: React.FC = () => {
   const pathname = usePathname(); // use usePathname to get the current path
@@ -12,9 +12,9 @@ const LoginScreen: React.FC = () => {
     <div className="flex flex-col items-center md:flex-row flex-row min-h-screen max-h-screen">
       <div className="flex items-center justify-center w-full max-w h-screen basis-1/2">
         {pathname === "/login" && <LoginScreenMobileInput />}
-        {pathname === "/login/verify" && <LoginScreenOtp />}
+        {/* {pathname === "/login/verify" && <LoginScreenOtp />} */}
       </div>
-      <div className="flex flex-col items-center justify-center w-full bg-custom-gradient h-screen basis-1/2">
+      <div className="flex flex-col items-center justify-center w-full bg-[#B3C7C4] h-screen basis-1/2">
         <Image
           src="/logo/login_page.png"
           alt="Image Description"

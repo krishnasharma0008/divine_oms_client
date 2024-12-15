@@ -6,7 +6,7 @@ import callWebService from "./web-service";
 export interface LoginResponse {
   dpname: string;
   message: "SUCCESS" | "FAILURE";
-  role: string;
+  designation: string;
   token: string;
   cartcount: number;
 }

@@ -6,9 +6,9 @@ import LoaderContext from "@/context/loader-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
-import { getToken } from "@/local-storage";
+import { getAdminToken } from "@/local-storage";
 
-function OrderDetailSolitaireScreen() {
+function AdminOrderDetailSolitaireScreen() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const router = useRouter();
@@ -26,7 +26,7 @@ function OrderDetailSolitaireScreen() {
   const fetchOrderDetails = async (orderno: number) => {
     try {
       showLoader();
-      const response = await getOrderDetail(orderno, getToken() ?? "");
+      const response = await getOrderDetail(orderno, getAdminToken() ?? "");
       const { data, order_remarks } = response.data;
       setOrderData(data ?? []);
       setOrderRemarks(order_remarks);
@@ -49,14 +49,14 @@ function OrderDetailSolitaireScreen() {
   );
 
   const handleBackButtonClick = () => {
-    router.push("/order");
+    router.push("/admin/order");
   };
 
   return (
     <div className="flex flex-col md:flex-row gap-4 m-4">
       {/* Main Content Section */}
       <div className="w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg border border-gray-300">
-        <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1>
+        {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1> */}
 
         <div className="w-full flex flex-wrap justify-between">
           <div className="mb-4">
@@ -282,4 +282,4 @@ function OrderDetailSolitaireScreen() {
   );
 }
 
-export default OrderDetailSolitaireScreen;
+export default AdminOrderDetailSolitaireScreen;
