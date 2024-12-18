@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
-import { getOrderDetail } from "@/api/order";
+import { getOrderDetail, updateOrderStatus } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
@@ -16,6 +16,10 @@ function AdminOrderDetailSolitaireScreen() {
   const [orderData, setOrderData] = useState<OrderDetail[]>([]);
   const [orderRemarks, setOrderRemarks] = useState<string | null>(null);
   const { showLoader, hideLoader } = useContext(LoaderContext);
+
+  const [orderStatus, setOrderStatus] = useState<string>("");
+
+  const status = ["WIP", "Delivered to SD", "Cancelled", "Open"];
 
   useEffect(() => {
     if (id) {
@@ -52,14 +56,33 @@ function AdminOrderDetailSolitaireScreen() {
     router.push("/admin/order");
   };
 
+  const handleStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newStatus = e.target.value;
+    //console.log("Status cannot be empty ", newStatus);
+    setOrderStatus(newStatus);
+
+    showLoader();
+    try {
+      await updateOrderStatus(Number(id), getAdminToken() ?? "", newStatus);
+
+      //setcartData(cartData);
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-4 m-4">
       {/* Main Content Section */}
       <div className="w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg border border-gray-300">
         {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1> */}
 
-        <div className="w-full flex flex-wrap justify-between">
-          <div className="mb-4">
+        <div className="w-full flex flex-wrap justify-between mb-4">
+          {/* <div className="mb-4">
             <p className="text-lg text-gray-600 font-semibold italic">
               Order ID:{" "}
               <span className="text-black font-bold not-italic">{id}</span>
@@ -72,15 +95,31 @@ function AdminOrderDetailSolitaireScreen() {
                 {totalPcs}
               </span>
             </p>
-          </div>
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={handleBackButtonClick}
-              className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:text-black hover:bg-white focus:outline-none"
+          </div> */}
+          <div className="w-1/2 flex flex-row">
+            <label className="text-sm font-medium text-gray-700 mt-2">
+              Status :&nbsp;
+            </label>
+            <select
+              value={orderStatus}
+              onChange={handleStatusChange}
+              className="bg-white border border-gray-300 rounded-md p-2"
             >
-              Back
-            </button>
+              {status.map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
+          {/* <div className="flex justify-end mb-4"> */}
+          <button
+            onClick={handleBackButtonClick}
+            className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:text-black hover:bg-white focus:outline-none"
+          >
+            Back
+          </button>
+          {/* </div> */}
         </div>
 
         <div className="overflow-x-auto rounded-lg shadow-md">

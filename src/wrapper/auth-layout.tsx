@@ -24,9 +24,9 @@ const AuthLayout: React.FC<{ children: ReactNode; requireAdmin?: boolean }> = ({
       const jsonPayload = JSON.parse(atob(base64));
       const currentTime = Math.floor(Date.now() / 1000);
 
-      // if (requireAdmin && jsonPayload.designation !== "Admin") {
-      //   return false;
-      // }
+      if (requireAdmin && jsonPayload.designation !== "Admin") {
+        return false;
+      }
 
       return jsonPayload.exp > currentTime;
     } catch (error) {

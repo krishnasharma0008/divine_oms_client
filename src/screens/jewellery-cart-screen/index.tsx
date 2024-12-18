@@ -53,6 +53,7 @@ function JewelleryCartScreen() {
       try {
         const res = await getCartDetailList(getUser() ?? "");
         setCartData(res.data.data); // Initialize directly from API
+        //setCartCount(res.data.data.length);
         setOrderSummaryRemark(res.data.order_remarks);
       } catch (error) {
         console.error("Error fetching cart details:", error);
@@ -239,7 +240,8 @@ function JewelleryCartScreen() {
       product_type: item.product_type || "",
       order_type: item.order_type || "",
       Product_category: item.Product_category || "",
-      exp_dlv_date: item.exp_dlv_date || null,
+      exp_dlv_date: item.exp_dlv_date ? new Date(item?.exp_dlv_date) : null,
+
       old_varient: item.old_varient || "",
       product_code: item.product_code || "",
       product_qty: item.product_qty || 1,
@@ -260,21 +262,23 @@ function JewelleryCartScreen() {
       size_to: item.size_to || "",
       side_stone_pcs: item.side_stone_pcs || 0,
       side_stone_cts: item.side_stone_cts || 0,
-      side_stone_color: item.side_stone_color || "IJ",
-      side_stone_quality: item.side_stone_quality || "SI",
+      side_stone_color: item.side_stone_pcs > 0 ? item.side_stone_color : "-",
+      side_stone_quality:
+        item.side_stone_pcs > 0 ? item.side_stone_quality : "-",
       cart_remarks: item.cart_remarks || "",
       order_remarks: item.order_remarks || "",
       metal_type: item.metal_type || "",
       metal_price: item.metal_price || 0,
       mount_amt_min: item.mount_amt_min || 0,
       mount_amt_max: item.mount_amt_max || 0,
+      image_url: item.image_url ?? "",
     };
 
     try {
       showLoader();
       const res = await createCart([payload]); // Create the cart item
       console.log("Cart created successfully:", res.data.id);
-
+      updateCartCount(isCartCount + 1);
       // if (res.data.id) {
       //   const newCartItem: CartDetail = {
       //     ...payload,
@@ -462,11 +466,19 @@ function JewelleryCartScreen() {
                       Partner Jewellers :&nbsp;
                     </h2>
                     <p className="text-sm text-gray-600">
-                      {item.customer_name || "-"}
+                      {item.order_for === "Retail Customer"
+                        ? "Divine Solitaires"
+                        : item.customer_name || "-"}
                     </p>
                   </div>
                   <p className="text-sm text-gray-600">
                     Store : {item.customer_branch || "-"}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Customer :{" "}
+                    {item.order_for === "Retail Customer"
+                      ? item.customer_name
+                      : "-"}
                   </p>
                   {item.product_type === "jewellery" && (
                     <div className="flex items-center justify-left space-x-10">
@@ -518,7 +530,7 @@ function JewelleryCartScreen() {
                       <p className="text-sm text-gray-600">
                         Side Diamonds :{" "}
                         {item.side_stone_cts
-                          ? `${item.side_stone_cts.toFixed(2)}cts`
+                          ? `${item.side_stone_cts.toFixed(2)} cts`
                           : "-"}{" "}
                         {item.side_stone_color
                           ? `${item.side_stone_color}`

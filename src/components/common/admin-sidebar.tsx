@@ -30,7 +30,7 @@ const AdminSidebar: React.FC = () => {
     setExpandedIndex(expandedIndex === index ? null : index);
 
   return (
-    <div className="bg-gray-100 h-screen transition-all duration-300 w-56 fixed z-20">
+    <div className="bg-gray-100 h-screen transition-all duration-300 w-[235px] fixed z-20">
       <div className="flex justify-center items-center h-16 border-b border-gray-300 pl-4 py-4">
         <Link href="/">
           <Image

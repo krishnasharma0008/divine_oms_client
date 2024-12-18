@@ -65,6 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       // <AdminLayoutWrapper>{children}</AdminLayoutWrapper> // Admin layout
                       <></>
                     ) : (
+                      //
                       <LayoutWrapper>{children}</LayoutWrapper> // Normal user layout
                     )}
                   </LoaderWrapper>

@@ -14,6 +14,9 @@ import {
   setUserRole,
   deleteUserRole,
   deleteAdminToken,
+  getCartCount,
+  setCartCount,
+  deleteCartCount,
 } from "@/local-storage";
 import { loginPasswordApi } from "@/api";
 
@@ -45,8 +48,9 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [emailOrMobile, setEmailOrMobileState] = useState<string | null>(null);
   const [isOtpVerified, setIsOtpVerified] = useState<boolean>(false);
-  const [isCartCount, setCartCount] = useState<number>(0);
-
+  const [isCartCount, setIsCartCount] = useState<number>(
+    getCartCount() || 0 // Initialize with localStorage value or 0
+  );
   const validateToken = useCallback(() => {
     const token = getToken();
     if (token) {
@@ -74,7 +78,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
           setToken(res.data.token);
           setUser(username);
           setUserRole(res.data.designation);
-          setCartCount(res.data.cartcount || 0);
+          setIsCartCount(Number(res.data.cartcount)); // Update cart count
           return true;
         }
         return false;
@@ -94,17 +98,20 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.clear(); // Clear all keys
     setIsLogin(false);
     setIsOtpVerified(false);
-    setCartCount(0);
+    deleteCartCount();
     setEmailOrMobileState(null);
+    setIsCartCount(0); // Reset cart count
   }, []);
 
   const updateCartCount = useCallback((count: number) => {
-    setCartCount(count);
-    localStorage.setItem("cartCount", count.toString());
+    setCartCount(count.toString());
+    setIsCartCount(count); // Update state
   }, []);
 
   useEffect(() => {
     validateToken();
+    const initialCartCount = getCartCount();
+    setIsCartCount(initialCartCount || 0); // Initialize cart count on mount
   }, [validateToken]);
 
   return (

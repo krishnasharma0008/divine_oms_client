@@ -1,5 +1,6 @@
 import React from "react";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
+import dayjs from "dayjs";
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,7 +22,10 @@ const PJDetailModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     { label: "Price List", value: "Price at the time of booking." },
     { label: "Courier charges", value: "Not charged" },
     { label: "Comments", value: "Invoice will go with 1% credit note" },
-    { label: "Expected Date", value: "" },
+    {
+      label: "Expected Date",
+      value: dayjs(customerOrder?.exp_dlv_date).format("DD-MM-YYYY"),
+    },
   ];
 
   if (!isOpen) return null;

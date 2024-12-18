@@ -15,6 +15,10 @@ import NotificationContext from "@/context/notification-context";
 import TextArea from "@/components/common/input-text-area";
 import { getpjCustomer, getpjStore } from "@/api/pjcustomer-store-detail";
 import { CustomerOrderDetail } from "@/interface";
+import dayjs from "dayjs";
+import utcPlugin from "dayjs/plugin/utc";
+
+dayjs.extend(utcPlugin);
 
 interface OptionType {
   value: string;
@@ -40,6 +44,7 @@ const ChooseYourOrderScreen = () => {
   const [selectedsor, setSelectedSOR] = useState(""); // Single checkbox
   const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
   const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
+  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState(""); // Delivery Date
 
   const [orderType, setOrderType] = useState("");
 
@@ -48,7 +53,19 @@ const ChooseYourOrderScreen = () => {
   // Access customer data from Zustand store
   const { customer } = useCustomerStore();
 
-  useEffect(() => {}, [customer]);
+  useEffect(() => {
+    // Calculate current date + 14 days
+    const today = new Date();
+    const expDeliveryDate = new Date(today);
+    expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days
+
+    // Format the date using dayjs
+    const formattedExpDeliveryDate =
+      dayjs(expDeliveryDate).format("DD-MM-YYYY");
+    console.log(formattedExpDeliveryDate);
+    // Update the state to show the calculated date
+    setExpectedDeliveryDate(formattedExpDeliveryDate);
+  }, [customer, expectedDeliveryDate]);
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -213,14 +230,14 @@ const ChooseYourOrderScreen = () => {
           ? isCustomerName ?? ""
           : customer?.name ?? "",
 
-      store: getCustType() === "Jeweller" ? selectedStore?.NickName ?? "" : "",
+      store: getCustType() === "Jeweller" ? selectedStore?.NickName ?? "" : "Mumbai HO",
       contactno:
         getCustType() === "Jeweller"
           ? selectedContact
           : customer?.contactno ?? "",
       address:
         getCustType() === "Jeweller" ? selectedAdd : customer?.address ?? "",
-      exp_dlv_date: "",
+      exp_dlv_date: expectedDeliveryDate, //new Date(expectedDeliveryDate || Date.now()).toISOString(),
       old_varient: "",
     };
 
@@ -427,7 +444,7 @@ const ChooseYourOrderScreen = () => {
               <InputText
                 type="text"
                 label="EXPECTED DELIVERY DATE"
-                value={""} //selectedDate
+                value={expectedDeliveryDate} //selectedDate
                 disabled={true}
               />
             </div>

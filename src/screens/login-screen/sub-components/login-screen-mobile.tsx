@@ -79,7 +79,7 @@ const LoginScreenMobileInput: React.FC = () => {
       }
 
       setEmailOrMobile(loginType);
-      console.log("2");
+      //console.log("2");
       const isValid = await verifyOtp(loginType, password); // Pass only the OTP
       if (isValid) {
         notify(NOTIFICATION_MESSAGES.LOGIN_SUCCESS);

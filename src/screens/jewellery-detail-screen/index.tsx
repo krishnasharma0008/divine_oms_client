@@ -24,6 +24,8 @@ interface CustomisationOptions {
   color: string;
   carat: string;
   clarity: string;
+  premiumSize?: string;
+  premiumPercentage?: string;
 }
 
 function JewelleryDetailScreen() {
@@ -58,6 +60,16 @@ function JewelleryDetailScreen() {
   const [soliAmtFrom, setSoliAmtFrom] = useState<number>(0);
   const [soliAmtTo, setSoliAmtTo] = useState<number>(0);
 
+  const sideDiaColorOption = ["IJ"];
+  const sideDiaClrarityOption = ["SI"];
+
+  const [sideDiaColor, setSideDiaColor] = useState<string>(
+    sideDiaColorOption[0]
+  );
+  const [sideDiaClarity, setSideDiaClarity] = useState<string>(
+    sideDiaClrarityOption[0]
+  );
+
   const router = useRouter();
 
   const [selectedQty, setSelectedQty] = useState<number>(1);
@@ -86,6 +98,8 @@ function JewelleryDetailScreen() {
           color: cart.solitaire_color,
           carat: cart.solitaire_slab,
           clarity: cart.solitaire_quality,
+          premiumSize: cart.solitaire_prem_size,
+          premiumPercentage: cart.solitaire_prem_pct.toString(),
         });
         // Automatically apply the values to the form (if needed)
         handleApply({
@@ -93,6 +107,8 @@ function JewelleryDetailScreen() {
           color: `${cart.solitaire_color}`, // Assuming color is stored as a string
           carat: cart.solitaire_slab,
           clarity: `${cart.solitaire_quality}`, // Assuming clarity is stored as a string
+          premiumSize: cart.solitaire_prem_size,
+          premiumPercentage: cart.solitaire_prem_pct.toString(),
         });
 
         setTotalPcs(cart.side_stone_pcs);
@@ -127,7 +143,7 @@ function JewelleryDetailScreen() {
           );
           setMetalPrice(metalPrice);
           setMetalAmtFrom(
-            parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+            parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(3))
           );
           // setMetalPriceFrom(
           //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
@@ -255,33 +271,33 @@ function JewelleryDetailScreen() {
     );
   };
 
-  const productData = [
-    {
-      label: "Solitaire",
-      value:
-        [
-          customisedData?.shape ? `${customisedData?.shape} ` : "", // Add space after shape if present
-          customisedData?.carat ? `${customisedData?.carat} cts ` : "", // Add space after carat if present
-          customisedData?.color ? `${customisedData?.color} ` : "", // Add space after color if present
-          customisedData?.clarity ? `${customisedData?.clarity} ` : "", // Add space after clarity if present
-        ].join("") || "-", // Join without extra spaces, fallback to "-" if empty
-    },
-    { label: "Metal Weight", value: Metalweight ?? 0 }, // This already handles the fallback
-    {
-      label: "Metal",
-      value: (metalPurity ?? 0) + " " + (metalColor ?? "-"),
-    },
-    {
-      label: "Ring Size",
-      value: `${ringSizeFrom} - ${ringSizeTo}`, // Template literals for clearer formatting
-    },
-    {
-      label: "Side Diamond",
-      value: `${sideDiaTotPcs ?? 0}/${sideDiaTotweight ?? 0} cts IJ-SI`, // Template literals for clarity
-    },
-  ];
+  // const productData = [
+  //   {
+  //     label: "Solitaire",
+  //     value:
+  //       [
+  //         customisedData?.shape ? `${customisedData?.shape} ` : "",
+  //         customisedData?.carat ? `${customisedData?.carat} cts ` : "",
+  //         customisedData?.color ? `${customisedData?.color} ` : "",
+  //         customisedData?.clarity ? `${customisedData?.clarity} ` : "",
+  //       ].join("") || "-",
+  //   },
+  //   { label: "Metal Weight", value: Metalweight ?? 0 },
+  //   {
+  //     label: "Metal",
+  //     value: (metalPurity ?? 0) + " " + (metalColor ?? "-"),
+  //   },
+  //   {
+  //     label: "Ring Size",
+  //     value: `${ringSizeFrom} - ${ringSizeTo}`, // Template literals for clearer formatting
+  //   },
+  //   {
+  //     label: "Side Diamond",
+  //     value: `${sideDiaTotPcs ?? 0}/${sideDiaTotweight ?? 0} cts IJ-SI`, // Template literals for clarity
+  //   },
+  // ];
 
-  const ringSizes = Array.from({ length: 13 }, (_, i) => i + 4); // Generate sizes 4 to 16
+  const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 16
 
   const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = Number(e.target.value);
@@ -372,6 +388,7 @@ function JewelleryDetailScreen() {
         : data.shape === "Pear"
         ? "PER"
         : "";
+
     const carat = data.carat?.split("-") || ["0", "0"];
     const color = data.color?.split(" - ") || ["", ""];
     const clarity = data.clarity?.split(" - ") || ["", ""];
@@ -379,38 +396,60 @@ function JewelleryDetailScreen() {
     try {
       const SolitaireFrom = await FetchPrice(
         "SOLITAIRE",
-        carat[0],
-        shape,
-        color[0],
-        clarity[0]
-      );
-      setSoliPriceFrom(SolitaireFrom);
-      const SolitaireTo = await FetchPrice(
-        "SOLITAIRE",
         carat[1],
         shape,
         color[1],
         clarity[1]
       );
+      setSoliPriceFrom(SolitaireFrom);
+
+      const SolitaireTo = await FetchPrice(
+        "SOLITAIRE",
+        carat[0],
+        shape,
+        color[0],
+        clarity[0]
+      );
       setSoliPriceTo(SolitaireTo);
 
-      //console.log("SolitaireFrom", SolitaireFrom);
+      console.log("SolitaireFrom", SolitaireFrom); //min
+      console.log("SolitaireTo", SolitaireTo); //max
+
+      // Default to 0 if premiumPercentage is invalid or not provided
+      const premiumPercentage = parseFloat(data.premiumPercentage ?? "0");
+      const premiumMinPrice =
+        SolitaireFrom + SolitaireFrom * (premiumPercentage / 100);
+      const premiumMaxPrice =
+        SolitaireTo + SolitaireTo * (premiumPercentage / 100);
+
+      // Ensure selectedQty is defined before proceeding
+      const qty = selectedQty || 1;
+
       setSoliAmtFrom(
-        parseFloat(
-          (SolitaireFrom * parseFloat(carat[0]) * selectedQty).toFixed(2)
-        )
+        parseFloat((premiumMinPrice * parseFloat(carat[1]) * qty).toFixed(2))
       );
       setSoliAmtTo(
-        parseFloat(
-          (SolitaireTo * parseFloat(carat[1]) * selectedQty).toFixed(2)
-        )
+        parseFloat((premiumMaxPrice * parseFloat(carat[0]) * qty).toFixed(2))
       );
     } catch (error) {
+      console.error("Error fetching price details:", error);
       notifyErr("Failed to fetch price details.");
     }
   };
 
   const handleCart = async () => {
+    if (
+      !(
+        customisedData?.shape?.trim() &&
+        customisedData?.carat?.trim() &&
+        customisedData?.color?.trim() &&
+        customisedData?.clarity?.trim()
+      )
+    ) {
+      alert("Customise solitaire to add in cart");
+      return;
+    }
+
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,
@@ -419,7 +458,12 @@ function JewelleryDetailScreen() {
       product_type: customerOrder?.product_type || "",
       order_type: customerOrder?.order_type || "",
       Product_category: jewelleryDetails?.Product_category || "",
-      exp_dlv_date: null,
+      // exp_dlv_date: new Date(
+      //   customerOrder?.exp_dlv_date || Date.now()
+      // ).toISOString(),
+      exp_dlv_date: customerOrder?.exp_dlv_date
+        ? new Date(customerOrder?.exp_dlv_date)
+        : null,
       old_varient: jewelleryDetails?.Old_varient || "",
       product_code: jewelleryDetails?.Item_number || "",
       product_qty: selectedQty,
@@ -429,8 +473,8 @@ function JewelleryDetailScreen() {
       solitaire_slab: customisedData?.carat || "",
       solitaire_color: customisedData?.color || "",
       solitaire_quality: customisedData?.clarity || "",
-      solitaire_prem_size: "",
-      solitaire_prem_pct: 0,
+      solitaire_prem_size: customisedData?.premiumSize || "",
+      solitaire_prem_pct: Number(customisedData?.premiumPercentage) || 0,
       solitaire_amt_min: soliAmtFrom,
       solitaire_amt_max: soliAmtTo,
       metal_type: "GOLD",
@@ -444,8 +488,8 @@ function JewelleryDetailScreen() {
       size_to: ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
       side_stone_pcs: Number(sideDiaTotPcs),
       side_stone_cts: Number(sideDiaTotweight),
-      side_stone_color: "IJ",
-      side_stone_quality: "SI",
+      side_stone_color: Number(sideDiaTotPcs) === 0 ? "" : sideDiaColor,
+      side_stone_quality: Number(sideDiaTotPcs) === 0 ? "" : sideDiaClarity,
       cart_remarks: cart?.cart_remarks || "",
       order_remarks: cart?.order_remarks || "",
     };
@@ -511,12 +555,24 @@ function JewelleryDetailScreen() {
     );
   };
 
+  const handleSideDiaColorChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSideDiaColor(event.target.value);
+  };
+
+  const handleSideDiaClarityChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSideDiaClarity(event.target.value);
+  };
+
   return (
     <div className="flex bg-white">
       {/* Image Gallery Section */}
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
         <ImageGallery images={filterByColorAndFormat(metalColor)} />
-        <div className="mt-8 mb-2 border-gray border-y-2">
+        {/* <div className="mt-8 mb-2 border-gray border-y-2">
           <div className="flex-1 text-left mx-1 rounded-lg">
             <h3 className="text-lg font-semibold underline text-blue-600">
               Product Details
@@ -531,18 +587,26 @@ function JewelleryDetailScreen() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Details Section */}
       <div className="bg-white p-4 w-1/2 relative">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg">
-            Product Code:{" "}
-            <span className="font-semibold">
-              {jewelleryDetails?.Item_number}
-            </span>
-          </h2>
+          <div className="flex space-x-6">
+            <h2 className="text-lg">
+              Product Code:{" "}
+              <span className="font-semibold">
+                {jewelleryDetails?.Item_number}
+              </span>
+            </h2>
+            <h2 className="text-lg">
+              Old Code:{" "}
+              <span className="font-semibold">
+                {jewelleryDetails?.Old_varient}
+              </span>
+            </h2>
+          </div>
           <div className="flex items-center space-x-2">
             <label className="block font-medium text-gray-700">QTY</label>
             <select
@@ -667,7 +731,9 @@ function JewelleryDetailScreen() {
 
             <div className="text-lg">
               <span>Metal Weight : </span>
-              <span className="font-semibold">{Metalweight} gms</span>
+              <span className="font-semibold">
+                {Metalweight.toFixed(3)} gms
+              </span>
             </div>
           </div>
           <div className="flex justify-between mt-4">
@@ -733,8 +799,33 @@ function JewelleryDetailScreen() {
               <div className="text-lg">
                 <span>Side Daimond :</span>
                 <span className="font-semibold">
-                  {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)} &nbsp;cts IJ-SI
+                  {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
                 </span>
+              </div>
+              <div className="flex">
+                <select
+                  className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
+                  value={sideDiaColor}
+                  onChange={handleSideDiaColorChange}
+                >
+                  {sideDiaColorOption.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+                {"-"}
+                <select
+                  className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
+                  value={sideDiaClarity}
+                  onChange={handleSideDiaClarityChange}
+                >
+                  {sideDiaClrarityOption.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

@@ -5,12 +5,13 @@ import DataTable, {
   TableColumn,
   TableStyles,
 } from "react-data-table-component";
-import { getOrderDetail } from "@/api/order";
+import { getOrderDetail, updateOrderStatus } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getAdminToken } from "@/local-storage";
+//import { DropdownCust } from "@/components";
 
 function AdminOrderDetailJewelleryScreen() {
   const searchParams = useSearchParams();
@@ -20,6 +21,9 @@ function AdminOrderDetailJewelleryScreen() {
   const [orderData, setOrderData] = useState<OrderDetail[]>([]);
   const [orderRemarks, setOrderRemarks] = useState<string | null>(null);
   const { showLoader, hideLoader } = useContext(LoaderContext);
+  const [orderStatus, setOrderStatus] = useState<string>("");
+
+  const status = ["WIP", "Delivered to SD", "Cancelled", "Open"];
 
   useEffect(() => {
     if (id) {
@@ -156,6 +160,25 @@ function AdminOrderDetailJewelleryScreen() {
     return orderData.reduce((total, order) => total + order.product_amt_max, 0);
   }, [orderData]);
 
+  const handleStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newStatus = e.target.value;
+    //console.log("Status cannot be empty ", newStatus);
+    setOrderStatus(newStatus);
+
+    showLoader();
+    try {
+      await updateOrderStatus(Number(id), getAdminToken() ?? "", newStatus);
+
+      //setcartData(cartData);
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
   const CustomStyles: TableStyles = {
     headRow: {
       style: {
@@ -191,9 +214,23 @@ function AdminOrderDetailJewelleryScreen() {
           Admin Order Details
         </h1> */}
         <div className="flex justify-between items-center mb-4">
-          <p className="text-lg font-semibold text-gray-600">
-            Order ID: <span className="text-black font-bold">{id}</span>
-          </p>
+          <div className="w-1/2 flex flex-row">
+            <label className="text-sm font-medium text-gray-700 mt-2">
+              Status :&nbsp;
+            </label>
+            <select
+              value={orderStatus}
+              onChange={handleStatusChange}
+              className="bg-white border border-gray-300 rounded-md p-2"
+            >
+              {status.map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button
             onClick={handleBackButtonClick}
             className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:bg-white hover:text-black border"

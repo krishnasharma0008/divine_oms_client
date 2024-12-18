@@ -122,7 +122,8 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
                 alt={filteredImages[selectedImage].title}
                 className="center md:w-auto w-60 max-h-full md:max-h-auto md:h-full m-auto object-contain rounded-lg shadow-md  "
                 style={{
-                  height: "100%", // Ensure the image takes up the full height of the container
+                  height: "70%", // Ensure the image takes up the full height of the container
+                  width: "100%",
                   objectFit: "contain", // Maintain aspect ratio while filling the container
                   borderTop: "1px solid rgb(0 0 0 / 0.1)", // Add a top border to the main image container
                 }}

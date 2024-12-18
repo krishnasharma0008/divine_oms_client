@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DropdownCust from "./dropdown-cust";
+import { usePremiumSizeAndPercentage } from "@/hook";
 
 interface CustomisationOptions {
   shape: string;
@@ -29,12 +30,16 @@ const SolitaireCustomisationPopup: React.FC<
   const [clarityT, setClarityT] = useState<string>("");
   const [premiumSize, setPremiumSize] = useState<string>("");
   const [premiumPercentage, setPremiumPercentage] = useState<string>("");
+
+  const [premiumSizeOptions, setPremiumSizeOptions] = useState<string[]>([]);
   //const [error, setError] = useState<string>("");
+
+  // Use the custom hook for premium size and percentage
+  const { getPremiumPercentage, getPremiumSizeOptions } =
+    usePremiumSizeAndPercentage();
 
   const options = {
     shape: ["Round", "Princess", "Oval", "Pear"],
-    premiumSize: ["-"],
-    premiumPercentage: ["5%", "10%", "15%", "20%"],
   };
 
   const isRound = shape === "Round"; // Check if the shape is Round
@@ -140,6 +145,24 @@ const SolitaireCustomisationPopup: React.FC<
     clarityF?: string;
     clarityT?: string;
   }>({});
+
+  useEffect(() => {
+    if (carat) {
+      // Filter the premium size options based on the carat size
+      const filteredPremiumSizes = getPremiumSizeOptions(carat);
+      setPremiumSizeOptions(filteredPremiumSizes);
+      setPremiumSize(""); // Reset the selected premium size
+      setPremiumPercentage(""); // Reset the premium percentage
+    }
+  }, [carat, getPremiumSizeOptions]); // This runs whenever 'carat' changes
+
+  // Fetch Premium Percentage when Premium Size is selected
+  useEffect(() => {
+    if (premiumSize) {
+      const percentage = getPremiumPercentage(premiumSize);
+      setPremiumPercentage(percentage ? percentage : "0");
+    }
+  }, [premiumSize, getPremiumPercentage]);
 
   const handleApply = () => {
     const errors: Record<string, string> = {};
@@ -284,7 +307,7 @@ const SolitaireCustomisationPopup: React.FC<
             </label>
             <DropdownCust
               label=""
-              options={options.premiumSize}
+              options={premiumSizeOptions}
               value={premiumSize}
               onChange={setPremiumSize}
               //error={fieldErrors.premiumSize}

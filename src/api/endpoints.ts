@@ -107,3 +107,8 @@ export const OrderDetailEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
   url: "order/orderdetails",
 };
+
+export const UpdateOrderStatusEndpoint: Endpoint = {
+  method: HTTP_METHOD.POST,
+  url: "/order/update-order-status",
+};

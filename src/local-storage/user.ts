@@ -7,6 +7,7 @@ import {
   USER,
   ROLE,
   CUSTTYPE,
+  CARTCOUNT,
 } from "./keys";
 
 // Token management
@@ -125,4 +126,18 @@ export const getCustType = (): string | null => {
 
 export const deleteCustType = (): void => {
   localStorage.removeItem(CUSTTYPE); // Use removeItem for consistency
+};
+
+
+// Cart Count management
+export const setCartCount = (cartcount: string): void => {
+  localStorage.setItem(CARTCOUNT, cartcount);
+};
+
+export const getCartCount = (): number => {
+  return Number(localStorage.getItem(CARTCOUNT)) || 0;
+};
+
+export const deleteCartCount = (): void => {
+  localStorage.removeItem(CARTCOUNT); // Use removeItem for consistency
 };
