@@ -475,7 +475,7 @@ function JewelleryDetailScreen() {
       product_type: customerOrder?.product_type || "",
       order_type: customerOrder?.order_type || "",
       Product_category: jewelleryDetails?.Product_category || "",
-      Product_sub_category: jewelleryDetails?.Product_sub_category || "", //new
+      product_sub_category: jewelleryDetails?.Product_sub_category || "", //new
       collection: jewelleryDetails?.Collection || "",
       // exp_dlv_date: new Date(
       //   customerOrder?.exp_dlv_date || Date.now()
@@ -625,9 +625,9 @@ function JewelleryDetailScreen() {
               </span>
             </h2>
             <h2 className="text-lg">
-              Collection{" "}
-              <span className="font-semibold">
-                {jewelleryDetails?.Collection}
+              Sub Category{" "}
+              <span className="font-semibold whitespace-nowrap">
+                {jewelleryDetails?.Product_sub_category}
               </span>
             </h2>
             <h2 className="text-lg">

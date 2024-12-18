@@ -7,7 +7,7 @@ export interface CartDetail {
   order_type: string;
   product_type: string; //new
   Product_category: string; //new ring,coint,pendent
-  Product_sub_category: string;
+  product_sub_category: string;
   collection: string; //new
   //consignment_type: string;
   //sale_or_return: string;

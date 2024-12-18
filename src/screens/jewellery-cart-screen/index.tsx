@@ -53,6 +53,7 @@ function JewelleryCartScreen() {
       showLoader();
       try {
         const res = await getCartDetailList(getUser() ?? "");
+        console.log(res.data.data);
         setCartData(res.data.data); // Initialize directly from API
         //setCartCount(res.data.data.length);
         setOrderSummaryRemark(res.data.order_remarks);
@@ -241,7 +242,7 @@ function JewelleryCartScreen() {
       product_type: item.product_type || "",
       order_type: item.order_type || "",
       Product_category: item.Product_category || "",
-      Product_sub_category: item.Product_sub_category || "", //new
+      product_sub_category: item.product_sub_category || "", //new
       collection: item.collection || "",
       exp_dlv_date: item.exp_dlv_date ? new Date(item?.exp_dlv_date) : null,
 
@@ -537,7 +538,7 @@ function JewelleryCartScreen() {
                           Old : {item.old_varient}
                         </p>
                         <p className="text-sm font-sm text-gray-600">
-                          Collection : {item.collection}
+                          Sub Category : {item.product_sub_category}
                         </p>
                       </div>
                     </>
