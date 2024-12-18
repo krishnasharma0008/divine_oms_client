@@ -326,7 +326,7 @@ const RegularConfirmOrderScreen = () => {
         order_type: customerOrder?.order_type || "",
         collection: "", //for diamond
         Product_category: "",
-        Product_sub_category: "", //new
+        product_sub_category: "", //new
         style: "", //new
         wear_style: "", //new
         look: "", //new
