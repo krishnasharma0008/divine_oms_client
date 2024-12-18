@@ -112,3 +112,8 @@ export const UpdateOrderStatusEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
   url: "/order/update-order-status",
 };
+
+export const GetCartExcelEndpoint: Endpoint = {
+  method: HTTP_METHOD.GET,
+  url: "/cart/getxl",
+};

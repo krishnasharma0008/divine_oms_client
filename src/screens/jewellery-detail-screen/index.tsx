@@ -186,12 +186,12 @@ function JewelleryDetailScreen() {
           console.log("Metalweight : ", Metalweight);
           setMetalweight(Metalweight ?? 0);
 
-          const totalidepcs = jewelleryDetails?.Bom?.filter(
+          const totalsidepcs = jewelleryDetails?.Bom?.filter(
             (item) =>
               item.Item_type === "STONE" && item.Item_group === "DIAMOND"
           ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
 
-          setSideDiaTotPcs(totalidepcs ?? 0);
+          setSideDiaTotPcs(totalsidepcs ?? 0);
 
           const totalsideweight = jewelleryDetails?.Bom?.filter(
             (item) =>
@@ -203,9 +203,15 @@ function JewelleryDetailScreen() {
           const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
           // console.log("sidediapcs : ", totalidepcs);
           // console.log("totalsideweight : ", totalsideweight);
-          // console.log("diamondPrice : ", diamondPrice);
+          console.log("sidediamondPrice : ", diamondPrice);
+          console.log("totalsidepcs : ", totalsidepcs);
+          console.log("totalsideweight : ", totalsideweight);
+          console.log(
+            "sidediamondAmt : ",
+            diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
+          );
           setSDiaPrice(
-            diamondPrice * (sideDiaTotPcs ?? 0) * (sideDiaTotweight ?? 0)
+            diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
           );
 
           const metalPrice = await FetchPrice(
@@ -215,6 +221,7 @@ function JewelleryDetailScreen() {
             jewelleryDetails?.Metal_color.split(",")[0] ?? "",
             jewelleryDetails?.Metal_purity.split(",")[0] ?? ""
           );
+
           //console.log("metalPrice :", metalPrice);
           //setMetalColor(jewelleryDetails?.Metal_color || "");
           setMetalPrice(metalPrice);
@@ -242,6 +249,11 @@ function JewelleryDetailScreen() {
         const defaultColor =
           response.data.data.Metal_color.split(",")[0].trim();
         setMetalColor(defaultColor);
+      }
+      if (metalPurity === "") {
+        const defaultPurity =
+          response.data.data.Metal_purity.split(",")[0].trim();
+        setMetalPurity(defaultPurity);
       }
       //setRingSizeFrom(jewelleryDetails?.Product_size_from.toString())
       //console.log("Old_varient : ", jewelleryDetails?.Old_varient);
@@ -345,6 +357,10 @@ function JewelleryDetailScreen() {
       metalPurity ?? ""
     );
     console.log("metalPrice color :", metalPrice);
+    console.log(
+      "Metal amount : ",
+      parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+    );
     setMetalPrice(metalPrice);
     setMetalAmtFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
     //setMetalPriceFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
@@ -396,7 +412,7 @@ function JewelleryDetailScreen() {
     try {
       const SolitaireFrom = await FetchPrice(
         "SOLITAIRE",
-        carat[1],
+        carat[0],
         shape,
         color[1],
         clarity[1]
@@ -405,7 +421,7 @@ function JewelleryDetailScreen() {
 
       const SolitaireTo = await FetchPrice(
         "SOLITAIRE",
-        carat[0],
+        carat[1],
         shape,
         color[0],
         clarity[0]
@@ -418,18 +434,19 @@ function JewelleryDetailScreen() {
       // Default to 0 if premiumPercentage is invalid or not provided
       const premiumPercentage = parseFloat(data.premiumPercentage ?? "0");
       const premiumMinPrice =
-        SolitaireFrom + SolitaireFrom * (premiumPercentage / 100);
+        SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
       const premiumMaxPrice =
-        SolitaireTo + SolitaireTo * (premiumPercentage / 100);
-
+        SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
+      console.log("premiumMinPrice", premiumMinPrice); //min
+      console.log("premiumMaxPrice", premiumMaxPrice); //max
       // Ensure selectedQty is defined before proceeding
       const qty = selectedQty || 1;
 
       setSoliAmtFrom(
-        parseFloat((premiumMinPrice * parseFloat(carat[1]) * qty).toFixed(2))
+        parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
       );
       setSoliAmtTo(
-        parseFloat((premiumMaxPrice * parseFloat(carat[0]) * qty).toFixed(2))
+        parseFloat((premiumMaxPrice * parseFloat(carat[1]) * qty).toFixed(2))
       );
     } catch (error) {
       console.error("Error fetching price details:", error);
@@ -458,6 +475,8 @@ function JewelleryDetailScreen() {
       product_type: customerOrder?.product_type || "",
       order_type: customerOrder?.order_type || "",
       Product_category: jewelleryDetails?.Product_category || "",
+      Product_sub_category: jewelleryDetails?.Product_sub_category || "", //new
+      collection: jewelleryDetails?.Collection || "",
       // exp_dlv_date: new Date(
       //   customerOrder?.exp_dlv_date || Date.now()
       // ).toISOString(),
@@ -492,6 +511,11 @@ function JewelleryDetailScreen() {
       side_stone_quality: Number(sideDiaTotPcs) === 0 ? "" : sideDiaClarity,
       cart_remarks: cart?.cart_remarks || "",
       order_remarks: cart?.order_remarks || "",
+      style: jewelleryDetails?.Style || "", //new
+      wear_style: jewelleryDetails?.Wear_style || "", //new
+      look: jewelleryDetails?.Look || "", //new
+      portfolio_type: jewelleryDetails?.Portfolio_type || "", //new
+      gender: jewelleryDetails?.Gender || "", //new
     };
 
     // Attach ID for updates
@@ -593,15 +617,21 @@ function JewelleryDetailScreen() {
       {/* Details Section */}
       <div className="bg-white p-4 w-1/2 relative">
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-6">
+          <div className="flex space-x-6 text-center">
             <h2 className="text-lg">
-              Product Code:{" "}
+              Product Code{" "}
               <span className="font-semibold">
                 {jewelleryDetails?.Item_number}
               </span>
             </h2>
             <h2 className="text-lg">
-              Old Code:{" "}
+              Collection{" "}
+              <span className="font-semibold">
+                {jewelleryDetails?.Collection}
+              </span>
+            </h2>
+            <h2 className="text-lg">
+              Old Code{" "}
               <span className="font-semibold">
                 {jewelleryDetails?.Old_varient}
               </span>
@@ -706,6 +736,7 @@ function JewelleryDetailScreen() {
                 value={metalPurity}
                 onChange={handleMetalPurity}
               >
+                <option value={""}>-</option>
                 {jewelleryDetails?.Metal_purity.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>
@@ -719,6 +750,7 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={handleMetalColor}
               >
+                <option value={""}>-</option>
                 {jewelleryDetails?.Metal_color.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>

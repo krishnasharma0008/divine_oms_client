@@ -6,6 +6,7 @@ import {
   createCart,
   CreateOrder,
   DeleteCart,
+  DownloadExcel,
   EditCart,
   getCartDetailList,
   UpdateCartOrderRemark,
@@ -240,6 +241,8 @@ function JewelleryCartScreen() {
       product_type: item.product_type || "",
       order_type: item.order_type || "",
       Product_category: item.Product_category || "",
+      Product_sub_category: item.Product_sub_category || "", //new
+      collection: item.collection || "",
       exp_dlv_date: item.exp_dlv_date ? new Date(item?.exp_dlv_date) : null,
 
       old_varient: item.old_varient || "",
@@ -272,6 +275,11 @@ function JewelleryCartScreen() {
       mount_amt_min: item.mount_amt_min || 0,
       mount_amt_max: item.mount_amt_max || 0,
       image_url: item.image_url ?? "",
+      style: item.style || "", //new
+      wear_style: item.wear_style || "", //new
+      look: item.look || "", //new
+      portfolio_type: item.portfolio_type || "", //new
+      gender: item.gender || "", //new
     };
 
     try {
@@ -386,6 +394,42 @@ function JewelleryCartScreen() {
   // Extract totals for rendering
   const { totalQty, totalAmtMin, totalAmtMax } = calculateSelectedTotals();
 
+  const ExcelDownload = async () => {
+    //console.log("Download Excel");
+    try {
+      showLoader();
+      const result = await DownloadExcel();
+      const href = window.URL.createObjectURL(new Blob([result.data]));
+
+      //const filename = result.headers['content-disposition']
+      //console.log(filename)
+      // .split(';')
+      // .find((n: string) => n.includes('filename='))
+      // .replace('filename=', '')
+      // .trim()
+
+      const anchorElement = document.createElement("a");
+
+      anchorElement.href = href;
+      anchorElement.download = `Cart_${new Date()}.xlsx`;
+
+      document.body.appendChild(anchorElement);
+      anchorElement.click();
+
+      document.body.removeChild(anchorElement);
+      window.URL.revokeObjectURL(href);
+
+      hideLoader();
+    } catch (error) {
+      hideLoader();
+      console.log(error);
+    }
+  };
+
+  const DownloadClick = () => {
+    ExcelDownload();
+  };
+
   return (
     <div className="flex max-h-[calc(100vh_-_90px)] overflow-y-auto gap-x-2 m-2">
       <div className="w-4/5 flex flex-col  text-gray-800 my-0.5 ">
@@ -401,7 +445,10 @@ function JewelleryCartScreen() {
           {/* Action Buttons */}
           {(cartData ?? []).length > 0 && (
             <div className="w-1/2 flex justify-end space-x-2">
-              <button className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black">
+              <button
+                className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                onClick={DownloadClick}
+              >
                 Export to Excel
               </button>
               <button
@@ -481,14 +528,19 @@ function JewelleryCartScreen() {
                       : "-"}
                   </p>
                   {item.product_type === "jewellery" && (
-                    <div className="flex items-center justify-left space-x-10">
-                      <p className="text-xl font-semibold text-gray-600">
-                        {item.product_code}
-                      </p>
-                      <p className="text-sm font-sm text-gray-600">
-                        Old : {item.old_varient}
-                      </p>
-                    </div>
+                    <>
+                      <div className="flex items-center justify-left space-x-10">
+                        <p className="text-xl font-semibold text-gray-600">
+                          {item.product_code}
+                        </p>
+                        <p className="text-sm font-sm text-gray-600">
+                          Old : {item.old_varient}
+                        </p>
+                        <p className="text-sm font-sm text-gray-600">
+                          Collection : {item.collection}
+                        </p>
+                      </div>
+                    </>
                   )}
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
@@ -521,6 +573,12 @@ function JewelleryCartScreen() {
                   </div>
                   {item.product_type === "jewellery" && (
                     <>
+                      {item.size_from !== "-" && (
+                        <p className="text-sm text-gray-600">
+                          Size :{" "}
+                          {`${item.size_from || "-"}-${item.size_to || "-"}`}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-600">
                         Metal Color :{" "}
                         {`${item.metal_color || "-"} ${
@@ -540,7 +598,7 @@ function JewelleryCartScreen() {
                           : "-"}
                       </p>
                       <p className="flex text-sm text-gray-600">
-                        Gross Weight :&nbsp;
+                        Metal Weight :&nbsp;
                         <p className="font-semibold text-black">
                           {item.metal_weight || "-"}
                         </p>

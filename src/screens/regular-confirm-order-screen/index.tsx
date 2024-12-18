@@ -235,10 +235,11 @@ const RegularConfirmOrderScreen = () => {
 
       try {
         const [minPrice, maxPrice] = await Promise.all([
-          FetchPrice("SOLITAIRE", minCarat, shape, colorFrom, clarityFrom),
-          FetchPrice("SOLITAIRE", maxCarat, shape, colorTo, clarityTo),
+          FetchPrice("SOLITAIRE", minCarat, shape, colorTo, clarityTo),
+          FetchPrice("SOLITAIRE", maxCarat, shape, colorFrom, clarityFrom),
         ]);
-
+        console.log(minPrice);
+        console.log(maxPrice);
         // Apply premium percentage to the prices
         const premiumMinPrice =
           minPrice + minPrice * (parseFloat(row.premiumper.toString()) / 100);
@@ -266,15 +267,15 @@ const RegularConfirmOrderScreen = () => {
           "SOLITAIRE",
           minCarat,
           row.shape,
-          row.colorFrom,
-          row.clarityFrom
+          row.colorTo,
+          row.clarityTo
         );
         const maxPrice = await FetchPrice(
           "SOLITAIRE",
           maxCarat,
           row.shape,
-          row.colorTo,
-          row.clarityTo
+          row.colorFrom,
+          row.clarityFrom
         );
 
         // Apply premium percentage to the prices
@@ -323,7 +324,14 @@ const RegularConfirmOrderScreen = () => {
         customer_branch: customerOrder?.store || "",
         product_type: customerOrder?.product_type || "",
         order_type: customerOrder?.order_type || "",
+        collection: "", //for diamond
         Product_category: "",
+        Product_sub_category: "", //new
+        style: "", //new
+        wear_style: "", //new
+        look: "", //new
+        portfolio_type: "", //new
+        gender: "", //new
         exp_dlv_date: customerOrder?.exp_dlv_date
           ? new Date(customerOrder?.exp_dlv_date)
           : null,
@@ -606,11 +614,12 @@ const RegularConfirmOrderScreen = () => {
                           type="text"
                           value={row.premiumper}
                           disabled={true}
+                          className=" mt-1"
                         />
                       </td>
 
                       {/* Pcs */}
-                      <td className="w-16 border border-gray-200 ">
+                      <td className="w-16 border border-gray-200 pt-2">
                         <Dropdown
                           label=""
                           variant="outlined"
@@ -625,13 +634,14 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Min Price */}
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="w-20 border border-gray-200">
                         <InputText
                           type="text"
                           //label="Min"
                           value={row.min.toString()}
                           //onChange={(e) => handleChange(index, "min", e.target.value)}
                           placeholder="Min"
+                          className=" mt-1"
                         />
                       </td>
 
@@ -641,20 +651,19 @@ const RegularConfirmOrderScreen = () => {
                           type="text"
                           placeholder="Max"
                           value={row.max.toString()}
+                          className=" mt-1"
                           //onChange={(e) => handleChange(index, "max", e.target.value)}
                         />
                       </td>
 
                       {/* Remarks */}
-                      <td className="border border-gray-200 ">
+                      <td className="border border-gray-200 pt-3">
                         <TextArea
                           value={row.remarks}
                           onChange={(e) =>
                             handleChange(index, "remarks", e.target.value)
                           }
                           rows={1}
-                          className="w-full"
-                          containerClass="w-full"
                         />
                       </td>
 

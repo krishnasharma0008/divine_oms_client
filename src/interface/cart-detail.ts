@@ -7,6 +7,8 @@ export interface CartDetail {
   order_type: string;
   product_type: string; //new
   Product_category: string; //new ring,coint,pendent
+  Product_sub_category: string;
+  collection: string; //new
   //consignment_type: string;
   //sale_or_return: string;
   //outright_purchase: boolean;
@@ -41,4 +43,9 @@ export interface CartDetail {
   cart_remarks: string;
   order_remarks: string;
   image_url?: string;
+  style: string; //new
+  wear_style: string; //new
+  look: string; //new
+  portfolio_type: string; //new
+  gender: string; //new
 }

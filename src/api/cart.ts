@@ -10,6 +10,7 @@ import {
   CartOrderRemarkEndpoint,
   CreateOrderEndpoint,
   EditCartEndpoint,
+  GetCartExcelEndpoint,
 } from "./endpoints";
 import callWebService from "./web-service";
 
@@ -119,6 +120,20 @@ const CreateOrder = (
     },
   });
 
+  const DownloadExcel = async (): Promise<AxiosResponse<Blob>> => {
+    //status: string, id: number
+    //const apiUrl = `excel?policy_status=${status}&id=${id}`
+    //console.log(apiUrl)
+    //return callWebService(GetCartExcelEndpoint.url + apiUrl, {
+      return callWebService(GetCartExcelEndpoint.url, {
+      method: GetCartExcelEndpoint.method,
+      headers: {
+        Authorization: 'Bearer ' + getToken(),
+      },
+      responseType: 'blob',
+    })
+  }
+
 export {
   getCartDetailList,
   createCart,
@@ -126,4 +141,5 @@ export {
   DeleteCart,
   UpdateCartOrderRemark,
   CreateOrder,
+  DownloadExcel
 };

@@ -13,7 +13,7 @@ export interface JewelleryDetail {
   Sub_catagory_2: string;
   Sub_catagory_3: string;
   Sub_catagory_4: string;
-  Style: string;
+  Style: string;//new
   Wear_style: string;
   Look: string;
   Status: string;

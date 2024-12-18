@@ -25,7 +25,7 @@ function JewelleyScreen() {
   const dataContainer = useRef<HTMLDivElement>(null);
 
   const { customerOrder } = useCustomerOrderStore();
-  const [date, setDate] = useState<string>("");
+  //const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
@@ -78,7 +78,7 @@ function JewelleyScreen() {
   const handleClearAll = () => {
     //setCategory("");
     setCurrentPage(1);
-    setDate(""); // Clear the date filter
+    //setDate(""); // Clear the date filter
     setSelectedCategory([]); // Reset selected categories to an empty array
     setSearchText(""); // Clear the search text input
     FetchListdata("", "", "", 1); // Reload data with no filters
@@ -89,7 +89,7 @@ function JewelleyScreen() {
     setLoading(true); // Show spinner
     console.log("Searching with filters:", {
       //category,
-      date,
+      //date,
       selectedcategory,
       searchText,
     });
@@ -250,7 +250,7 @@ function JewelleyScreen() {
           />
 
           {/* Date Filter */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="date">
               Date
             </label>
@@ -261,7 +261,7 @@ function JewelleyScreen() {
               onChange={(e) => setDate(e.target.value)}
               className="w-full p-2 border rounded-md"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Fixed Footer */}
