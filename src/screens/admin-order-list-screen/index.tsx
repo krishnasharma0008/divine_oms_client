@@ -127,7 +127,7 @@ function AdminOrderListScreen() {
       name: "VIEW",
       cell: (row: OrderList) => (
         <Link
-          href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
+          href="#" //{`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
           //target="_blank"
           rel="noopener noreferrer"
         >
