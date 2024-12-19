@@ -217,15 +217,21 @@ const RegularConfirmOrderScreen = () => {
         FetchPrice("SOLITAIRE", minCarat, shape, colorTo, clarityTo),
         FetchPrice("SOLITAIRE", maxCarat, shape, colorFrom, clarityFrom),
       ]);
-  
+
       // Apply premium percentage to the prices
-      const premiumMinPrice = minPrice + minPrice * (parseFloat(premiumper) / 100);
-      const premiumMaxPrice = maxPrice + maxPrice * (parseFloat(premiumper) / 100);
-  
+      const premiumMinPrice = minPrice + minPrice * (Number(premiumper) / 100);
+      const premiumMaxPrice = maxPrice + maxPrice * (Number(premiumper) / 100);
+      console.log("premiumMinPrice : ", premiumMinPrice);
+      console.log("premiumMaxPrice : ", premiumMaxPrice);
+      console.log("pcs : ", pcs);
       // Adjust the price based on pcs field (number of pieces)
-      const min = parseFloat((premiumMinPrice * parseFloat(minCarat) * pcs).toFixed(2));
-      const max = parseFloat((premiumMaxPrice * parseFloat(maxCarat) * pcs).toFixed(2));
-  
+      const min = parseFloat(
+        (premiumMinPrice * parseFloat(minCarat) * pcs).toFixed(2)
+      );
+      const max = parseFloat(
+        (premiumMaxPrice * parseFloat(maxCarat) * pcs).toFixed(2)
+      );
+
       return { min, max };
     } catch (error) {
       notifyErr("Failed to fetch prices. Please try again.");
@@ -236,36 +242,37 @@ const RegularConfirmOrderScreen = () => {
   const handleChange = async (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
     const row = updatedRows[index];
-  
+
     if (field === "remarks") {
       row.remarks = value;
       setRows(updatedRows);
       return;
     }
-  
+
     if (field === "size") {
       const filteredPremiumSizeOptions = getPremiumSizeOptions(value);
       row.premiumsize = filteredPremiumSizeOptions[0] || ""; // Set the first premium size option
       row.premiumper = 0; // Reset premium percentage to 0 when size changes
     }
-  
+
     // Handle premium size change
     if (field === "premiumsize") {
       row.premiumsize = value; // Update the premium size
       const premiumPercentage = getPremiumPercentage(value); // Get premium percentage based on the selected premium size
       row.premiumper = parseFloat(premiumPercentage); // Update premium percentage as a number
-  
+
       // Ensure the premiumper is a valid number
       if (isNaN(row.premiumper)) {
         row.premiumper = 0; // Set to 0 if premiumPercentage is invalid
       }
-  
-      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo, pcs } = row;
-  
+
+      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo, pcs } =
+        row;
+      console.log("Row pcs :", pcs);
       if (shape && size && colorFrom && colorTo && clarityFrom && clarityTo) {
         const caratRange = size.split("-");
         const [minCarat, maxCarat] = caratRange;
-  
+
         const { min, max } = await fetchAndApplyPrice(
           minCarat,
           maxCarat,
@@ -277,12 +284,12 @@ const RegularConfirmOrderScreen = () => {
           row.premiumper.toString(),
           pcs
         );
-  
+
         row.min = min;
         row.max = max;
       }
     }
-  
+
     // Handle other field changes (shape, size, etc.)
     if (
       field === "shape" ||
@@ -293,13 +300,14 @@ const RegularConfirmOrderScreen = () => {
       field === "clarityTo"
     ) {
       row[field] = value; // Update the field with the new value
-  
-      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo, pcs } = row;
-  
+
+      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo, pcs } =
+        row;
+
       if (shape && size && colorFrom && colorTo && clarityFrom && clarityTo) {
         const caratRange = size.split("-");
         const [minCarat, maxCarat] = caratRange;
-  
+
         const { min, max } = await fetchAndApplyPrice(
           minCarat,
           maxCarat,
@@ -311,21 +319,31 @@ const RegularConfirmOrderScreen = () => {
           row.premiumper.toString(),
           pcs
         );
-  
+
         row.min = min;
         row.max = max;
       }
     }
-  
+
     // Handle pcs field change: Adjust prices based on the number of pieces
     if (field === "pcs") {
-      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo } = row;
-      const pcs = parseInt(value, 10); // Ensure pcs is a valid number
-  
-      if (shape && size && colorFrom && colorTo && clarityFrom && clarityTo && !isNaN(pcs)) {
+      row[field] = parseInt(value, 10);
+      const { shape, size, colorFrom, colorTo, clarityFrom, clarityTo, pcs } =
+        row;
+      //const pcs = parseInt(value, 10); // Ensure pcs is a valid number
+
+      if (
+        shape &&
+        size &&
+        colorFrom &&
+        colorTo &&
+        clarityFrom &&
+        clarityTo &&
+        !isNaN(pcs)
+      ) {
         const caratRange = size.split("-");
         const [minCarat, maxCarat] = caratRange;
-  
+
         const { min, max } = await fetchAndApplyPrice(
           minCarat,
           maxCarat,
@@ -337,12 +355,12 @@ const RegularConfirmOrderScreen = () => {
           row.premiumper.toString(),
           pcs
         );
-  
+
         row.min = min;
         row.max = max;
       }
     }
-  
+
     // Update the state with the modified row
     setRows(updatedRows); // This ensures the row is updated correctly in the state
   };
