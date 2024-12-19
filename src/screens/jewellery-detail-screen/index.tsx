@@ -60,14 +60,10 @@ function JewelleryDetailScreen() {
   const [soliAmtFrom, setSoliAmtFrom] = useState<number>(0);
   const [soliAmtTo, setSoliAmtTo] = useState<number>(0);
 
-  const sideDiaColorOption = ["IJ"];
-  const sideDiaClrarityOption = ["SI"];
+  const sideDiaColorClarityOption = ["IJ-SI"];
 
-  const [sideDiaColor, setSideDiaColor] = useState<string>(
-    sideDiaColorOption[0]
-  );
-  const [sideDiaClarity, setSideDiaClarity] = useState<string>(
-    sideDiaClrarityOption[0]
+  const [sideDiaColorClarity, setSideDiaColorClarity] = useState<string>(
+    sideDiaColorClarityOption[0]
   );
 
   const router = useRouter();
@@ -507,8 +503,10 @@ function JewelleryDetailScreen() {
       size_to: ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
       side_stone_pcs: Number(sideDiaTotPcs),
       side_stone_cts: Number(sideDiaTotweight),
-      side_stone_color: Number(sideDiaTotPcs) === 0 ? "" : sideDiaColor,
-      side_stone_quality: Number(sideDiaTotPcs) === 0 ? "" : sideDiaClarity,
+      side_stone_color:
+        Number(sideDiaTotPcs) === 0 ? "" : sideDiaColorClarity.split("-")[0],
+      side_stone_quality:
+        Number(sideDiaTotPcs) === 0 ? "" : sideDiaColorClarity.split("-")[1],
       cart_remarks: cart?.cart_remarks || "",
       order_remarks: cart?.order_remarks || "",
       style: jewelleryDetails?.Style || "", //new
@@ -579,16 +577,10 @@ function JewelleryDetailScreen() {
     );
   };
 
-  const handleSideDiaColorChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSideDiaColor(event.target.value);
-  };
-
   const handleSideDiaClarityChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSideDiaClarity(event.target.value);
+    setSideDiaColorClarity(event.target.value);
   };
 
   return (
@@ -625,15 +617,15 @@ function JewelleryDetailScreen() {
               </span>
             </h2>
             <h2 className="text-lg">
-              Sub Category{" "}
-              <span className="font-semibold whitespace-nowrap">
-                {jewelleryDetails?.Product_sub_category}
-              </span>
-            </h2>
-            <h2 className="text-lg">
               Old Code{" "}
               <span className="font-semibold">
                 {jewelleryDetails?.Old_varient}
+              </span>
+            </h2>
+            <h2 className="text-lg">
+              Sub Category{" "}
+              <span className="font-semibold whitespace-nowrap">
+                {jewelleryDetails?.Product_sub_category}
               </span>
             </h2>
           </div>
@@ -736,7 +728,6 @@ function JewelleryDetailScreen() {
                 value={metalPurity}
                 onChange={handleMetalPurity}
               >
-                <option value={""}>-</option>
                 {jewelleryDetails?.Metal_purity.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>
@@ -750,7 +741,6 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={handleMetalColor}
               >
-                <option value={""}>-</option>
                 {jewelleryDetails?.Metal_color.split(",").map(
                   (item: string, index) => (
                     <option key={index} value={item}>
@@ -837,22 +827,10 @@ function JewelleryDetailScreen() {
               <div className="flex">
                 <select
                   className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                  value={sideDiaColor}
-                  onChange={handleSideDiaColorChange}
-                >
-                  {sideDiaColorOption.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-                {"-"}
-                <select
-                  className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                  value={sideDiaClarity}
+                  value={sideDiaColorClarity}
                   onChange={handleSideDiaClarityChange}
                 >
-                  {sideDiaClrarityOption.map((item) => (
+                  {sideDiaColorClarityOption.map((item) => (
                     <option key={item} value={item}>
                       {item}
                     </option>

@@ -52,19 +52,6 @@ const SolitaireCustomisationPopup: React.FC<
   const claritiesRound = ["VVS", "VS", "SI"];
   const claritiesRoundCarat = ["VVS", "VS"];
 
-  useEffect(() => {
-    if (isOpen) {
-      setShape(customisedData?.shape || "");
-
-      getColorTOptions(customisedData?.carat || "");
-      getClarityOptions(customisedData?.carat || "");
-
-      setCarat(customisedData?.carat || "");
-      // setPremiumSize(customisedData.premiumSize || "");
-      // setPremiumPercentage(customisedData.premiumPercentage || "");
-    }
-  }, [isOpen, customisedData]);
-
   // Function to get color options based on the slab
   const getColorOptions = (slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
@@ -163,6 +150,28 @@ const SolitaireCustomisationPopup: React.FC<
       setPremiumPercentage(percentage ? percentage : "0");
     }
   }, [premiumSize, getPremiumPercentage]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShape(customisedData?.shape || "");
+
+      getColorOptions(customisedData?.carat || "");
+      getClarityOptions(customisedData?.carat || "");
+
+      getColorTOptions(customisedData?.carat || "");
+      getClarityOptions(customisedData?.carat || "");
+
+      setPremiumSize(customisedData?.premiumSize || "");
+      setPremiumPercentage(customisedData?.premiumPercentage || "");
+
+      setCarat(customisedData?.carat || "");
+      console.log(customisedData?.color);
+      setColorF(customisedData?.color.split(" - ")[0] || "");
+      setColorT(customisedData?.color.split(" - ")[1] || "");
+      setClarityF(customisedData?.clarity.split(" - ")[0] || "");
+      setClarityT(customisedData?.clarity.split(" - ")[1] || "");
+    }
+  }, [isOpen, customisedData]);
 
   const handleApply = () => {
     const errors: Record<string, string> = {};

@@ -530,7 +530,7 @@ function JewelleryCartScreen() {
                   </p>
                   {item.product_type === "jewellery" && (
                     <>
-                      <div className="flex items-center justify-left space-x-10">
+                      <div className="flex items-center justify-left space-x-4">
                         <p className="text-xl font-semibold text-gray-600">
                           {item.product_code}
                         </p>
@@ -601,7 +601,7 @@ function JewelleryCartScreen() {
                       <p className="flex text-sm text-gray-600">
                         Metal Weight :&nbsp;
                         <p className="font-semibold text-black">
-                          {item.metal_weight || "-"}
+                          {item.metal_weight.toFixed(3) || "-"}
                         </p>
                       </p>
                     </>
