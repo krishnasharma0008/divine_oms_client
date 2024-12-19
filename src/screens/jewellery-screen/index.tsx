@@ -176,8 +176,13 @@ function JewelleyScreen() {
       setIsCheckoutModalVisible(true);
       return;
     }
-    //router.push(`/jewellery/jewellery-detail/${design_no}`);
-    router.push(`/jewellery/jewellery-detail?id=${design_no}`);
+    //router.push(`/jewellery/jewellery-detail?id=${design_no}`);
+    const queryParams = new URLSearchParams({
+      id: design_no,
+      ftype: "new",
+    }).toString();
+
+    router.push(`/jewellery/jewellery-detail?${queryParams}`);
   };
 
   const handleStockClick = (design_no: string) => {

@@ -124,18 +124,21 @@ function AdminOrderListScreen() {
       width: "140px",
     },
     {
-      name: "VIEW",
+      name: "ACTION",
       cell: (row: OrderList) => (
         <Link
-          href="#" //{`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
+          href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
           //target="_blank"
           rel="noopener noreferrer"
         >
-          {row.orderno}
+          {/* {row.orderno} */}
+          <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
+            View
+          </button>
         </Link>
       ),
       center: true,
-      width: "90px",
+      width: "150px",
     },
   ];
 
@@ -200,7 +203,7 @@ function AdminOrderListScreen() {
                 data={excelData}
                 customStyles={customStyles}
                 fixedHeader
-                fixedHeaderScrollHeight="70vh"
+                fixedHeaderScrollHeight="70.5vh"
                 highlightOnHover
                 noHeader
                 pagination

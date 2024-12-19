@@ -106,14 +106,16 @@ function OrderListScreen() {
       width: "140px",
     },
     {
-      name: "View",
+      name: "",
       cell: (row: OrderList) => (
         <Link
           href={`/order/order-detail-${row.product_type}?id=${row.orderno}`}
           //target="_blank"
           rel="noopener noreferrer"
         >
-          {row.orderno}
+          <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
+            View
+          </button>
         </Link>
         // <p
         //   className="underline cursor-pointer text-black"
@@ -129,7 +131,7 @@ function OrderListScreen() {
         // </p>
       ),
       center: true,
-      width: "90px",
+      width: "150px",
     },
   ].map((col) => ({ ...col, name: col.name?.toUpperCase() }));
 
@@ -176,7 +178,7 @@ function OrderListScreen() {
             data={excelData}
             customStyles={CustomStyles}
             fixedHeader
-            fixedHeaderScrollHeight="70vh"
+            fixedHeaderScrollHeight="70.5vh"
             highlightOnHover
             noHeader
             progressPending={excelData.length === 0} // Add loading state if no data

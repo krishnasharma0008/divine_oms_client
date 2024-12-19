@@ -2,7 +2,7 @@
 
 import ImageGallery from "@/components/common/image-gallery";
 import React, { useContext, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import ShoppingCartIcon from "@/components/icons/shopping-cart-icon";
 import {
   getJewelleryProductList,
@@ -13,7 +13,6 @@ import { CartDetail, JewelleryDetail } from "@/interface";
 import SolitaireCustomisationPopup from "@/components/common/solitaire-customise";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import LoaderContext from "@/context/loader-context";
-import { useRouter } from "next/navigation";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
 import { createCart, EditCart } from "@/api/cart";
 import { useCartDetailStore } from "@/store/cartDetailStore";
@@ -32,7 +31,7 @@ function JewelleryDetailScreen() {
   //const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  //const ftype = searchParams.get("ftype");
+  const formType = searchParams.get("ftype");
 
   const { isCartCount, updateCartCount } = useContext(LoginContext); //
   const { customerOrder } = useCustomerOrderStore();
@@ -72,7 +71,7 @@ function JewelleryDetailScreen() {
   const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
 
   useEffect(() => {
-    if (id && id.trim() !== "") {
+    if (formType === "new") {
       console.log("ID is not empty");
       resetCartDetail();
     }
@@ -149,14 +148,14 @@ function JewelleryDetailScreen() {
           notifyErr("Failed to fetch price details.");
         }
       } else {
-        if (!id || id.trim() === "") {
-          notifyErr("Invalid jewellery ID.");
-          return;
-        }
-        console.log("Add Cart data");
+        // if (formType === "new") {
+        //   //notifyErr("Invalid jewellery ID.");
+        //   return;
+        // }
+         console.log("Add Cart data");
 
         try {
-          await FetchData(id);
+          await FetchData(String(id));
 
           setRingSizeFrom(
             jewelleryDetails?.Product_size_from === "-"
@@ -565,11 +564,17 @@ function JewelleryDetailScreen() {
     setSelectedQty(newQty);
     console.log("soliPriceFrom", soliPriceFrom);
     console.log("soliPriceTo", soliPriceTo);
+    const premiumMinPrice =
+      soliPriceFrom +
+      soliPriceFrom * (Number(customisedData?.premiumPercentage) / 100);
+    const premiumMaxPrice =
+      soliPriceTo +
+      soliPriceTo * (Number(customisedData?.premiumPercentage) / 100);
     setSoliAmtFrom(
-      parseFloat((soliPriceFrom * parseFloat(carat[0]) * newQty).toFixed(2))
+      parseFloat((premiumMinPrice * parseFloat(carat[0]) * newQty).toFixed(2))
     );
     setSoliAmtTo(
-      parseFloat((soliPriceTo * parseFloat(carat[1]) * newQty).toFixed(2))
+      parseFloat((premiumMaxPrice * parseFloat(carat[1]) * newQty).toFixed(2))
     );
   };
 

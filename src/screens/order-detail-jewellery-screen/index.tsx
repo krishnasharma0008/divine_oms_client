@@ -193,10 +193,10 @@ function OrderDetailJewelleryScreen() {
     },
   };
   return (
-    <div className={`flex flex-row w-full gap-x-2 m-2`}>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
       {/* Main Content Section */}
-      <div className={`w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg`}>
-        <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1>
+      <div className="col-span-2 bg-white p-4 rounded-lg shadow-lg">
+        {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1> */}
 
         <div className="w-full flex justify-between">
           <div className="w-full">
@@ -268,39 +268,30 @@ function OrderDetailJewelleryScreen() {
       </div>
 
       {/* Order Summary Section */}
-      <div
-        className={`w-full md:w-1/3 bg-white p-4 rounded-lg shadow-md mt-4 }`}
-      >
+      <div className="bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Order Summary
         </h2>
-        <div className="w-full space-y-4">
+        <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Quantity</span>
-            <div className="text-lg font-semibold text-gray-800">
+            <span className="text-lg font-semibold text-gray-800">
               {totalQty}
-            </div>
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 whitespace-nowrap">
-              Total Amount
+            <span className="text-sm text-gray-600">Total Amount</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
+                totalAmountMax
+              )}`}
             </span>
-            <div className="text-lg font-semibold text-gray-800 whitespace-nowrap">
-              {formatByCurrencyINR(totalAmountMin)} -{" "}
-              {formatByCurrencyINR(totalAmountMax)}
-            </div>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">
-              Expected Delivery Date
+            <span className="text-sm text-gray-600">Remarks</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderRemarks || "--"}
             </span>
-            <div className="text-lg font-semibold text-gray-800">{" -- "}</div>
-          </div>
-          <div className="flex justify-between items-center py-2 border-t mt-4">
-            <span className="text-xl text-gray-600">Remarks</span>
-            <div className="text-lg font-semibold text-gray-800">
-              {orderRemarks}
-            </div>
           </div>
         </div>
       </div>
