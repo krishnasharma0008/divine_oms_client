@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   getToken,
   //deleteToken,
-  //getAdminToken,
+  getAdminToken,
   //deleteAdminToken,
 } from "@/local-storage";
 
@@ -43,8 +43,8 @@ const AuthLayout: React.FC<{ children: ReactNode; requireAdmin?: boolean }> = ({
     if (!isClient) return; // Skip authentication logic on SSR
 
     const checkAuthentication = () => {
-      //const token = requireAdmin ? getAdminToken() : getToken();
-      const token = getToken();
+      const token = requireAdmin ? getAdminToken() : getToken();
+      //const token = getToken();
       console.log("token : ", token);
       if (token && isTokenValid(token.replace("Bearer ", ""))) {
         setAuthState("authenticated");

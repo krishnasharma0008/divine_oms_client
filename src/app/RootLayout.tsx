@@ -9,7 +9,7 @@ import { LayoutWrapper, NotificationWrapper, LoaderWrapper } from "@/wrapper";
 import "react-datepicker/dist/react-datepicker.css";
 import AuthLayout from "@/wrapper/auth-layout";
 import { LoginContextProvider } from "@/context/login-context";
-//import AdminLayoutWrapper from "@/wrapper/admin-layout-wrapper";
+import AdminLayoutWrapper from "@/wrapper/admin-layout-wrapper";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false); // Track client-side rendering
@@ -62,9 +62,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <LoaderWrapper>
                     {/* Render different layouts based on admin or normal user */}
                     {isAdminRoute ? (
-                      // <AdminLayoutWrapper>{children}</AdminLayoutWrapper> // Admin layout
-                      <></>
+                      <AdminLayoutWrapper>{children}</AdminLayoutWrapper> // Admin layout
                     ) : (
+                      // <></>
                       //
                       <LayoutWrapper>{children}</LayoutWrapper> // Normal user layout
                     )}

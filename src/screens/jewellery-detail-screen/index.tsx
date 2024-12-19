@@ -32,6 +32,7 @@ function JewelleryDetailScreen() {
   //const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  //const ftype = searchParams.get("ftype");
 
   const { isCartCount, updateCartCount } = useContext(LoginContext); //
   const { customerOrder } = useCustomerOrderStore();
@@ -68,7 +69,7 @@ function JewelleryDetailScreen() {
 
   const router = useRouter();
 
-  const [selectedQty, setSelectedQty] = useState<number>(1);
+  const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
 
   useEffect(() => {
     if (id && id.trim() !== "") {
@@ -107,7 +108,7 @@ function JewelleryDetailScreen() {
           premiumPercentage: cart.solitaire_prem_pct.toString(),
         });
 
-        setTotalPcs(cart.side_stone_pcs);
+        setTotalPcs(cart.product_qty);
         setSideDiaTotPcs(cart.side_stone_pcs);
         setSideDiaTotweight(cart.side_stone_cts); //
         setMetalweight(cart.metal_weight);
@@ -174,7 +175,6 @@ function JewelleryDetailScreen() {
           ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
           //console.log("totalPcs : ", totalPcs);
           setTotalPcs(totalPcs ?? 0);
-          //setSelectedQty(totalPcs ?? 0);
 
           const Metalweight = jewelleryDetails?.Bom?.filter(
             (item) => item.Item_type === "METAL"
@@ -428,7 +428,7 @@ function JewelleryDetailScreen() {
       console.log("SolitaireTo", SolitaireTo); //max
 
       // Default to 0 if premiumPercentage is invalid or not provided
-      const premiumPercentage = parseFloat(data.premiumPercentage ?? "0");
+      const premiumPercentage = Number(data.premiumPercentage ?? 0);
       const premiumMinPrice =
         SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
       const premiumMaxPrice =
@@ -566,14 +566,10 @@ function JewelleryDetailScreen() {
     console.log("soliPriceFrom", soliPriceFrom);
     console.log("soliPriceTo", soliPriceTo);
     setSoliAmtFrom(
-      parseFloat(
-        (soliPriceFrom * parseFloat(carat[0]) * newQty * totalPcs).toFixed(2)
-      )
+      parseFloat((soliPriceFrom * parseFloat(carat[0]) * newQty).toFixed(2))
     );
     setSoliAmtTo(
-      parseFloat(
-        (soliPriceTo * parseFloat(carat[0]) * newQty * totalPcs).toFixed(2)
-      )
+      parseFloat((soliPriceTo * parseFloat(carat[1]) * newQty).toFixed(2))
     );
   };
 
@@ -611,21 +607,15 @@ function JewelleryDetailScreen() {
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-6 text-center">
             <h2 className="text-lg">
-              Product Code{" "}
+              Product Code :{" "}
               <span className="font-semibold">
                 {jewelleryDetails?.Item_number}
               </span>
             </h2>
             <h2 className="text-lg">
-              Old Code{" "}
+              Old Code :{" "}
               <span className="font-semibold">
                 {jewelleryDetails?.Old_varient}
-              </span>
-            </h2>
-            <h2 className="text-lg">
-              Sub Category{" "}
-              <span className="font-semibold whitespace-nowrap">
-                {jewelleryDetails?.Product_sub_category}
               </span>
             </h2>
           </div>
@@ -642,6 +632,22 @@ function JewelleryDetailScreen() {
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+        <div className="flex">
+          <div className="flex space-x-6 text-center">
+            <h2 className="text-lg">
+              Collection :{" "}
+              <span className="font-semibold">
+                {jewelleryDetails?.Collection}
+              </span>
+            </h2>
+            <h2 className="text-lg">
+              Sub Category :{" "}
+              <span className="font-semibold whitespace-nowrap">
+                {jewelleryDetails?.Product_sub_category}
+              </span>
+            </h2>
           </div>
         </div>
         <div className="w-full p-4 mb-4 bg-[#F9F6ED] rounded-lg">

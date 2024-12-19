@@ -530,12 +530,17 @@ function JewelleryCartScreen() {
                   </p>
                   {item.product_type === "jewellery" && (
                     <>
-                      <div className="flex items-center justify-left space-x-4">
+                      <div className="flex items-center justify-left space-x-8">
                         <p className="text-xl font-semibold text-gray-600">
                           {item.product_code}
                         </p>
                         <p className="text-sm font-sm text-gray-600">
                           Old : {item.old_varient}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-left space-x-4">
+                        <p className="text-sm font-sm text-gray-600">
+                          Collection : {item.collection}
                         </p>
                         <p className="text-sm font-sm text-gray-600">
                           Sub Category : {item.product_sub_category}
