@@ -70,170 +70,174 @@ function JewelleryDetailScreen() {
 
   const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
 
+  const resetCustomisedData = () => {
+    setCustomisedData({
+      shape: "",
+      color: "",
+      carat: "",
+      clarity: "",
+      premiumSize: "",
+      premiumPercentage: "0",
+    });
+  };
+
   useEffect(() => {
     if (formType === "new") {
       console.log("ID is not empty");
       resetCartDetail();
+      resetCustomisedData();
+
+      handleAddCart();
     }
+    if (formType === "Edit") {
+      handleEditCart();
+    }
+  }, [metalColor]);
 
-    const fetchDataAndSetValues = async () => {
-      if (cart?.product_code) {
-        console.log("Edit Cart data");
-        await FetchData(cart?.product_code);
-        //console.log("Product Code : 1");
-        if (!metalColor) {
-          setMetalColor(cart.metal_color || ""); // Set from cart if available
-        }
-        setMetalPurity(cart.metal_purity || "");
-        setRingSizeFrom(Number(cart.size_from)); // Set from cart
-        setRingSizeTo(Number(cart.size_to)); // Set from cart
-        setSelectedQty(cart.product_qty); // Set from cart
-
-        setCustomisedData({
-          shape: cart.solitaire_shape,
-          color: cart.solitaire_color,
-          carat: cart.solitaire_slab,
-          clarity: cart.solitaire_quality,
-          premiumSize: cart.solitaire_prem_size,
-          premiumPercentage: cart.solitaire_prem_pct.toString(),
-        });
-        // Automatically apply the values to the form (if needed)
-        handleApply({
-          shape: cart.solitaire_shape,
-          color: `${cart.solitaire_color}`, // Assuming color is stored as a string
-          carat: cart.solitaire_slab,
-          clarity: `${cart.solitaire_quality}`, // Assuming clarity is stored as a string
-          premiumSize: cart.solitaire_prem_size,
-          premiumPercentage: cart.solitaire_prem_pct.toString(),
-        });
-
-        setTotalPcs(cart.product_qty);
-        setSideDiaTotPcs(cart.side_stone_pcs);
-        setSideDiaTotweight(cart.side_stone_cts); //
-        setMetalweight(cart.metal_weight);
-
-        try {
-          // Fetch diamond price
-          const diamondPrice = await FetchPrice(
-            "DIAMOND",
-            "",
-            "",
-            cart.side_stone_color,
-            cart.side_stone_quality
-          );
-          setSDiaPrice(
-            parseFloat(
-              (diamondPrice * sideDiaTotPcs * (sideDiaTotweight ?? 0)).toFixed(
-                2
-              )
-            ) //
-          );
-
-          // Fetch metal price
-          const metalPrice = await FetchPrice(
-            "GOLD",
-            "",
-            "",
-            cart.metal_color,
-            cart.metal_purity
-          );
-          setMetalPrice(metalPrice);
-          setMetalAmtFrom(
-            parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(3))
-          );
-          // setMetalPriceFrom(
-          //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-          // );
-        } catch (error) {
-          notifyErr("Failed to fetch price details.");
-        }
-      } else {
-        // if (formType === "new") {
-        //   //notifyErr("Invalid jewellery ID.");
-        //   return;
-        // }
-         console.log("Add Cart data");
-
-        try {
-          await FetchData(String(id));
-
-          setRingSizeFrom(
-            jewelleryDetails?.Product_size_from === "-"
-              ? 0
-              : Number(jewelleryDetails?.Product_size_from)
-          ); // Set from cart
-          setRingSizeTo(
-            jewelleryDetails?.Product_size_from === "-"
-              ? 0
-              : Number(jewelleryDetails?.Product_size_to)
-          ); // Set from cart
-
-          const totalPcs = jewelleryDetails?.Bom?.filter(
-            (item) =>
-              item.Item_type === "STONE" && item.Item_group === "SOLITAIRE"
-          ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
-          //console.log("totalPcs : ", totalPcs);
-          setTotalPcs(totalPcs ?? 0);
-
-          const Metalweight = jewelleryDetails?.Bom?.filter(
-            (item) => item.Item_type === "METAL"
-          ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
-          console.log("Metalweight : ", Metalweight);
-          setMetalweight(Metalweight ?? 0);
-
-          const totalsidepcs = jewelleryDetails?.Bom?.filter(
-            (item) =>
-              item.Item_type === "STONE" && item.Item_group === "DIAMOND"
-          ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
-
-          setSideDiaTotPcs(totalsidepcs ?? 0);
-
-          const totalsideweight = jewelleryDetails?.Bom?.filter(
-            (item) =>
-              item.Item_type === "STONE" && item.Item_group === "DIAMOND"
-          ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
-
-          setSideDiaTotweight(totalsideweight ?? 0);
-
-          const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
-          // console.log("sidediapcs : ", totalidepcs);
-          // console.log("totalsideweight : ", totalsideweight);
-          console.log("sidediamondPrice : ", diamondPrice);
-          console.log("totalsidepcs : ", totalsidepcs);
-          console.log("totalsideweight : ", totalsideweight);
-          console.log(
-            "sidediamondAmt : ",
-            diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
-          );
-          setSDiaPrice(
-            diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
-          );
-
-          const metalPrice = await FetchPrice(
-            "GOLD",
-            "",
-            "",
-            jewelleryDetails?.Metal_color.split(",")[0] ?? "",
-            jewelleryDetails?.Metal_purity.split(",")[0] ?? ""
-          );
-
-          //console.log("metalPrice :", metalPrice);
-          //setMetalColor(jewelleryDetails?.Metal_color || "");
-          setMetalPrice(metalPrice);
-          setMetalAmtFrom(
-            parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-          );
-          // setMetalPriceFrom(
-          //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-          // );
-        } catch (error) {
-          notifyErr("Failed to fetch initial data.");
-        }
+  const handleEditCart = async () => {
+    console.log("Edit cart data : ", cart?.product_code);
+    if (cart?.product_code) {
+      await FetchData(cart?.product_code);
+      //console.log("Product Code : 1");
+      if (!metalColor) {
+        setMetalColor(cart.metal_color || ""); // Set from cart if available
       }
-    };
+      setMetalPurity(cart.metal_purity || "");
+      setRingSizeFrom(Number(cart.size_from)); // Set from cart
+      setRingSizeTo(Number(cart.size_to)); // Set from cart
+      setSelectedQty(cart.product_qty); // Set from cart
 
-    fetchDataAndSetValues(); // Call the async function
-  }, [id, metalColor, cart]);
+      setCustomisedData({
+        shape: cart.solitaire_shape,
+        color: cart.solitaire_color,
+        carat: cart.solitaire_slab,
+        clarity: cart.solitaire_quality,
+        premiumSize: cart.solitaire_prem_size,
+        premiumPercentage: cart.solitaire_prem_pct.toString(),
+      });
+      // Automatically apply the values to the form (if needed)
+      handleApply({
+        shape: cart.solitaire_shape,
+        color: `${cart.solitaire_color}`, // Assuming color is stored as a string
+        carat: cart.solitaire_slab,
+        clarity: `${cart.solitaire_quality}`, // Assuming clarity is stored as a string
+        premiumSize: cart.solitaire_prem_size,
+        premiumPercentage: cart.solitaire_prem_pct.toString(),
+      });
+
+      setTotalPcs(cart.product_qty);
+      setSideDiaTotPcs(cart.side_stone_pcs);
+      setSideDiaTotweight(cart.side_stone_cts); //
+      setMetalweight(cart.metal_weight);
+
+      try {
+        // Fetch diamond price
+        const diamondPrice = await FetchPrice(
+          "DIAMOND",
+          "",
+          "",
+          cart.side_stone_color,
+          cart.side_stone_quality
+        );
+        setSDiaPrice(
+          parseFloat(
+            (diamondPrice * sideDiaTotPcs * (sideDiaTotweight ?? 0)).toFixed(2)
+          ) //
+        );
+
+        // Fetch metal price
+        const metalPrice = await FetchPrice(
+          "GOLD",
+          "",
+          "",
+          cart.metal_color,
+          cart.metal_purity
+        );
+        setMetalPrice(metalPrice);
+        setMetalAmtFrom(
+          parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(3))
+        );
+        // setMetalPriceFrom(
+        //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+        // );
+      } catch (error) {
+        notifyErr("Failed to fetch price details.");
+      }
+    }
+  };
+
+  const handleAddCart = async () => {
+    // Handle add cart logic here
+    console.log("Add cart data : ", cart?.product_code);
+    try {
+      await FetchData(String(id));
+
+      setRingSizeFrom(
+        jewelleryDetails?.Product_size_from === "-"
+          ? 0
+          : Number(jewelleryDetails?.Product_size_from)
+      ); // Set from cart
+      setRingSizeTo(
+        jewelleryDetails?.Product_size_from === "-"
+          ? 0
+          : Number(jewelleryDetails?.Product_size_to)
+      ); // Set from cart
+
+      const totalPcs = jewelleryDetails?.Bom?.filter(
+        (item) => item.Item_type === "STONE" && item.Item_group === "SOLITAIRE"
+      ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
+      //console.log("totalPcs : ", totalPcs);
+      setTotalPcs(totalPcs ?? 0);
+
+      const Metalweight = jewelleryDetails?.Bom?.filter(
+        (item) => item.Item_type === "METAL"
+      ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
+      console.log("Metalweight : ", Metalweight);
+      setMetalweight(Metalweight ?? 0);
+
+      const totalsidepcs = jewelleryDetails?.Bom?.filter(
+        (item) => item.Item_type === "STONE" && item.Item_group === "DIAMOND"
+      ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
+
+      setSideDiaTotPcs(totalsidepcs ?? 0);
+
+      const totalsideweight = jewelleryDetails?.Bom?.filter(
+        (item) => item.Item_type === "STONE" && item.Item_group === "DIAMOND"
+      ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
+
+      setSideDiaTotweight(totalsideweight ?? 0);
+
+      const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
+      // console.log("sidediapcs : ", totalidepcs);
+      // console.log("totalsideweight : ", totalsideweight);
+      // console.log("sidediamondPrice : ", diamondPrice);
+      // console.log("totalsidepcs : ", totalsidepcs);
+      // console.log("totalsideweight : ", totalsideweight);
+      // console.log(
+      //   "sidediamondAmt : ",
+      //   diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
+      // );
+      setSDiaPrice(diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0));
+
+      const metalPrice = await FetchPrice(
+        "GOLD",
+        "",
+        "",
+        jewelleryDetails?.Metal_color.split(",")[0] ?? "",
+        jewelleryDetails?.Metal_purity.split(",")[0] ?? ""
+      );
+
+      //console.log("metalPrice :", metalPrice);
+      //setMetalColor(jewelleryDetails?.Metal_color || "");
+      setMetalPrice(metalPrice);
+      setMetalAmtFrom(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
+      // setMetalPriceFrom(
+      //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
+      // );
+    } catch (error) {
+      notifyErr("Failed to fetch initial data.");
+    }
+  };
 
   const FetchData = async (product_code: string) => {
     //showLoader();
@@ -250,8 +254,6 @@ function JewelleryDetailScreen() {
           response.data.data.Metal_purity.split(",")[0].trim();
         setMetalPurity(defaultPurity);
       }
-      //setRingSizeFrom(jewelleryDetails?.Product_size_from.toString())
-      //console.log("Old_varient : ", jewelleryDetails?.Old_varient);
       hideLoader();
     } catch (error) {
       notifyErr("An error occurred while fetching data.");

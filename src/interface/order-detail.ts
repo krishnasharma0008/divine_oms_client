@@ -41,4 +41,5 @@ export interface OrderDetail {
   cart_remarks: string;
   order_remarks: string;
   image_url: string;
+  order_status: string;
 }

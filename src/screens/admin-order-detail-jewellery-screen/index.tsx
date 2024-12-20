@@ -38,6 +38,7 @@ function AdminOrderDetailJewelleryScreen() {
       const { data, order_remarks } = response.data;
       setOrderData(data ?? []);
       setOrderRemarks(order_remarks);
+      setOrderStatus(data[0]?.order_status);
     } catch (error) {
       console.error("Error fetching order details:", error);
     } finally {
@@ -169,8 +170,10 @@ function AdminOrderDetailJewelleryScreen() {
 
     showLoader();
     try {
-      await updateOrderStatus(Number(id), getAdminToken() ?? "", newStatus);
-
+      await updateOrderStatus(Number(id), newStatus, getAdminToken() ?? "");
+      if (id) {
+        fetchOrderDetails(Number(id));
+      }
       //setcartData(cartData);
     } catch (error) {
       console.error("Error deleting cart item:", error);
@@ -207,7 +210,7 @@ function AdminOrderDetailJewelleryScreen() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
+    <div className="space-y-4 m-4">
       {/* Main Content Section */}
       <div className="col-span-2 bg-white p-4 rounded-lg shadow-lg">
         {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">
@@ -255,44 +258,48 @@ function AdminOrderDetailJewelleryScreen() {
               No order details found.
             </p>
           )}
-          <div className="mt-4 border-t pt-4 flex justify-end font-bold">
-            <div className="mr-4">Total:</div>
-            <div className="w-24 text-center">{totalQty}</div>
-            <div className="w-48 text-center">
-              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
-                totalAmountMax
-              )}`}
+          <div className="mt-4 border-t pt-4 flex justify-between font-bold mb-2 mx-2">
+            <div className="flex">
+              <div className="mr-4">Order Remark :-:</div>
+              <div className="text-left">{orderRemarks}</div>
+            </div>
+            <div className="flex">
+              <div className="mr-4">Total:</div>
+              <div className="w-10 text-center">{totalQty}</div>
+              <div className="w-44 text-center">
+                {`${formatByCurrencyINR(
+                  totalAmountMin
+                )} - ${formatByCurrencyINR(totalAmountMax)}`}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Sidebar Section */}
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+      <div className="max-w-lg bg-white p-6 rounded-lg shadow-md mx-auto">
+        {/* <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">
           Order Summary
-        </h2>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Quantity</span>
-            <span className="text-lg font-semibold text-gray-800">
-              {totalQty}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Amount</span>
-            <span className="text-lg font-semibold text-gray-800">
-              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
-                totalAmountMax
-              )}`}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Remarks</span>
-            <span className="text-lg font-semibold text-gray-800">
-              {orderRemarks || "--"}
-            </span>
-          </div>
+        </h2> */}
+        <div className="table w-full">
+          {[
+            ["Status", orderData[0]?.order_status || "--"],
+            ["Partner Jeweller", orderData[0]?.customer_name || "--"],
+            ["Store", orderData[0]?.customer_branch || "--"],
+            ["Dispatch Details", "--"],
+          ].map(([label, value], idx) => (
+            <div
+              key={idx}
+              className={`table-row ${
+                idx % 2 === 0 ? "bg-[rgb(243,244,246)]" : "bg-white"
+              }`}
+            >
+              <div className="table-cell p-2 border text-sm text-gray-600">
+                {label}
+              </div>
+              <div className="table-cell p-2 border text-gray-700">{value}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

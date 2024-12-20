@@ -70,19 +70,20 @@ const AdminLayoutWrapper: React.FC<AdminLayoutWrapperProps> = ({
           <Loader aria-live="polite" />
         </div>
       ) : (
-        <div className="flex h-screen">
+        <>
           {/* Fixed Sidebar */}
-          <aside className="w-64 bg-gray-100 text-white pb-5 pl-5 fixed inset-y-0 left-0 top-0">
+          <aside className="w-64 bg-gray-100 text-white fixed inset-y-0 left-0 top-0 shadow-lg">
             <AdminSidebar />
           </aside>
 
-          {/* Main content area  */}
-          <div className="flex-1 flex flex-col ml-64">
-            {/* Sticky Header */}
+          {/* Main Content Area */}
+          <div
+            className="flex-1 flex flex-col"
+            style={{ marginLeft: "16rem" }} // Sidebar width (64 * 4px = 256px or 16rem)
+          >
+            {/* Header */}
             <header className="sticky top-0 bg-gray-100 text-gray-700 p-4 z-10 flex items-center justify-between shadow">
               <h1 className="text-lg font-bold">Dashboard</h1>
-
-              {/* User Menu */}
               <div className="relative user-menu">
                 <button
                   onClick={toggleUserMenu}
@@ -103,7 +104,6 @@ const AdminLayoutWrapper: React.FC<AdminLayoutWrapperProps> = ({
                     }`}
                   />
                 </button>
-
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 bg-white text-gray-700 shadow-lg rounded-lg w-48">
                     <ul>
@@ -135,19 +135,23 @@ const AdminLayoutWrapper: React.FC<AdminLayoutWrapperProps> = ({
                   </div>
                 )}
               </div>
+              {/* <div className="relative user-menu">
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-2 focus:outline-none"
+                >
+                  <span className="hidden sm:block">{getUser()}</span>
+                  <Icon icon="mdi:logout" className="text-xl" />
+                </button>
+              </div> */}
             </header>
 
-            {/* Scrollable Main Content */}
-            <main className="flex-1 overflow-y-auto p-5 bg-gray-100">
+            {/* Scrollable Content */}
+            <main className="flex-1 overflow-y-auto p-1 bg-gray-100">
               {children}
             </main>
-
-            {/* Sticky Footer */}
-            {/* <footer className="py-4 bg-indigo-500 text-center text-white">
-              Tailwind Sticky Footer
-            </footer> */}
           </div>
-        </div>
+        </>
       )}
     </div>
   );

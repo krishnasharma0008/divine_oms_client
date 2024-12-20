@@ -173,8 +173,8 @@ function AdminOrderListScreen() {
   };
 
   return (
-    <div className="px-2">
-      <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-2 mt-2">
+    <div className="">
+      <div className="w-full bg-white shadow-md rounded-lg p-2 mt-2">
         {/* Header */}
         {/* <div className="flex justify-between items-center my-2 rounded-lg">
           <h1 className="text-2xl font-bold">Order List</h1>
@@ -203,7 +203,7 @@ function AdminOrderListScreen() {
                 data={excelData}
                 customStyles={customStyles}
                 fixedHeader
-                fixedHeaderScrollHeight="70.5vh"
+                //fixedHeaderScrollHeight="70.5vh"
                 highlightOnHover
                 noHeader
                 pagination

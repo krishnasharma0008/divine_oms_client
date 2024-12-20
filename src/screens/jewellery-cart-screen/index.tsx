@@ -319,7 +319,12 @@ function JewelleryCartScreen() {
     } else {
       console.error("Item not found for the given cartId:", cartId);
     }
-    router.push(`/jewellery/jewellery-detail`);
+    const queryParams = new URLSearchParams({
+      id: "",
+      ftype: "Edit",
+    }).toString();
+
+    router.push(`/jewellery/jewellery-detail?${queryParams}`);
   };
 
   const handleProceedToCheckout = async () => {

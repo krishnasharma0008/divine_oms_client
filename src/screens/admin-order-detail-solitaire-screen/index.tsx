@@ -34,6 +34,8 @@ function AdminOrderDetailSolitaireScreen() {
       const { data, order_remarks } = response.data;
       setOrderData(data ?? []);
       setOrderRemarks(order_remarks);
+      console.log(data[0]?.order_status);
+      setOrderStatus(data[0]?.order_status);
     } catch (error) {
       console.error("Error fetching order details:", error);
     } finally {
@@ -65,8 +67,11 @@ function AdminOrderDetailSolitaireScreen() {
 
     showLoader();
     try {
-      await updateOrderStatus(Number(id), getAdminToken() ?? "", newStatus);
+      await updateOrderStatus(Number(id), newStatus, getAdminToken() ?? "");
 
+      if (id) {
+        fetchOrderDetails(Number(id));
+      }
       //setcartData(cartData);
     } catch (error) {
       console.error("Error deleting cart item:", error);
@@ -76,9 +81,9 @@ function AdminOrderDetailSolitaireScreen() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 m-4">
+    <div className="space-y-4 m-4">
       {/* Main Content Section */}
-      <div className="w-full md:w-2/3 bg-white p-4 rounded-lg shadow-lg border border-gray-300">
+      <div className="w-full bg-white p-4 rounded-lg shadow-lg border border-gray-300">
         {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">Order Details</h1> */}
 
         <div className="w-full flex flex-wrap justify-between mb-4">
@@ -259,10 +264,16 @@ function AdminOrderDetailSolitaireScreen() {
               </tbody>
               <tfoot>
                 <tr className="bg-gray-100 border-t border-gray-200">
+                  <td className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right">
+                    Order Remark :-
+                  </td>
                   <td
-                    colSpan={9}
+                    colSpan={7}
                     className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right"
                   >
+                    {orderRemarks}
+                  </td>
+                  <td className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right">
                     Total:
                   </td>
                   <td className="text-lg font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
@@ -283,38 +294,29 @@ function AdminOrderDetailSolitaireScreen() {
       </div>
 
       {/* Order Summary Section */}
-      <div className="w-full md:w-1/3 bg-white p-4 rounded-lg shadow-md border border-gray-300">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+      <div className="max-w-lg bg-white p-6 rounded-lg shadow-md mx-auto">
+        {/* <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">
           Order Summary
-        </h2>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Quantity</span>
-            <div className="text-lg font-semibold text-gray-800">
-              {totalPcs}
+        </h2> */}
+        <div className="table w-full">
+          {[
+            ["Status", orderData[0]?.order_status || "--"],
+            ["Partner Jeweller", orderData[0]?.customer_name || "--"],
+            ["Store", orderData[0]?.customer_branch || "--"],
+            ["Dispatch Details", "--"],
+          ].map(([label, value], idx) => (
+            <div
+              key={idx}
+              className={`table-row ${
+                idx % 2 === 0 ? "bg-[rgb(243,244,246)]" : "bg-white"
+              }`}
+            >
+              <div className="table-cell p-2 border text-sm text-gray-600">
+                {label}
+              </div>
+              <div className="table-cell p-2 border text-gray-700">{value}</div>
             </div>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 whitespace-nowrap">
-              Total Amount
-            </span>
-            <div className="text-lg font-semibold text-gray-800 whitespace-nowrap">
-              ₹{totalRangeMin.toLocaleString()} - ₹
-              {totalRangeMax.toLocaleString()}
-            </div>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">
-              Expected Delivery Date
-            </span>
-            <div className="text-lg font-semibold text-gray-800">{"--"}</div>
-          </div>
-          <div className="flex justify-between items-center py-2 border-t mt-4">
-            <span className="text-xl text-gray-600">Remarks</span>
-            <div className="text-lg font-semibold text-gray-800">
-              {orderRemarks}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
