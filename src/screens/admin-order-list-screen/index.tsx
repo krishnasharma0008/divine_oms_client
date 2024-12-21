@@ -8,7 +8,7 @@ import DataTable, {
 } from "react-data-table-component";
 import { OrderList } from "@/interface/order-list";
 import { getAdminToken, getUser } from "@/local-storage";
-import { getOrderList } from "@/api/order";
+import { DownloadOrderListExcel, getOrderList } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 //import { InputText } from "@/components";
 //import { useRouter } from "next/navigation";
@@ -172,19 +172,48 @@ function AdminOrderListScreen() {
     //selectAllRowsItemText: "All",
   };
 
+  const ExcelDownload = async () => {
+    //console.log("Download Excel");
+    try {
+      showLoader();
+      const result = await DownloadOrderListExcel();
+      const href = window.URL.createObjectURL(new Blob([result.data]));
+
+      const anchorElement = document.createElement("a");
+
+      anchorElement.href = href;
+      anchorElement.download = `Order_List_${new Date()}.xlsx`;
+
+      document.body.appendChild(anchorElement);
+      anchorElement.click();
+
+      document.body.removeChild(anchorElement);
+      window.URL.revokeObjectURL(href);
+
+      hideLoader();
+    } catch (error) {
+      hideLoader();
+      console.log(error);
+    }
+  };
+
+  const DownloadClick = () => {
+    ExcelDownload();
+  };
+
   return (
     <div className="">
       <div className="w-full bg-white shadow-md rounded-lg p-2 mt-2">
         {/* Header */}
-        {/* <div className="flex justify-between items-center my-2 rounded-lg">
+        <div className="flex justify-between items-center my-2 rounded-lg">
           <h1 className="text-2xl font-bold">Order List</h1>
           <button
-            onClick={handleProcessClick}
+            onClick={DownloadClick}
             className="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 transition"
           >
-            Process
+            Get Excel
           </button>
-        </div> */}
+        </div>
 
         {/* Loader and Data Table */}
         <div className="overflow-auto border">

@@ -39,8 +39,9 @@ function JewelleryDetailScreen() {
   const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
   const [metalPurity, setMetalPurity] = useState<string>("");
   const [metalColor, setMetalColor] = useState<string>("");
-  const [ringSizeFrom, setRingSizeFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
-  const [ringSizeTo, setRingSizeTo] = useState<number>(0);
+  const [ringSizeFrom, setRingSizeFrom] = useState<number>(21); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
+  // const [ringSizeTo, setRingSizeTo] = useState<number>(0);
+  const [ringSize, setRingSize] = useState<number>(0);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [customisedData, setCustomisedData] = useState<CustomisationOptions>(); //parseInt(jewelleryDetails?.Product_size_to.toString() ?? "")
   const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
@@ -70,22 +71,24 @@ function JewelleryDetailScreen() {
 
   const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
 
-  const resetCustomisedData = () => {
-    setCustomisedData({
-      shape: "",
-      color: "",
-      carat: "",
-      clarity: "",
-      premiumSize: "",
-      premiumPercentage: "0",
-    });
-  };
+  const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
+
+  // const resetCustomisedData = () => {
+  //   setCustomisedData({
+  //     shape: "",
+  //     color: "",
+  //     carat: "",
+  //     clarity: "",
+  //     premiumSize: "",
+  //     premiumPercentage: "0",
+  //   });
+  // };
 
   useEffect(() => {
     if (formType === "new") {
       console.log("ID is not empty");
       resetCartDetail();
-      resetCustomisedData();
+      //resetCustomisedData();
 
       handleAddCart();
     }
@@ -104,7 +107,7 @@ function JewelleryDetailScreen() {
       }
       setMetalPurity(cart.metal_purity || "");
       setRingSizeFrom(Number(cart.size_from)); // Set from cart
-      setRingSizeTo(Number(cart.size_to)); // Set from cart
+      //setRingSizeTo(Number(cart.size_to)); // Set from cart
       setSelectedQty(cart.product_qty); // Set from cart
 
       setCustomisedData({
@@ -168,55 +171,97 @@ function JewelleryDetailScreen() {
 
   const handleAddCart = async () => {
     // Handle add cart logic here
-    console.log("Add cart data : ", cart?.product_code);
+    //console.log("Add data : ");
     try {
       await FetchData(String(id));
 
-      setRingSizeFrom(
-        jewelleryDetails?.Product_size_from === "-"
-          ? 0
-          : Number(jewelleryDetails?.Product_size_from)
-      ); // Set from cart
-      setRingSizeTo(
-        jewelleryDetails?.Product_size_from === "-"
-          ? 0
-          : Number(jewelleryDetails?.Product_size_to)
-      ); // Set from cart
+      if (jewelleryDetails?.Product_size_from !== "-") {
+        const baseVariantSizes = jewelleryDetails?.Variants.filter(
+          (item) => item.Is_base_variant === 1
+        ).map((item) => Number(item.Size)); // Map the sizes (assuming 'size' is the property for size)
 
-      const totalPcs = jewelleryDetails?.Bom?.filter(
-        (item) => item.Item_type === "STONE" && item.Item_group === "SOLITAIRE"
-      ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
-      //console.log("totalPcs : ", totalPcs);
+        const defaultSize =
+          baseVariantSizes && baseVariantSizes.length > 0
+            ? baseVariantSizes[0]
+            : 0;
+        setRingSizeFrom(defaultSize);
+        setRingSize(defaultSize); //variant size where Is_base_variant = 1
+      }
+      const totalPcs = jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc, variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_type === "STONE" &&
+            bomItem.Item_group === "SOLITAIRE"
+        );
+        // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        const total = matchingBom.reduce(
+          (sum, bomItem) => sum + (bomItem.Pcs || 0),
+          0
+        );
+        return acc + total;
+      }, 0);
+      console.log("Total pcs : ", totalPcs);
+      setSelectedQty(totalPcs ?? 0);
       setTotalPcs(totalPcs ?? 0);
 
-      const Metalweight = jewelleryDetails?.Bom?.filter(
-        (item) => item.Item_type === "METAL"
-      ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
-      console.log("Metalweight : ", Metalweight);
+      const Metalweight = jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc, variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_type === "METAL"
+        );
+        // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        const total = matchingBom.reduce(
+          (sum, bomItem) => sum + (bomItem.Weight || 0),
+          0
+        );
+        return acc + total;
+      }, 0);
       setMetalweight(Metalweight ?? 0);
 
-      const totalsidepcs = jewelleryDetails?.Bom?.filter(
-        (item) => item.Item_type === "STONE" && item.Item_group === "DIAMOND"
-      ).reduce((sum, item) => sum + (item?.Pcs || 0), 0);
-
+      const totalsidepcs = jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc, variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_type === "STONE" &&
+            bomItem.Item_group === "DIAMOND"
+        );
+        // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        const total = matchingBom.reduce(
+          (sum, bomItem) => sum + (bomItem.Pcs || 0),
+          0
+        );
+        return acc + total;
+      }, 0);
       setSideDiaTotPcs(totalsidepcs ?? 0);
 
-      const totalsideweight = jewelleryDetails?.Bom?.filter(
-        (item) => item.Item_type === "STONE" && item.Item_group === "DIAMOND"
-      ).reduce((sum, item) => sum + (item?.Weight || 0), 0);
+      const totalsideweight = jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc, variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_type === "STONE" &&
+            bomItem.Item_group === "DIAMOND"
+        );
+        // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        const total = matchingBom.reduce(
+          (sum, bomItem) => sum + (bomItem.Weight || 0),
+          0
+        );
+        return acc + total;
+      }, 0);
 
       setSideDiaTotweight(totalsideweight ?? 0);
 
       const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
-      // console.log("sidediapcs : ", totalidepcs);
-      // console.log("totalsideweight : ", totalsideweight);
-      // console.log("sidediamondPrice : ", diamondPrice);
-      // console.log("totalsidepcs : ", totalsidepcs);
-      // console.log("totalsideweight : ", totalsideweight);
-      // console.log(
-      //   "sidediamondAmt : ",
-      //   diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0)
-      // );
       setSDiaPrice(diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0));
 
       const metalPrice = await FetchPrice(
@@ -254,6 +299,7 @@ function JewelleryDetailScreen() {
           response.data.data.Metal_purity.split(",")[0].trim();
         setMetalPurity(defaultPurity);
       }
+
       hideLoader();
     } catch (error) {
       notifyErr("An error occurred while fetching data.");
@@ -280,48 +326,136 @@ function JewelleryDetailScreen() {
     );
   };
 
-  // const productData = [
-  //   {
-  //     label: "Solitaire",
-  //     value:
-  //       [
-  //         customisedData?.shape ? `${customisedData?.shape} ` : "",
-  //         customisedData?.carat ? `${customisedData?.carat} cts ` : "",
-  //         customisedData?.color ? `${customisedData?.color} ` : "",
-  //         customisedData?.clarity ? `${customisedData?.clarity} ` : "",
-  //       ].join("") || "-",
-  //   },
-  //   { label: "Metal Weight", value: Metalweight ?? 0 },
-  //   {
-  //     label: "Metal",
-  //     value: (metalPurity ?? 0) + " " + (metalColor ?? "-"),
-  //   },
-  //   {
-  //     label: "Ring Size",
-  //     value: `${ringSizeFrom} - ${ringSizeTo}`, // Template literals for clearer formatting
-  //   },
-  //   {
-  //     label: "Side Diamond",
-  //     value: `${sideDiaTotPcs ?? 0}/${sideDiaTotweight ?? 0} cts IJ-SI`, // Template literals for clarity
-  //   },
-  // ];
-
-  const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 16
-
   const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = Number(e.target.value);
-    setRingSizeFrom(selectedValue);
-    if (selectedValue > ringSizeTo) {
-      setRingSizeTo(selectedValue); // Ensure "From" doesn't exceed "To"
-    }
+    const selectedSizeSlab = e.target.value;
+    setRingSizeFrom(Number(selectedSizeSlab));
+
+    CalculateDivineMountDetails(
+      String(customisedData?.carat),
+      Number(selectedSizeSlab)
+    );
   };
 
-  const handleToChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = Number(e.target.value);
-    setRingSizeTo(selectedValue);
-    if (selectedValue < ringSizeFrom) {
-      setRingSizeFrom(selectedValue); // Ensure "To" isn't less than "From"
+  const CalculateDivineMountDetails = (carat: string, size: number) => {
+    console.log("Calculating details for carat:", carat, "size:", size);
+
+    console.log("Default Size : ", ringSize);
+    const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
+    let sizeDifference = 0;
+
+    // Filter variants by size
+    const filteredSize = jewelleryDetails?.Variants?.filter((variant) => {
+      console.log("Variant Size:", variant.Size, "Expected Size:", size);
+      return Number(variant.Size) === size; // Ensure numeric comparison
+    });
+
+    // Handle case where size is not found
+    if (!filteredSize?.length) {
+      console.warn(
+        "No matching size found. Falling back to default size:",
+        ringSize
+      );
+      sizeDifference = size - ringSize; // Calculate size difference (positive or negative)
+      size = ringSize; // Use default size
     }
+
+    // Filter variants by carat and size
+    const filteredVariants = jewelleryDetails?.Variants.filter(
+      (variant) =>
+        variant.Solitaire_slab.trim() === carat.trim() && // Exact match for Solitaire_slab
+        Number(variant.Size) === size // Numeric comparison for Size
+    );
+
+    console.log("Filtered Variants: ", filteredVariants);
+
+    // Calculate Total Solitaire Pcs
+    const totalPcs = filteredVariants?.reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom?.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_type === "STONE" &&
+          bomItem.Item_group === "SOLITAIRE"
+      );
+
+      const total = matchingBom?.reduce((sum, bomItem) => {
+        console.log("Matching BOM Pcs:", bomItem?.Pcs); // Debug individual BOM items
+        return sum + (bomItem?.Pcs || 0);
+      }, 0);
+
+      return acc + (total || 0);
+    }, 0);
+
+    console.log("Total Solitaire Pcs: ", totalPcs);
+    setTotalPcs(totalPcs ?? 0);
+
+    // Calculate Metal Weight
+    const baseMetalweight = filteredVariants?.reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom?.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_type === "METAL"
+      );
+
+      const total = matchingBom?.reduce(
+        (sum, bomItem) => sum + (bomItem?.Weight || 0),
+        0
+      );
+
+      return acc + (total || 0);
+    }, 0);
+
+    // Adjust Metal Weight based on size difference
+    let adjustedMetalWeight = baseMetalweight ?? 0;
+    if (!filteredSize?.length && baseMetalweight) {
+      const adjustment = baseMetalweight * adjustPercent * sizeDifference;
+      adjustedMetalWeight += adjustment;
+      console.log(
+        `Adjusted Metal Weight: ${adjustedMetalWeight} (Size Difference: ${sizeDifference})`
+      );
+    }
+
+    console.log("Final Metal Weight:", adjustedMetalWeight);
+    setMetalweight(adjustedMetalWeight);
+
+    // Calculate Total Side Diamond Pcs
+    const totalsidepcs = filteredVariants?.reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom?.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_type === "STONE" &&
+          bomItem.Item_group === "DIAMOND"
+      );
+
+      const total = matchingBom?.reduce(
+        (sum, bomItem) => sum + (bomItem?.Pcs || 0),
+        0
+      );
+
+      return acc + (total || 0);
+    }, 0);
+
+    console.log("Total Side Diamond Pcs: ", totalsidepcs);
+    setSideDiaTotPcs(totalsidepcs ?? 0);
+
+    // Calculate Total Side Diamond Weight
+    const totalsideweight = filteredVariants?.reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom?.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_type === "STONE" &&
+          bomItem.Item_group === "DIAMOND"
+      );
+
+      const total = matchingBom?.reduce(
+        (sum, bomItem) => sum + (bomItem?.Weight || 0),
+        0
+      );
+
+      return acc + (total || 0);
+    }, 0);
+
+    console.log("Total Side Diamond Weight: ", totalsideweight);
+    setSideDiaTotweight(totalsideweight ?? 0);
   };
 
   const handleMetalPurity = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -449,6 +583,10 @@ function JewelleryDetailScreen() {
       console.error("Error fetching price details:", error);
       notifyErr("Failed to fetch price details.");
     }
+
+    if (jewelleryDetails?.Product_size_from !== "-") {
+      CalculateDivineMountDetails(String(data.carat), Number(ringSizeFrom));
+    }
   };
 
   const handleCart = async () => {
@@ -501,7 +639,7 @@ function JewelleryDetailScreen() {
       mount_amt_min: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
       mount_amt_max: (metalAmtFrom ?? 0) + (sDiaPrice ?? 0),
       size_from: ringSizeFrom === 0 ? "-" : ringSizeFrom.toString(),
-      size_to: ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
+      size_to: "-", //ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
       side_stone_pcs: Number(sideDiaTotPcs),
       side_stone_cts: Number(sideDiaTotweight),
       side_stone_color:
@@ -540,7 +678,7 @@ function JewelleryDetailScreen() {
         console.log("Cart operation successful, Response ID:", res.data.id);
       }
 
-      router.push("/jewellery/jewellery-cart");
+      router.push("/cart");
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error("Error creating/updating cart:", err.message);
@@ -564,8 +702,8 @@ function JewelleryDetailScreen() {
     const carat = customisedData?.carat?.split("-") || ["0", "0"];
 
     setSelectedQty(newQty);
-    console.log("soliPriceFrom", soliPriceFrom);
-    console.log("soliPriceTo", soliPriceTo);
+    // console.log("soliPriceFrom", soliPriceFrom);
+    // console.log("soliPriceTo", soliPriceTo);
     const premiumMinPrice =
       soliPriceFrom +
       soliPriceFrom * (Number(customisedData?.premiumPercentage) / 100);
@@ -591,22 +729,6 @@ function JewelleryDetailScreen() {
       {/* Image Gallery Section */}
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
         <ImageGallery images={filterByColorAndFormat(metalColor)} />
-        {/* <div className="mt-8 mb-2 border-gray border-y-2">
-          <div className="flex-1 text-left mx-1 rounded-lg">
-            <h3 className="text-lg font-semibold underline text-blue-600">
-              Product Details
-            </h3>
-            {productData.map((item, index) => (
-              <div
-                key={index}
-                className="p-2 mb-2 flex justify-between items-center"
-              >
-                <span className="w-1/2 text-left">{item.label}&nbsp;:</span>
-                <span className="w-1/2 text-right">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div> */}
       </div>
 
       {/* Details Section */}
@@ -734,8 +856,6 @@ function JewelleryDetailScreen() {
               <label className="block text-lg font-medium text-gray-700">
                 Metal Color
               </label>
-
-              {/* {jewelleryDetails?.Metal_purity} */}
               <select
                 className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
                 value={metalPurity}
@@ -779,33 +899,13 @@ function JewelleryDetailScreen() {
                     {/* Ring Size From */}
                     <div className="flex items-center space-x-2">
                       <label className="block text-lg font-medium text-gray-700">
-                        From:
+                        Size :
                       </label>
                       <select
                         className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
                         value={ringSizeFrom}
                         onChange={handleFromChange}
                       >
-                        <option value="-">-</option>
-                        {ringSizes.map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Ring Size To */}
-                    <div className="flex items-center space-x-2">
-                      <label className="block text-lg font-medium text-gray-700">
-                        To:
-                      </label>
-                      <select
-                        className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                        value={ringSizeTo}
-                        onChange={handleToChange}
-                      >
-                        <option value="-">-</option>
                         {ringSizes.map((size) => (
                           <option key={size} value={size}>
                             {size}
@@ -823,8 +923,8 @@ function JewelleryDetailScreen() {
                 <div className="inline-flex">
                   <label className="block text-lg font-medium text-gray-700"></label>
                   <p className="text-sm text-gray-600 mt-2">
-                    Ring Size OP Range :{jewelleryDetails?.Product_size_from} to{" "}
-                    {jewelleryDetails?.Product_size_to}.
+                    Ring Size OP Range : {jewelleryDetails?.Product_size_from}{" "}
+                    to {jewelleryDetails?.Product_size_to}.
                   </p>
                 </div>
               </div>

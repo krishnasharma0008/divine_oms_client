@@ -6,10 +6,12 @@ import {
   OrderListEndpoint,
   OrderDetailEndpoint,
   UpdateOrderStatusEndpoint,
+  GetAdminOrderListExcelEndpoint,
 } from "./endpoints";
 import callWebService from "./web-service";
 import { OrderList } from "@/interface/order-list";
 import { OrderDetail } from "@/interface/order-detail";
+import { getAdminToken } from "@/local-storage";
 
 export interface GetOrderListResponse {
   data: Array<OrderList>;
@@ -75,4 +77,19 @@ const updateOrderStatus = (
     },
   });
 
-export { getOrderList, getOrderDetail, updateOrderStatus };
+const DownloadOrderListExcel = async (): Promise<AxiosResponse<Blob>> => {
+  return callWebService(GetAdminOrderListExcelEndpoint.url, {
+    method: GetAdminOrderListExcelEndpoint.method,
+    headers: {
+      Authorization: "Bearer " + getAdminToken(),
+    },
+    responseType: "blob",
+  });
+};
+
+export {
+  getOrderList,
+  getOrderDetail,
+  updateOrderStatus,
+  DownloadOrderListExcel,
+};

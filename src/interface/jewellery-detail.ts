@@ -7,13 +7,13 @@ export interface JewelleryDetail {
   Item_id: number;
   Item_number: string;
   Product_name: string;
-  
-  Product_category: string;//
+
+  Product_category: string; //
   Product_sub_category: string;
   Sub_catagory_2: string;
   Sub_catagory_3: string;
   Sub_catagory_4: string;
-  Style: string;//new
+  Style: string; //new
   Wear_style: string;
   Look: string;
   Status: string;
@@ -47,7 +47,7 @@ export interface JewelleryDetail {
       Metal_purity: string;
       Solitaire_slab: string;
       Size: string;
-      Is_base_variant: string;
+      Is_base_variant: number;
       Variant_approved_date: string;
       Rhodium_instruction: string;
       Special_instruction: string;

@@ -26,7 +26,7 @@ interface cart_to_order_info {
   orderno: number;
 }
 
-function JewelleryCartScreen() {
+function CartScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { isCartCount, updateCartCount } = useContext(LoginContext);
   const [cartData, setCartData] = useState<CartDetail[]>([]);
@@ -299,6 +299,7 @@ function JewelleryCartScreen() {
       // } else {
       //   console.error("API did not return a valid ID.");
       // }
+      window.location.reload();
     } catch (err) {
       console.error("Error creating cart:", err);
       // Notify the user of the error
@@ -808,4 +809,4 @@ function JewelleryCartScreen() {
   );
 }
 
-export default JewelleryCartScreen;
+export default CartScreen;

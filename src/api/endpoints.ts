@@ -58,7 +58,7 @@ export const getJewelleryProdctEndpoint: Endpoint = {
 //https://api2.divinesolitaires.com/softapi/erp/get-price
 export const getJewelleryProdctPriceEndpoint: Endpoint = {
   method: HTTP_METHOD.POST,
-  url: "/erp/get-price",
+  url: "/get-price",
 };
 
 //create cart
@@ -116,4 +116,9 @@ export const UpdateOrderStatusEndpoint: Endpoint = {
 export const GetCartExcelEndpoint: Endpoint = {
   method: HTTP_METHOD.GET,
   url: "/cart/getxl",
+};
+
+export const GetAdminOrderListExcelEndpoint: Endpoint = {
+  method: HTTP_METHOD.GET,
+  url: "/order/getxl/0",
 };

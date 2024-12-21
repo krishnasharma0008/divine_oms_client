@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
     e.stopPropagation();
     try {
       console.log("Navigating to cart");
-      push("/jewellery/jewellery-cart");
+      push("/cart");
     } catch (error) {
       console.error("Error navigating to cart:", error);
     }

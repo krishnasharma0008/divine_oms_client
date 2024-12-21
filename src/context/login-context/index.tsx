@@ -95,12 +95,15 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     deleteToken();
     deleteUser();
     deleteUserRole();
-    localStorage.clear(); // Clear all keys
+    //localStorage.clear(); // Clear all keys
     setIsLogin(false);
     setIsOtpVerified(false);
     deleteCartCount();
     setEmailOrMobileState(null);
-    setIsCartCount(0); // Reset cart count
+    //setIsCartCount(0); // Reset cart count
+    localStorage.removeItem("customer-order-storage");
+    localStorage.removeItem("customer-storage");
+    localStorage.removeItem("custtype");
   }, []);
 
   const updateCartCount = useCallback((count: number) => {

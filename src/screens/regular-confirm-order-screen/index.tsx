@@ -432,7 +432,7 @@ const RegularConfirmOrderScreen = () => {
       updateCartCount(isCartCount + rows.length); // Increment cart count by the number of rows
       notify("All rows submitted successfully!");
 
-      router.push("/jewellery/jewellery-cart");
+      router.push("/cart");
     } catch (err) {
       console.error("Error submitting data:", err);
       notifyErr("An error occurred while submitting the order.");
