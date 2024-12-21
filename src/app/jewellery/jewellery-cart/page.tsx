@@ -1,6 +1,6 @@
 import React from "react";
-import { JewelleryCartScreen } from "@/screens";
+import { CartScreen } from "@/screens";
 
-const JewelleryCartPage: React.FC = () => <JewelleryCartScreen />;
+const JewelleryCartPage: React.FC = () => <CartScreen />;
 
 export default JewelleryCartPage;
