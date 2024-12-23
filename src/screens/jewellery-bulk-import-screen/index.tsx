@@ -69,8 +69,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
     "product_qty",
     "solitaire_shape",
     "solitaire_slab",
-    "solitaire_color",
-    "solitaire_quality",
+    "solitaire_colorFrom",
+    "solitaire_colorTo",
+    "solitaire_qualityFrom",
+    "solitaire_qualityTo",
     "solitaire_prem_size",
     "metal_type",
     "metal_purity",
@@ -88,8 +90,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
     product_qty: "Qty",
     solitaire_shape: "Shape",
     solitaire_slab: "Slab",
-    solitaire_color: "Color",
-    solitaire_quality: "Quality",
+    solitaire_colorFrom: "Color From",
+    solitaire_colorTo: "Color To",
+    solitaire_qualityFrom: "Clarity From",
+    solitaire_qualityTo: "Clarity To",
     solitaire_prem_size: "Premium Size",
     metal_type: "Metal Type",
     metal_purity: "Metal Purity",
@@ -110,7 +114,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
   const sideColClar = ["IJ-SI", "GH-VS", "EF-VVS"];
 
-  let totalSolitairePcs: number;
+  //let totalSolitairePcs: number;
   let Metal_weight: number;
   let Metal_price: number;
   let Metal_Amt: number;
@@ -220,13 +224,13 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
         // Extract headers from the parsed data
         const headers = Object.keys(jsonData[0] || {});
-        console.log("Parsed headers:", headers);
+        //console.log("Parsed headers:", headers);
 
         // Check if all expected columns are present in the headers
         const missingColumns = expectedColumns.filter(
           (col) => !headers.includes(col as string)
         );
-        console.log("Missing columns:", missingColumns);
+        //console.log("Missing columns:", missingColumns);
 
         // Trim headers and check for case or space issues
         const trimmedHeaders = headers.map((header) => {
@@ -331,7 +335,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
         quality
       );
       //hideLoader();
-      console.log(response.data.price);
+      //console.log(response.data.price);
       return response.data.price; // Return the price
     } catch (error) {
       //notifyErr("An error occurred while fetching data.");
@@ -347,23 +351,23 @@ const JewelleryBulkImportScreen: React.FC = () => {
     // console.log("Jewellery Item Number:", jewelleryDetails?.Item_number);
 
     if (jewelleryDetails?.Item_number === productcode) {
-      const totalPcs = jewelleryDetails?.Variants.filter(
-        (variant) => variant.Is_base_variant === 1
-      ).reduce((acc, variant) => {
-        const matchingBom = jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Variant_id === variant.Variant_id &&
-            bomItem.Item_type === "STONE" &&
-            bomItem.Item_group === "SOLITAIRE"
-        );
-        // Sum up Pcs from the matching Bom items (if Pcs is a number)
-        const total = matchingBom.reduce(
-          (sum, bomItem) => sum + (bomItem.Pcs || 0),
-          0
-        );
-        return acc + total;
-      }, 0);
-      totalSolitairePcs = totalPcs;
+      // const totalPcs = jewelleryDetails?.Variants.filter(
+      //   (variant) => variant.Is_base_variant === 1
+      // ).reduce((acc, variant) => {
+      //   const matchingBom = jewelleryDetails?.Bom.filter(
+      //     (bomItem) =>
+      //       bomItem.Variant_id === variant.Variant_id &&
+      //       bomItem.Item_type === "STONE" &&
+      //       bomItem.Item_group === "SOLITAIRE"
+      //   );
+      //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
+      //   const total = matchingBom.reduce(
+      //     (sum, bomItem) => sum + (bomItem.Pcs || 0),
+      //     0
+      //   );
+      //   return acc + total;
+      // }, 0);
+      // totalSolitairePcs = totalPcs;
       //console.log("Total pcs : ", totalPcs);
       //setTotalSolitairePcs(totalPcs ?? 0);
       //console.log("jewelleryDetails?.Variants : ", jewelleryDetails?.Variants);
@@ -453,162 +457,137 @@ const JewelleryBulkImportScreen: React.FC = () => {
     }
   };
 
+  const calculatePremiumPrice = (
+    basePrice: number,
+    premiumPercentage: number
+  ): number => {
+    return basePrice + basePrice * (premiumPercentage / 100);
+  };
+
   // validate excel data
   const handleValidate = async () => {
     //console.log("Validating data...");
     //const tempCartData: CartDetail[] = [];
+
     const mappedDataWithErrors = await Promise.all(
       excelData.map(async (row) => {
         const errors: string[] = [];
-        const isRound = row["solitaire_shape"]?.toString().trim() === "Round";
-        const shape = row["solitaire_shape"]?.toString().trim();
-        const caratRange = row["solitaire_slab"]?.toString().trim() || "";
-        const productCode = row["product_code"]?.toString().trim() || "";
-        const productType = row["product_type"]?.toString().trim() || "";
+        const getTrimmedValue = (key: string) =>
+          row[key]?.toString().trim() || "";
+        const isRound = row["solitaire_shape"]?.toString() === "Round";
+        const shape = row["solitaire_shape"]?.toString() || "";
+        const caratRange = row["solitaire_slab"]?.toString() || "";
+        const productCode = row["product_code"]?.toString() || "";
+        const productType = row["product_type"]?.toString() || "";
+        const colorF = row["solitaire_colorFrom"]?.toString() || "";
+        const colorT = row["solitaire_colorTo"]?.toString() || "";
+        const clarityF = row["solitaire_qualityFrom"]?.toString() || "";
+        const clarityT = row["solitaire_qualityTo"]?.toString() || "";
+        const Qty = row["product_qty"]?.toString() || "";
+
+        let jewellerydetail: JewelleryDetail | undefined;
 
         // Validate "product_type"
-        if (!row["product_type"]) {
+        if (!productType) {
           errors.push("Product Type is missing.");
         }
 
-        // Validate "product_code"
-        let jewellerydetail: JewelleryDetail | undefined;
-
-        if (!productCode) {
-          errors.push("Product Code is missing.");
-        }
-
-        if (productCode && productType === "jewellery") {
-          try {
-            //console.log("xyz");
-            jewellerydetail = await FetchData(productCode); // Await the result here
-            //console.log(jewellerydetail);
-            //setJewelleryDetails(data);
-          } catch (error) {
-            errors.push("Failed to fetch product details for Product Code.");
+        // Validate "product_code" and fetch details if applicable
+        if (productType === "jewellery") {
+          if (!productCode) {
+            errors.push("Product Code is missing.");
+          } else {
+            try {
+              jewellerydetail = await FetchData(productCode);
+            } catch (error) {
+              errors.push("Failed to fetch product details for Product Code.");
+            }
           }
         }
 
-        // Validate "solitaire_color"
-        if (row["solitaire_color"]) {
-          const [colorF, colorT] = row["solitaire_color"]
-            .toString()
-            .split(" - ");
-
-          // Validate starting color
-          if (!checkColorAvailability(caratRange, isRound, colorF)) {
-            errors.push(`Invalid starting color: ${colorF}`);
-          }
-
-          // Validate ending color using getColorTOptions
+        // Validate starting and ending colors
+        if (colorF && !checkColorAvailability(caratRange, isRound, colorF)) {
+          errors.push(`Invalid starting color From: ${colorF}`);
+        }
+        if (colorT) {
           const validColorTOptions = getColorTOptions(
             caratRange,
             isRound,
             colorF
           );
           if (!validColorTOptions.includes(colorT)) {
-            errors.push(`Invalid ending color: ${colorT}`);
+            errors.push(`Invalid solitaire color To: ${colorT}`);
           }
         }
 
-        // Validate "solitaire_quality" solitaire_prem_size
-        if (row["solitaire_quality"]) {
-          const [clarityF, clarityT] = row["solitaire_quality"]
-            .toString()
-            .split(" - ");
-
-          // Validate starting clarity
-          if (!checkClarityAvailability(caratRange, isRound, clarityF)) {
-            errors.push(`Invalid starting clarity From: ${clarityF}`);
-          }
-
-          // Validate ending clarity using getClarityTOptions
+        // Validate starting and ending clarity
+        if (
+          clarityF &&
+          !checkClarityAvailability(caratRange, isRound, clarityF)
+        ) {
+          errors.push(`Invalid solitaire clarity From: ${clarityF}`);
+        }
+        if (clarityT) {
           const validClarityTOptions = getClarityTOptions(
             caratRange,
             isRound,
             clarityF
           );
           if (!validClarityTOptions.includes(clarityT)) {
-            errors.push(`Invalid ending clarity To : ${clarityT}`);
+            errors.push(`Invalid solitaire clarity To: ${clarityT}`);
           }
         }
 
         // Validate "solitaire_prem_size"
-        if (row["solitaire_prem_size"]) {
-          const prem_size = row["solitaire_prem_size"].toString().trim();
-
-          const validPrem_SizeOptions = getPremiumSizeOptions(caratRange);
-
-          if (!validPrem_SizeOptions.includes(prem_size)) {
-            errors.push(`Invalid solitaire_prem_size : ${prem_size}`);
+        const premSize = getTrimmedValue("solitaire_prem_size");
+        if (premSize) {
+          const validPremSizeOptions = getPremiumSizeOptions(caratRange);
+          if (!validPremSizeOptions.includes(premSize)) {
+            errors.push(`Invalid solitaire_prem_size: ${premSize}`);
           }
         }
 
         // Validate "metal_purity"
-        if (row["metal_purity"]) {
-          const metalPurity = row["metal_purity"].toString().trim();
-          const ValidmetalPurity = jewellerydetail?.Metal_purity.split(",")
-            .map((purity) => purity.trim())
-            .filter((purity) => purity);
-          //console.log("metalPurity :",metalPurity);
-          // console.log(
-          //   "jewellerydetail?.Metal_purity.trim() : ",
-          //   jewellerydetail?.Metal_purity.trim()
-          // );
-          if (
-            productType === "jewellery" &&
-            (!ValidmetalPurity || !ValidmetalPurity?.includes(metalPurity))
-          ) {
+        const metalPurity = getTrimmedValue("metal_purity");
+        if (metalPurity && productType === "jewellery") {
+          const validMetalPurity = jewellerydetail?.Metal_purity.split(",").map(
+            (p) => p.trim()
+          );
+          if (!validMetalPurity || !validMetalPurity.includes(metalPurity)) {
             errors.push(`Invalid Metal Purity: ${metalPurity}`);
           }
         }
 
         // Validate "metal_color"
-        if (row["metal_color"]) {
-          const metalColor = row["metal_color"].toString().trim();
-          const validMetalColors = jewellerydetail?.Metal_color.split(",")
-            .map((color) => color.trim())
-            .filter((color) => color);
-
-          // Check if 'metal_color' is not valid
-          if (
-            productType === "jewellery" &&
-            (!validMetalColors || !validMetalColors?.includes(metalColor))
-          ) {
+        const metalColor = getTrimmedValue("metal_color");
+        if (metalColor && productType === "jewellery") {
+          const validMetalColors = jewellerydetail?.Metal_color.split(",").map(
+            (c) => c.trim()
+          );
+          if (!validMetalColors || !validMetalColors.includes(metalColor)) {
             errors.push(`Invalid Metal Color: ${metalColor}`);
           }
         }
 
         // Validate "size_from"
-        if (jewellerydetail?.Product_size_from.trim() !== "-") {
-          if (row["size_from"]) {
-            const RingSize = row["size_from"].toString().trim();
-
-            // Check if the 'metal_type' is defined and not matching
-
-            if (
-              productType === "jewellery" &&
-              jewellerydetail?.Product_size_from.trim() !== RingSize
-            ) {
-              errors.push(`Invalid Size : ${RingSize}`);
-            }
+        const sizeFrom = getTrimmedValue("size_from");
+        if (jewellerydetail?.Product_size_from !== "-" && sizeFrom) {
+          if (sizeFrom !== jewellerydetail?.Product_size_from.trim()) {
+            errors.push(`Invalid Size: ${sizeFrom}`);
           }
         }
 
-        // Validate "side_stone_color and side_stone_quality"
-        if (row["side_stone_color"] && row["side_stone_quality"]) {
-          const sideStoneAttributes =
-            row["side_stone_color"].toString().trim() +
-            "-" +
-            row["side_stone_quality"].toString().trim();
-
-          // Validate against the sideColClar array
+        // Validate side stone attributes
+        const sideStoneColor = getTrimmedValue("side_stone_color");
+        const sideStoneQuality = getTrimmedValue("side_stone_quality");
+        if (sideStoneColor && sideStoneQuality) {
+          const sideStoneAttributes = `${sideStoneColor}-${sideStoneQuality}`;
           if (
             productType === "jewellery" &&
             !sideColClar.includes(sideStoneAttributes)
           ) {
             errors.push(
-              `Invalid side_stone_color or side_stone_quality: ${sideStoneAttributes}`
+              `Invalid side stone attributes: ${sideStoneAttributes}`
             );
           }
         }
@@ -618,79 +597,67 @@ const JewelleryBulkImportScreen: React.FC = () => {
         if (hasError) {
           console.log("This row has errors:", row.errorMessages);
         } else {
-          await getRowData(
-            jewellerydetail,
-            row["product_code"]?.toString() || ""
-          );
+          if (productType === "jewellery") {
+            await getRowData(jewellerydetail, productCode);
+          }
 
           const carat = caratRange.split("-");
-          const [colorF, colorT] =
-            row["solitaire_color"]?.toString().split(" - ") || "";
-          const [clarityF, clarityT] =
-            row["solitaire_quality"]?.toString().split(" - ") || "";
-          const shapedata =
-            shape === "Round"
-              ? "RND"
-              : shape === "Princess"
-              ? "PRN"
-              : shape === "Oval"
-              ? "OVL"
-              : shape === "Pear"
-              ? "PER"
-              : "";
+          const shapeMapping: Record<string, string> = {
+            Round: "RND",
+            Princess: "PRN",
+            Oval: "OVL",
+            Pear: "PER",
+          };
+          const shapedata = shapeMapping[shape] || "";
 
           const SolitaireFrom = await FetchPrice(
             "SOLITAIRE",
             carat[0],
-            shapedata ?? "",
-            colorT ?? "",
-            clarityT ?? ""
+            shapedata,
+            colorT || "",
+            clarityT || ""
           );
-          //setSoliPriceFrom(SolitaireFrom);
 
           const SolitaireTo = await FetchPrice(
             "SOLITAIRE",
             carat[1],
-            shapedata ?? "",
-            colorF ?? "",
-            clarityF ?? ""
+            shapedata,
+            colorF || "",
+            clarityF || ""
           );
-          //setSoliPriceTo(SolitaireTo);
-          console.log("SolitaireFrom : ", SolitaireFrom);
+          console.log("SolitaireFrom :", SolitaireFrom);
           console.log("SolitaireTo :", SolitaireTo);
-          const prem_size = row["solitaire_prem_size"]?.toString().trim();
-          const premiumPercentage = getPremiumPercentage(prem_size ?? "");
-          const premiumMinPrice =
-            SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
-          const premiumMaxPrice =
-            SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
-          console.log("premiumMinPrice", premiumMinPrice); //min
-          console.log("premiumMaxPrice", premiumMaxPrice); //max
-          //console.log("totalSolitairePcs12 : ", totalSolitairePcs);
+          const premiumPercentage = getPremiumPercentage(premSize || "");
+          const premiumMinPrice = calculatePremiumPrice(
+            SolitaireFrom,
+            Number(premiumPercentage)
+          );
+          const premiumMaxPrice = calculatePremiumPrice(
+            SolitaireTo,
+            Number(premiumPercentage)
+          );
+          console.log("premiumMinPrice :", premiumMinPrice);
+          console.log("premiumMaxPrice :", premiumMaxPrice);
           const SoliAmtFrom = parseFloat(
-            (
-              premiumMinPrice *
-              parseFloat(carat[0]) *
-              Number(totalSolitairePcs)
-            ).toFixed(2)
+            (premiumMinPrice * parseFloat(carat[0]) * Number(Qty)).toFixed(2)
           );
+
           const SoliAmtTo = parseFloat(
-            (
-              premiumMaxPrice *
-              parseFloat(carat[1]) *
-              Number(totalSolitairePcs)
-            ).toFixed(2)
+            (premiumMaxPrice * parseFloat(carat[1]) * Number(Qty)).toFixed(2)
           );
+
           console.log("SoliAmtFrom : ", SoliAmtFrom);
           console.log("SoliAmtTo : ", SoliAmtTo);
           //CalculateDivineMountDetails(carat,prem_size)
           // Construct the payload for this row
+          //let newCartItem: CartDetail | null = null;
+
           const payload: CartDetail = {
             order_for: customerOrder?.order_for || "",
             customer_id: customerOrder?.customer_id || 0,
             customer_name: customerOrder?.cust_name || "",
             customer_branch: customerOrder?.store || "",
-            product_type: customerOrder?.product_type || "",
+            product_type: productType, //customerOrder?.product_type || "",
             order_type: customerOrder?.order_type || "",
             Product_category: jewellerydetail?.Product_category || "",
             product_sub_category: jewellerydetail?.Product_sub_category || "", //new
@@ -702,22 +669,21 @@ const JewelleryBulkImportScreen: React.FC = () => {
             ).toISOString(),
             old_varient: jewellerydetail?.Old_varient || "",
             product_code: jewellerydetail?.Item_number || "",
-            product_qty: Number(totalSolitairePcs), //jewelleryDetails?.,
+            product_qty: Number(Qty), //jewelleryDetails?.,
             product_amt_min:
               SoliAmtFrom + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
             product_amt_max: SoliAmtTo + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            solitaire_shape: row["solitaire_shape"]?.toString().trim() || "",
-            solitaire_slab: row["solitaire_slab"]?.toString().trim() || "",
-            solitaire_color: row["solitaire_color"]?.toString().trim() || "",
-            solitaire_quality:
-              row["solitaire_quality"]?.toString().trim() || "",
-            solitaire_prem_size: row["solitaire_prem_size"]?.toString() || "",
+            solitaire_shape: shape,
+            solitaire_slab: caratRange,
+            solitaire_color: colorF + "-" + colorT,
+            solitaire_quality: clarityF + "-" + clarityT,
+            solitaire_prem_size: getTrimmedValue("solitaire_prem_size"), //row["solitaire_prem_size"]?.toString() || "",
             solitaire_prem_pct: Number(premiumPercentage) || 0,
             solitaire_amt_min: SoliAmtFrom,
             solitaire_amt_max: SoliAmtTo,
             metal_type: "GOLD",
-            metal_purity: row["metal_purity"]?.toString().trim() || "",
-            metal_color: row["metal_color"]?.toString().trim() || "",
+            metal_purity: getTrimmedValue("metal_purity"), //row["metal_purity"]?.toString().trim() || "",
+            metal_color: getTrimmedValue("metal_color"), //row["metal_color"]?.toString().trim() || "",
             metal_weight: Metal_weight ?? 0,
             metal_price: Metal_price ?? 0,
             mount_amt_min: (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
@@ -732,12 +698,12 @@ const JewelleryBulkImportScreen: React.FC = () => {
             side_stone_color:
               Number(total_sidepcs) === 0
                 ? ""
-                : row["side_stone_color"]?.toString().trim() || "",
+                : getTrimmedValue("side_stone_color"), //row["side_stone_color"]?.toString().trim() || "",
             side_stone_quality:
               Number(total_sidepcs) === 0
                 ? ""
-                : row["side_stone_quality"]?.toString().trim() || "",
-            cart_remarks: row["cart_remarks"]?.toString() || "",
+                : getTrimmedValue("side_stone_quality"), //row["side_stone_quality"]?.toString().trim() || "",
+            cart_remarks: getTrimmedValue("cart_remarks"), //row["cart_remarks"]?.toString() || "",
             order_remarks: "",
             style: jewellerydetail?.Style || "", //new
             wear_style: jewellerydetail?.Wear_style || "", //new
@@ -746,18 +712,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
             gender: jewellerydetail?.Gender || "", //new
           };
           const newCartItem: CartDetail = { ...payload };
-          // Add the new cart item to the state
-          setCartData((prevCartData) => {
-            const updatedCartData = [...prevCartData];
-            if (
-              !updatedCartData.some(
-                (item) => item.product_code === newCartItem.product_code
-              )
-            ) {
-              updatedCartData.push(newCartItem);
-            }
-            return updatedCartData;
-          });
+          setCartData((prevCartData) => [...prevCartData, newCartItem]);
         }
 
         // Add errors to row
@@ -781,7 +736,9 @@ const JewelleryBulkImportScreen: React.FC = () => {
       setIsValidated(true);
     }
 
-    setExcelData(mappedDataWithErrors);
+    // Update the state with new data
+    setExcelData(mappedDataWithErrors); // Update excel data with validation results
+    // Add valid items to cart data
   };
 
   // const CalculateDivineMountDetails = (carat: string, size: number) => {
@@ -920,14 +877,14 @@ const JewelleryBulkImportScreen: React.FC = () => {
   // Handle save
   const handleSave = async () => {
     if (isValidated) {
-      // console.log("Saving data...", cartData);
+      console.log("Saving data...", cartData);
       // setCurrentErrorMessages("Data saved successfully." + cartData);
       // setIsModalOpen(true);
 
       try {
         showLoader();
         await createCart(cartData);
-        //notify(res.data.id.toString());
+        // notify(res.data.id.toString());
         updateCartCount(isCartCount + cartData.length); // Increment cart count by the number of rows
         notify("All rows submitted successfully!");
 
@@ -977,6 +934,18 @@ const JewelleryBulkImportScreen: React.FC = () => {
         },
       ]
     : [];
+
+  // Define conditional row styles
+  const conditionalRowStyles = [
+    {
+      when: (row: ExcelRow) =>
+        !!(row.errorMessages && row.errorMessages.length > 0), // Ensures a boolean is returned
+      style: {
+        border: "2px solid red", // Red border for rows with errors
+        backgroundColor: "#FFEAEA", // Light red background for visibility
+      },
+    },
+  ];
 
   // Define table custom styles
   const CustomStyles: TableStyles = {
@@ -1153,6 +1122,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
             data={excelData}
             customStyles={CustomStyles}
             onRowClicked={onRowClicked}
+            conditionalRowStyles={conditionalRowStyles}
             //pagination
             responsive
           />
@@ -1162,7 +1132,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-4 rounded-lg w-1/3">
-            <h2 className="text-xl font-semibold mb-2">Error Messages</h2>
+            <h2 className="text-xl font-semibold mb-2">Messages</h2>
             <p>{currentErrorMessages}</p>
             <button
               onClick={handleModalClose}

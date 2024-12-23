@@ -623,15 +623,11 @@ function CartScreen() {
                   <p className="flex text-sm text-gray-600">
                     Amount : Min :&nbsp;
                     <p className="font-semibold text-black">
-                      {formatByCurrencyINR(
-                        parseFloat(item.product_amt_min.toString())
-                      )}
+                      {formatByCurrencyINR(item.product_amt_min)}
                     </p>{" "}
                     &nbsp;Max :&nbsp;
                     <p className="font-semibold text-black">
-                      {formatByCurrencyINR(
-                        parseFloat(item.product_amt_max.toString())
-                      )}
+                      {formatByCurrencyINR(item.product_amt_max)}
                     </p>{" "}
                   </p>
 
