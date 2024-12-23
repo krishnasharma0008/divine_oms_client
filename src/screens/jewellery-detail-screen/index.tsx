@@ -17,6 +17,7 @@ import { useCustomerOrderStore } from "@/store/customerorderStore";
 import { createCart, EditCart } from "@/api/cart";
 import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
+import dayjs from "dayjs";
 
 interface CustomisationOptions {
   shape: string;
@@ -39,7 +40,7 @@ function JewelleryDetailScreen() {
   const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
   const [metalPurity, setMetalPurity] = useState<string>("");
   const [metalColor, setMetalColor] = useState<string>("");
-  const [ringSizeFrom, setRingSizeFrom] = useState<number>(21); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
+  const [ringSizeFrom, setRingSizeFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
   // const [ringSizeTo, setRingSizeTo] = useState<number>(0);
   const [ringSize, setRingSize] = useState<number>(0);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
@@ -61,7 +62,7 @@ function JewelleryDetailScreen() {
   const [soliAmtFrom, setSoliAmtFrom] = useState<number>(0);
   const [soliAmtTo, setSoliAmtTo] = useState<number>(0);
 
-  const sideDiaColorClarityOption = ["IJ-SI"];
+  const sideDiaColorClarityOption = ["IJ-SI", "GH-VS", "EF-VVS"];
 
   const [sideDiaColorClarity, setSideDiaColorClarity] = useState<string>(
     sideDiaColorClarityOption[0]
@@ -72,17 +73,6 @@ function JewelleryDetailScreen() {
   const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
 
   const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
-
-  // const resetCustomisedData = () => {
-  //   setCustomisedData({
-  //     shape: "",
-  //     color: "",
-  //     carat: "",
-  //     clarity: "",
-  //     premiumSize: "",
-  //     premiumPercentage: "0",
-  //   });
-  // };
 
   useEffect(() => {
     if (formType === "new") {
@@ -132,6 +122,7 @@ function JewelleryDetailScreen() {
       setSideDiaTotPcs(cart.side_stone_pcs);
       setSideDiaTotweight(cart.side_stone_cts); //
       setMetalweight(cart.metal_weight);
+      console.log("cart.metal_weight :", cart.metal_weight);
 
       try {
         // Fetch diamond price
@@ -144,21 +135,26 @@ function JewelleryDetailScreen() {
         );
         setSDiaPrice(
           parseFloat(
-            (diamondPrice * sideDiaTotPcs * (sideDiaTotweight ?? 0)).toFixed(2)
+            (
+              diamondPrice *
+              cart.side_stone_pcs *
+              (cart.side_stone_cts ?? 0)
+            ).toFixed(2)
           ) //
         );
 
         // Fetch metal price
-        const metalPrice = await FetchPrice(
-          "GOLD",
-          "",
-          "",
-          cart.metal_color,
-          cart.metal_purity
-        );
-        setMetalPrice(metalPrice);
+        // const metalPrice = await FetchPrice(
+        //   "GOLD",
+        //   "",
+        //   "",
+        //   cart.metal_color,
+        //   cart.metal_purity
+        // );
+        // setMetalPrice(metalPrice);
+
         setMetalAmtFrom(
-          parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(3))
+          parseFloat((cart.metal_price * (cart.metal_weight ?? 0)).toFixed(3))
         );
         // setMetalPriceFrom(
         //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
@@ -329,7 +325,6 @@ function JewelleryDetailScreen() {
   const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedSizeSlab = e.target.value;
     setRingSizeFrom(Number(selectedSizeSlab));
-
     CalculateDivineMountDetails(
       String(customisedData?.carat),
       Number(selectedSizeSlab)
@@ -584,7 +579,14 @@ function JewelleryDetailScreen() {
       notifyErr("Failed to fetch price details.");
     }
 
-    if (jewelleryDetails?.Product_size_from !== "-") {
+    console.log(
+      "jewelleryDetails?.Product_size_from ; ",
+      jewelleryDetails?.Product_size_from
+    );
+    if (
+      jewelleryDetails?.Product_size_from &&
+      jewelleryDetails?.Product_size_from !== "-"
+    ) {
       CalculateDivineMountDetails(String(data.carat), Number(ringSizeFrom));
     }
   };
@@ -615,9 +617,12 @@ function JewelleryDetailScreen() {
       // exp_dlv_date: new Date(
       //   customerOrder?.exp_dlv_date || Date.now()
       // ).toISOString(),
-      exp_dlv_date: customerOrder?.exp_dlv_date
-        ? new Date(customerOrder?.exp_dlv_date)
-        : null,
+      // exp_dlv_date: new Date(
+      //   customerOrder?.exp_dlv_date || Date.now()
+      // ).toISOString(),
+      exp_dlv_date: new Date(
+        dayjs(customerOrder?.exp_dlv_date || "2025-01-04").format("YYYY-MM-DD")
+      ).toISOString(),
       old_varient: jewelleryDetails?.Old_varient || "",
       product_code: jewelleryDetails?.Item_number || "",
       product_qty: selectedQty,

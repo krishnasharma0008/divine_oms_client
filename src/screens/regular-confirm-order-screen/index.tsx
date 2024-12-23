@@ -15,6 +15,7 @@ import { createCart } from "@/api/cart";
 import LoginContext from "@/context/login-context";
 import { useRouter } from "next/navigation";
 import { usePremiumSizeAndPercentage } from "@/hook";
+import dayjs from "dayjs";
 
 const RegularConfirmOrderScreen = () => {
   // Access customer data from Zustand store
@@ -391,10 +392,12 @@ const RegularConfirmOrderScreen = () => {
         wear_style: "", //new
         look: "", //new
         portfolio_type: "", //new
-        gender: "", //new
-        exp_dlv_date: customerOrder?.exp_dlv_date
-          ? new Date(customerOrder?.exp_dlv_date)
-          : null,
+        gender: "", //new new Date(state.invdate || Date.now()).toISOString(),
+        exp_dlv_date: new Date(
+          dayjs(customerOrder?.exp_dlv_date || "2025-01-04").format(
+            "YYYY-MM-DD"
+          )
+        ).toISOString(),
         old_varient: "",
         product_code: "",
         product_qty: row.pcs,
@@ -425,6 +428,7 @@ const RegularConfirmOrderScreen = () => {
         order_remarks: "",
       }));
 
+    console.log(allPayloads);
     try {
       showLoader();
       await createCart(allPayloads);
@@ -481,7 +485,7 @@ const RegularConfirmOrderScreen = () => {
           </div>
 
           <div className="w-full rounded-xl bg-white p-4 mx-6 shadow-md">
-            <div className="w-full flex flex-row gap-x-4">
+            <div className="w-full flex flex-row gap-x-1">
               <div className="w-1/6 flex flex-col">
                 <p className="text-[#888]">Order Type</p>
                 <div className="py-2 capitalize">
@@ -516,6 +520,12 @@ const RegularConfirmOrderScreen = () => {
                 <div className="py-2">Invoice will go with 1% credit note</div>
               </div>
             </div>
+            {/* <div className="w-1/6 flex flex-col">
+              <p className="text-[#888]">Expected Delivery Date</p>
+              <div className="py-2">
+                {dayjs(customerOrder?.exp_dlv_date).format("DD-MM-YYYY")}
+              </div>
+            </div> */}
           </div>
 
           <div className="w-full rounded-xl bg-white p-4 mx-4 shadow-md">

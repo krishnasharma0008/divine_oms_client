@@ -153,25 +153,25 @@ const SolitaireCustomisationPopup: React.FC<
 
   useEffect(() => {
     if (isOpen) {
+      // Reset fields with either customised data or default values
       setShape(customisedData?.shape || "");
-
-      getColorOptions(customisedData?.carat || "");
-      getClarityOptions(customisedData?.carat || "");
-
-      getColorTOptions(customisedData?.carat || "");
-      getClarityOptions(customisedData?.carat || "");
-
+      setCarat(customisedData?.carat || "");
+      setColorF(customisedData?.color?.split(" - ")[0] || "");
+      setColorT(customisedData?.color?.split(" - ")[1] || "");
+      setClarityF(customisedData?.clarity?.split(" - ")[0] || "");
+      setClarityT(customisedData?.clarity?.split(" - ")[1] || "");
       setPremiumSize(customisedData?.premiumSize || "");
       setPremiumPercentage(customisedData?.premiumPercentage || "");
 
-      setCarat(customisedData?.carat || "");
-      console.log(customisedData?.color);
-      setColorF(customisedData?.color.split(" - ")[0] || "");
-      setColorT(customisedData?.color.split(" - ")[1] || "");
-      setClarityF(customisedData?.clarity.split(" - ")[0] || "");
-      setClarityT(customisedData?.clarity.split(" - ")[1] || "");
+      // Fetch and update premium size options
+      if (customisedData?.carat) {
+        const premiumSizes = getPremiumSizeOptions(customisedData.carat);
+        setPremiumSizeOptions(premiumSizes || []);
+      } else {
+        setPremiumSizeOptions([]);
+      }
     }
-  }, [isOpen, customisedData]);
+  }, [isOpen, customisedData, getPremiumSizeOptions]);
 
   const handleApply = () => {
     const errors: Record<string, string> = {};

@@ -216,6 +216,11 @@ const ChooseYourOrderScreen = () => {
       }
     }
 
+    if (!orderType) {
+      notifyErr("Order Type is required. Please select a valid Order.");
+      return;
+    }
+
     // Prepare payload based on the customer type
     const payload: CustomerOrderDetail = {
       order_for: getCustType() ?? "",
@@ -230,7 +235,10 @@ const ChooseYourOrderScreen = () => {
           ? isCustomerName ?? ""
           : customer?.name ?? "",
 
-      store: getCustType() === "Jeweller" ? selectedStore?.NickName ?? "" : "Mumbai HO",
+      store:
+        getCustType() === "Jeweller"
+          ? selectedStore?.NickName ?? ""
+          : "Mumbai HO",
       contactno:
         getCustType() === "Jeweller"
           ? selectedContact

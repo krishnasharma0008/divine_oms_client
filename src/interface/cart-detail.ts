@@ -13,7 +13,7 @@ export interface CartDetail {
   //sale_or_return: string;
   //outright_purchase: boolean;
   //customer_order: string;
-  exp_dlv_date: Date | null; // date
+  exp_dlv_date: string; // date
   old_varient: string; //new
   product_code: string;
   product_qty: number;

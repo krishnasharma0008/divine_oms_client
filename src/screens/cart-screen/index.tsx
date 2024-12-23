@@ -19,6 +19,7 @@ import AddRemarkModal from "@/components/common/add-remark-modal";
 import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
 import MessageModal from "@/components/common/message-modal";
+import dayjs from "dayjs";
 
 interface cart_to_order_info {
   ids: string;
@@ -156,7 +157,7 @@ function CartScreen() {
   const handleSelectItem = (id: number) => {
     setSelectedItems((prevSelectedItems) =>
       prevSelectedItems.includes(id)
-        ? prevSelectedItems.filter((id) => id !== id)
+        ? prevSelectedItems.filter((itemId) => itemId !== id) // Use a different variable name
         : [...prevSelectedItems, id]
     );
   };
@@ -244,8 +245,10 @@ function CartScreen() {
       Product_category: item.Product_category || "",
       product_sub_category: item.product_sub_category || "", //new
       collection: item.collection || "",
-      exp_dlv_date: item.exp_dlv_date ? new Date(item?.exp_dlv_date) : null,
-
+      //exp_dlv_date: new Date(item.exp_dlv_date || Date.now()).toISOString(),
+      exp_dlv_date: new Date(
+        dayjs(item.exp_dlv_date || "2025-01-04").format("YYYY-MM-DD")
+      ).toISOString(),
       old_varient: item.old_varient || "",
       product_code: item.product_code || "",
       product_qty: item.product_qty || 1,
@@ -631,6 +634,13 @@ function CartScreen() {
                       )}
                     </p>{" "}
                   </p>
+
+                  <p className="flex text-sm text-gray-600">
+                    Expected Delivery Date : &nbsp;
+                    <p className="font-semibold text-black">
+                      {dayjs(item.exp_dlv_date).format("DD-MM-YYYY")}
+                    </p>
+                  </p>
                   {/* Clickable Remark */}
 
                   <div className="flex items-center justify-left">
@@ -726,12 +736,12 @@ function CartScreen() {
               </span>
               <div className="text-lg font-semibold text-black">{""}</div>
             </div> */}
-              <div className="flex justify-between items-center py-2">
+              {/* <div className="flex justify-between items-center py-2">
                 <span className="text-xl text-gray-600">
                   Expected Delivery Date
                 </span>
                 <div className="text-lg font-semibold text-black">{""}</div>
-              </div>
+              </div> */}
 
               {/* Proceed to Checkout Button */}
               <div className="mt-6 w-full flex items-center justify-center ">
