@@ -29,6 +29,7 @@ type ExcelRow = {
 const JewelleryBulkImportScreen: React.FC = () => {
   const [excelData, setExcelData] = useState<ExcelRow[]>([]);
   const [isValidated, setIsValidated] = useState<boolean>(false);
+  const [isUploaded, setIsUploaded] = useState<boolean>(false);
   //const [message, setMessage] = useState<string>("");
   const { getPremiumPercentage, getPremiumSizeOptions } =
     usePremiumSizeAndPercentage();
@@ -294,6 +295,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
     };
 
     setIsModalOpen(true);
+    setIsUploaded(true);
     reader.readAsArrayBuffer(file);
   };
 
@@ -320,11 +322,6 @@ const JewelleryBulkImportScreen: React.FC = () => {
     quality: string
   ): Promise<number> => {
     //showLoader();
-    // console.log("itemgroup : ", itemgroup);
-    // console.log("slab : ", slab);
-    // console.log("shape : ", shape);
-    // console.log("color : ", color);
-    // console.log("quality : ", quality);
 
     try {
       const response = await getJewelleryProductPrice(
@@ -466,9 +463,9 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
   // validate excel data
   const handleValidate = async () => {
-    //console.log("Validating data...");
-    //const tempCartData: CartDetail[] = [];
-
+    // Reset CartData at the beginning
+    setCartData([]); // Clears the previous cart data
+    setCurrentErrorMessages(""); // Clear any previous validation message
     const mappedDataWithErrors = await Promise.all(
       excelData.map(async (row) => {
         const errors: string[] = [];
@@ -731,9 +728,11 @@ const JewelleryBulkImportScreen: React.FC = () => {
     if (hasErrors) {
       setCurrentErrorMessages("Validation failed. Please correct the errors.");
       setIsValidated(false);
+      setIsModalOpen(true);
     } else {
       setCurrentErrorMessages("Validation successful! All data is valid.");
       setIsValidated(true);
+      setIsModalOpen(true);
     }
 
     // Update the state with new data
@@ -868,6 +867,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
     setExcelData([]);
     setCurrentErrorMessages("");
     setIsValidated(false);
+    setIsUploaded(false);
     const fileInput = document.querySelector(
       'input[type="file"]'
     ) as HTMLInputElement;
@@ -905,6 +905,31 @@ const JewelleryBulkImportScreen: React.FC = () => {
     router.push(`/jewellery`);
   };
 
+  // Handle close
+  // const [tstdata, setTstdata] = useState<unknown[]>([
+  //   {
+  //     name: "pks",
+  //     surname: "xyz",
+  //   },
+  //   {
+  //     name: "krs",
+  //     surname: "kumar",
+  //   },
+  // ]);
+  // const handleTest = () => {
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   const newData = tstdata.map((rw: any) => {
+  //     if (rw.name.toLowerCase() === "krs") {
+  //       rw.surname = "Hello";
+  //       rw.age = 23;
+  //     } else {
+  //       rw.age = 33;
+  //     }
+  //     return rw;
+  //   });
+
+  //   setTstdata(newData);
+  // };
   // Define columns explicitly
   const columns: TableColumn<ExcelRow>[] = excelData.length
     ? [
@@ -984,6 +1009,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
     <div className="px-2">
       <div className="max-w-7xl mx-auto bg-white shadow-md rounded-lg p-2 mt-2">
         {/* Header */}
+        {/* {JSON.stringify(tstdata)} */}
         <div className="flex justify-between items-center my-2 rounded-lg">
           <h1 className="text-2xl font-bold">Bulk Import Page</h1>
           {/* <div className="my-4 text-green-500">{message}</div> */}
@@ -1028,7 +1054,12 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
             <button
               onClick={handleValidate}
-              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black transition-colors flex items-center space-x-2"
+              disabled={!isUploaded}
+              className={`px-4 py-2 bg-black text-white rounded-md border border-black flex items-center space-x-2 ${
+                !isUploaded
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-white hover:text-black"
+              } transition-colors`}
             >
               <svg
                 className="h-5 w-5"
@@ -1110,6 +1141,13 @@ const JewelleryBulkImportScreen: React.FC = () => {
             >
               <span>Close</span>
             </button>
+
+            {/* <button
+              onClick={handleTest}
+              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black transition-colors flex items-center space-x-2"
+            >
+              <span>Test</span>
+            </button> */}
           </div>
         </div>
 
