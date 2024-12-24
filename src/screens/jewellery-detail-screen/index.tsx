@@ -636,7 +636,7 @@ function JewelleryDetailScreen() {
       solitaire_prem_pct: Number(customisedData?.premiumPercentage) || 0,
       solitaire_amt_min: soliAmtFrom,
       solitaire_amt_max: soliAmtTo,
-      metal_type: "GOLD",
+      metal_type: metalPurity === "950PT" ? "PLATINUM" : "GOLD",
       metal_purity: metalPurity || "",
       metal_color: metalColor,
       metal_weight: Metalweight ?? 0,
