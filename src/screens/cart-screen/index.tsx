@@ -451,7 +451,14 @@ function CartScreen() {
               Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
             </div>
           </div>
-
+          <div className="flex justify-center">
+            <button
+              className="w-auto h-10 whitespace-nowrap flex items-center px-6 py-2 bg-black text-white rounded-lg transition duration-300 transform hover:bg-gray-800"
+              onClick={navigateToShopping}
+            >
+              Continue Shopping
+            </button>
+          </div>
           {/* Action Buttons */}
           {(cartData ?? []).length > 0 && (
             <div className="w-1/2 flex justify-end space-x-2">
@@ -687,15 +694,6 @@ function CartScreen() {
               </p>
             </div>
           )}
-        </div>
-
-        <div className="flex justify-center mt-1">
-          <button
-            className="w-auto h-10 flex items-center px-6 py-2 bg-black text-white rounded-lg transition duration-300 transform hover:bg-gray-800"
-            onClick={navigateToShopping}
-          >
-            Continue Shopping
-          </button>
         </div>
       </div>
 

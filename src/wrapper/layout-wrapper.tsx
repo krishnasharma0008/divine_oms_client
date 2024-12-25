@@ -22,7 +22,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({
   }, [loadingTime]);
 
   return (
-    <div className="flex flex-col bg-slate-200 h-screen">
+    <div className="flex flex-col bg-slate-200 min-h-screen">
       {loading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 transition-opacity">
           <Loader aria-live="polite" />
@@ -36,6 +36,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({
 
           {/* Main Content Area: Scrollable */}
           <div className="flex-1 overflow-y-auto">
+            {/* Here the children will occupy the remaining space */}
             <main className="flex-1">{children}</main>
           </div>
         </>

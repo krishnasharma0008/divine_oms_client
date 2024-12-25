@@ -487,7 +487,7 @@ const RegularConfirmOrderScreen = () => {
           <div className="w-full rounded-xl bg-white p-4 mx-2 shadow-md">
             <div className="w-full flex flex-row gap-x-1">
               <div className="w-1/6 flex flex-col">
-                <p className="text-[#888]">Order Type</p>
+                <p className="text-[#888]">Visible Order Type</p>
                 <div className="py-2 capitalize">
                   {customerOrder?.product_type}
                 </div>
