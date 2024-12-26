@@ -265,10 +265,10 @@ const ChooseYourOrderScreen = () => {
 
   return (
     // <div className="bg-white rounded p-2 m-2 shadow-md space-y-2">
-    <div className="bg-white rounded p-2 m-2 shadow-md space-y-2 ">
-      <div>
+    <div className="bg-white min-h-[calc(100vh_-_96px)] rounded p-2 m-2 shadow-md space-y-2 ">
+      {/* <div>
         <h2 className="font-medium text-xl">Choose Your Order Type</h2>
-      </div>
+      </div> */}
 
       {/* Scrollable content */}
       {/* <div className="overflow-y-auto max-h-[50vh] space-y-4 px-4"> */}

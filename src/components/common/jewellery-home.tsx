@@ -22,11 +22,9 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   onImgClick,
   onStkClick,
 }) => {
-  
-
   return (
     <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item">
-      <div className="p-4 flex justify-center items-center relative ">
+      <div className="flex justify-center items-center relative p-2">
         {/* Image with hover magnify effect */}
         {/* <Link href={`/jewellery-detail/${id}`}> */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -42,7 +40,8 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             }
           }}
           onClick={onImgClick}
-          className="w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110 group-hover:cursor-pointer"
+          className="object-contain w-full h-36 transition-transform duration-300 transform group-hover:scale-110"
+          // className="w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110 group-hover:cursor-pointer"
         />
         {/* </Link> */}
         {/* View button with eye icon, appears on hover */}
@@ -54,20 +53,19 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
           <EyeIcon className="fill-black" />
         </button>*/}
       </div>
-      <div className="p-4">
-        <div className="grid gap-3">
-          <div className="w-full flex justify-center">
-            <p className="text-center text-gray-700 font-Montserrat text-xl font-semibold leading-6">
+      <div className="px-4 pb-2">
+        <div className="grid">
+          <div className="w-full flex justify-between">
+            <p className="text-left text-gray-700 font-Montserrat text-sm font-semibold">
               {design_no}
+            </p>
+            <p className="text-left text-gray-700 font-montserrat font-semibold text-sm">
+              Old :&nbsp; {olddesign_no}
             </p>
           </div>
 
           <div className="flex justify-between">
-            <p className="text-left text-gray-700 font-montserrat font-semibold text-base">
-              Old :&nbsp; {olddesign_no}
-            </p>
-
-            <div>
+            <div className="hidden">
               <p
                 className="text-right text-sky-600 font-montserrat font-normal text-sm underline-offset-1 cursor-pointer"
                 onClick={onStkClick}
@@ -78,19 +76,19 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
           </div>
 
           <div className="flex justify-between space-x-2">
-            <div>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
-                G.WT:
+            <div className="flex">
+              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
+                G.WT :&nbsp;
               </p>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
-                {g_wt} apx.
+              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
+                {parseFloat(g_wt).toFixed(3)} apx.
               </p>
             </div>
-            <div>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
-                D.SIZE:
+            <div className="flex">
+              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
+                D.SIZE :&nbsp;
               </p>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-sm">
+              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
                 {d_size}
               </p>
             </div>

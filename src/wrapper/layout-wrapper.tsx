@@ -22,7 +22,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({
   }, [loadingTime]);
 
   return (
-    <div className="flex flex-col bg-slate-200 min-h-screen">
+    <div className="flex flex-col bg-slate-200 h-screen">
       {loading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 transition-opacity">
           <Loader aria-live="polite" />
@@ -30,7 +30,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({
       ) : (
         <>
           {/* Navbar: Sticky at the top */}
-          <div className="sticky top-0 z-10 bg-white w-full">
+          <div className="sticky top-0 z-10 bg-white w-full h-20">
             <Navbar />
           </div>
 

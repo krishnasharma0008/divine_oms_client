@@ -76,7 +76,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
           setIsOtpVerified(true);
           setIsLogin(true);
           setToken(res.data.token);
-          setUser(username);
+          setUser(res.data.dpname);
           setUserRole(res.data.designation);
           setIsCartCount(Number(res.data.cartcount)); // Update cart count
           return true;

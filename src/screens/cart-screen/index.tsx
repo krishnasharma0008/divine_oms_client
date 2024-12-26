@@ -520,7 +520,7 @@ function CartScreen() {
                         imgElement.src = "/jewellery/NoImageBig.jpg";
                       }
                     }}
-                    className="w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110"
+                    className="object-contain w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110"
                   />
                 </div>
                 {/* Data Section */}

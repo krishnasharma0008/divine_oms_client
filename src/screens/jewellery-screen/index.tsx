@@ -205,9 +205,9 @@ function JewelleyScreen() {
   };
 
   return (
-    <div className="flex max-h-[calc(100vh_-_80px)] overflow-y-auto gap-x-2 m-0.5">
+    <div className="flex min-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
       {/* Left Div with 20% width */}
-      <div className="w-1/5 flex flex-col bg-gray-100 text-white my-0.5 ml-0.5">
+      <div className="w-full sm:w-1/3 lg:w-1/5 flex flex-col bg-gray-100 text-black my-0.5 ml-0.5">
         {/* Fixed Header */}
         <div className="h-20 bg-gray-100 p-2 sticky top-0">
           <h1 className="text-xl font-bold text-black">Filter By</h1>
@@ -229,7 +229,8 @@ function JewelleyScreen() {
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-auto p-4 h-[90vh]">
+        <div className="flex-1 overflow-auto p-4 max-h-[70vh] sm:max-h-[80vh] lg:max-h-[90vh]">
+          {/* Search Input with Spinner */}
           {/* Search Input with Spinner */}
           <div className="relative mb-4">
             <input
@@ -277,16 +278,16 @@ function JewelleyScreen() {
       {/* Right Div with the remaining width (80%) */}
       <div className="w-4/5 flex flex-col bg-white text-white shadow-md border my-0.5">
         {/* Fixed Header */}
-        <div className="h-16 bg-white p-4 sticky top-0">
-          <div className="flex justify-end space-x-2 mb-4">
+        <div className="bg-white p-1 sticky top-0">
+          <div className="flex justify-end space-x-2 ">
             <button
-              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+              className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
               onClick={handleBulkImport}
             >
               Bulk Import
             </button>
             <button
-              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+              className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
               onClick={() => handlePjDetailClick()}
             >
               Pj-Detail
@@ -298,8 +299,8 @@ function JewelleyScreen() {
         {/* <div className="flex-1 overflow-auto p-4 h-[80vh]"></div> */}
         <div
           ref={dataContainer}
-          className="flex-1 overflow-y-auto h-[90vh]"
-          style={{ maxHeight: "calc(100vh - 100px)" }}
+          className="flex-1 overflow-y-auto "
+          style={{ maxHeight: "calc(100vh - 0px)" }}
         >
           {loading ? (
             // Show spinner while loading
@@ -329,10 +330,10 @@ function JewelleyScreen() {
 
         {/* Fixed Footer */}
         {/* <div className="h-16 bg-green-700 p-4"></div> */}
-        <div className="flex justify-center mt-4 mb-2">
+        <div className="flex justify-center my-1">
           <button
             onClick={handleLoadMore}
-            className={`w-22 px-4 py-2 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
+            className={`w-22 px-4 py-1 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
               isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isLoadingMore}

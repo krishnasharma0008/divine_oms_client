@@ -44,7 +44,7 @@ const DashboardScreen = () => {
   };
 
   return (
-    <div className="font-body h-screen flex items-center justify-center overflow-hidden">
+    <div className="font-body min-h-[calc(100vh_-_85px)] flex items-center justify-center overflow-hidden">
       <div className="flex gap-x-4 gap-y-2 items-center justify-center">
         <div className="bg-[#F4F4F47A] w-auto rounded-3xl p-10 text-center border-[#888786] border-solid border-2">
           <p className="text-2xl font-black mb-10 underline">Place Order for</p>

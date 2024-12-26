@@ -19,6 +19,7 @@ import Breadcrumb from "./breadcrumb";
 import { UserIcon } from "../icons";
 import LoginContext from "@/context/login-context";
 import ShoppingCartIcon from "../icons/shopping-cart-icon";
+import { getUser } from "@/local-storage";
 // import { CartDetail } from "@/interface";
 // import { getCartDetailList } from "@/api/cart";
 // import { getUser } from "@/local-storage";
@@ -116,11 +117,14 @@ const Navbar: React.FC = () => {
                     variant="text"
                     className="mr-2 relative cursor-pointer"
                   >
-                    {/* Welcome{getUser()} */}
+                    {/* Hello, {getUser()} */}
                     <UserIcon />
                   </IconButton>
                 </MenuHandler>
                 <MenuList>
+                  <MenuItem className="whitespace-nowrap">
+                    Hello, {getUser()}
+                  </MenuItem>
                   <MenuItem
                     className="flex items-center gap-2"
                     onClick={OrderList}
