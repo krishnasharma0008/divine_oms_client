@@ -10,15 +10,25 @@ import { useRouter } from "next/navigation";
 import { CartDetail, JewelleryDetail } from "@/interface";
 import {
   getJewelleryProductList,
-  getJewelleryProductPrice,
+  //getJewelleryProductPrice,
 } from "@/api/jewellery-detail";
-import { usePremiumSizeAndPercentage } from "@/hook";
+//import { usePremiumSizeAndPercentage } from "@/hook";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
 import dayjs from "dayjs";
 import { createCart } from "@/api/cart";
 import LoaderContext from "@/context/loader-context";
 import NotificationContext from "@/context/notification-context";
 import LoginContext from "@/context/login-context";
+import {
+  otherRoundColors,
+  otherRoundColorsCarat,
+  colors,
+  clarities,
+  claritiesRound,
+  claritiesRoundCarat,
+  Metal_Color,
+  slab,
+} from "@/util/constants";
 
 // Define types
 type ExcelRow = {
@@ -30,33 +40,14 @@ const JewelleryBulkImportScreen: React.FC = () => {
   const [excelData, setExcelData] = useState<ExcelRow[]>([]);
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
-  //const [message, setMessage] = useState<string>("");
-  const { getPremiumPercentage, getPremiumSizeOptions } =
-    usePremiumSizeAndPercentage();
-
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentErrorMessages, setCurrentErrorMessages] = useState<string>("");
-  //const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
   const { customerOrder } = useCustomerOrderStore();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext); //
   const { isCartCount, updateCartCount } = useContext(LoginContext);
-  //const [ringSizeFrom, setRingSizeFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
-  //const [ringSize, setRingSize] = useState<number>(0);
-  //const [totalSolitairePcs, setTotalSolitairePcs] = useState<number>(0);
-  //const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0);
-  //const [soliPriceTo, setSoliPriceTo] = useState<number>(0);
-  // const [soliAmtFrom, setSoliAmtFrom] = useState<number>(0);
-  // const [soliAmtTo, setSoliAmtTo] = useState<number>(0);
-  //const [Metalweight, setMetalweight] = useState<number>(0);
-  //const [metalPrice, setMetalPrice] = useState<number>();
-  //const [metalAmt, setMetalAmt] = useState<number>();
-  //const [sideDiaTotPcs, setSideDiaTotPcs] = useState<number>(0);
-  //const [sideDiaTotweight, setSideDiaTotweight] = useState<number>(0);
-  //const [sDiaPrice, setSDiaPrice] = useState<number>();
 
-  // Define an array to hold CartDetail objects
   const [cartData, setCartData] = useState<CartDetail[]>([]);
 
   const handleModalClose = () => {
@@ -74,13 +65,8 @@ const JewelleryBulkImportScreen: React.FC = () => {
     "solitaire_colorTo",
     "solitaire_qualityFrom",
     "solitaire_qualityTo",
-    "solitaire_prem_size",
-    //"metal_type",
-    "metal_purity",
     "metal_color",
-    "size_from",
-    "side_stone_color",
-    "side_stone_quality",
+    "size",
     "cart_remarks",
   ];
 
@@ -95,33 +81,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
     solitaire_colorTo: "Color To",
     solitaire_qualityFrom: "Clarity From",
     solitaire_qualityTo: "Clarity To",
-    solitaire_prem_size: "Premium Size",
-    //metal_type: "Metal Type",
-    metal_purity: "Metal Purity",
     metal_color: "Metal Color",
-    size_from: "Size From",
-    side_stone_color: "Side Stone Color",
-    side_stone_quality: "Side Stone Quality",
+    size: "Size",
     cart_remarks: "Cart Remarks",
   };
-
-  const otherRoundColors = ["EF", "GH", "IJ"];
-  const otherRoundColorsCarat = ["EF", "GH"];
-  const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
-
-  const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
-  const claritiesRound = ["VVS", "VS", "SI"];
-  const claritiesRoundCarat = ["VVS", "VS"];
-
-  const sideColClar = ["IJ-SI", "GH-VS", "EF-VVS"];
-
-  //let totalSolitairePcs: number;
-  let Metal_weight: number;
-  let Metal_price: number;
-  let Metal_Amt: number;
-  let total_sidepcs: number;
-  let total_sideweight: number;
-  let side_diaAmt: number;
 
   const getColorOptions = (slab: string, isRound: boolean) => {
     const carat = parseFloat(slab.split("-")[1]);
@@ -304,161 +267,13 @@ const JewelleryBulkImportScreen: React.FC = () => {
     //showLoader();
     try {
       const response = await getJewelleryProductList(product_code);
-      //setJewelleryDetails(response.data.data);
-      return response.data.data; //(response.data.data);
+      return response.data.data;
       //hideLoader();
     } catch (error) {
       setCurrentErrorMessages("An error occurred while fetching data.");
     } finally {
       //hideLoader();
     }
-  };
-
-  const FetchPrice = async (
-    itemgroup: string,
-    slab: string,
-    shape: string,
-    color: string,
-    quality: string
-  ): Promise<number> => {
-    //showLoader();
-
-    try {
-      const response = await getJewelleryProductPrice(
-        itemgroup,
-        slab,
-        shape,
-        color,
-        quality
-      );
-      //hideLoader();
-      //console.log(response.data.price);
-      return response.data.price; // Return the price
-    } catch (error) {
-      //notifyErr("An error occurred while fetching data.");
-      return 0; // Default to 0 in case of error
-    }
-  };
-
-  const getRowData = async (
-    jewelleryDetails: JewelleryDetail | undefined,
-    productcode: string
-  ) => {
-    // console.log("Product Code:", productcode);
-    // console.log("Jewellery Item Number:", jewelleryDetails?.Item_number);
-
-    if (jewelleryDetails?.Item_number === productcode) {
-      // const totalPcs = jewelleryDetails?.Variants.filter(
-      //   (variant) => variant.Is_base_variant === 1
-      // ).reduce((acc, variant) => {
-      //   const matchingBom = jewelleryDetails?.Bom.filter(
-      //     (bomItem) =>
-      //       bomItem.Variant_id === variant.Variant_id &&
-      //       bomItem.Item_type === "STONE" &&
-      //       bomItem.Item_group === "SOLITAIRE"
-      //   );
-      //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
-      //   const total = matchingBom.reduce(
-      //     (sum, bomItem) => sum + (bomItem.Pcs || 0),
-      //     0
-      //   );
-      //   return acc + total;
-      // }, 0);
-      // totalSolitairePcs = totalPcs;
-      //console.log("Total pcs : ", totalPcs);
-      //setTotalSolitairePcs(totalPcs ?? 0);
-      //console.log("jewelleryDetails?.Variants : ", jewelleryDetails?.Variants);
-      const Metalweight = jewelleryDetails?.Variants.filter(
-        (variant) => variant.Is_base_variant === 1
-      ).reduce((acc, variant) => {
-        //console.log(jewelleryDetails?.Bom);
-        const matchingBom = jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Variant_id === variant.Variant_id &&
-            bomItem.Item_type === "METAL"
-        );
-        //console.log(jewelleryDetails?.Bom);
-        // Sum up Pcs from the matching Bom items (if Pcs is a number)
-        const total = matchingBom.reduce(
-          (sum, bomItem) => sum + (bomItem.Weight || 0),
-          0
-        );
-        return acc + total;
-      }, 0);
-
-      //console.log("Metalweight : ", Metalweight);
-      //setMetalweight(Metalweight ?? 0);
-      Metal_weight = Metalweight;
-
-      const totalsidepcs = jewelleryDetails?.Variants.filter(
-        (variant) => variant.Is_base_variant === 1
-      ).reduce((acc, variant) => {
-        const matchingBom = jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Variant_id === variant.Variant_id &&
-            bomItem.Item_type === "STONE" &&
-            bomItem.Item_group === "DIAMOND"
-        );
-        // Sum up Pcs from the matching Bom items (if Pcs is a number)
-        const total = matchingBom.reduce(
-          (sum, bomItem) => sum + (bomItem.Pcs || 0),
-          0
-        );
-        return acc + total;
-      }, 0);
-      //console.log("totalsidepcs : ", totalsidepcs);
-      //setSideDiaTotPcs(totalsidepcs ?? 0);
-      total_sidepcs = totalsidepcs;
-
-      const totalsideweight = jewelleryDetails?.Variants.filter(
-        (variant) => variant.Is_base_variant === 1
-      ).reduce((acc, variant) => {
-        const matchingBom = jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Variant_id === variant.Variant_id &&
-            bomItem.Item_type === "STONE" &&
-            bomItem.Item_group === "DIAMOND"
-        );
-        // Sum up Pcs from the matching Bom items (if Pcs is a number)
-        const total = matchingBom.reduce(
-          (sum, bomItem) => sum + (bomItem.Weight || 0),
-          0
-        );
-        return acc + total;
-      }, 0);
-      //console.log("totalsideweight : ", totalsideweight);
-      //setSideDiaTotweight(totalsideweight ?? 0);
-      total_sideweight = totalsideweight;
-
-      const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
-      //setSDiaPrice(diamondPrice * (total_sidepcs ?? 0) * (total_sideweight ?? 0));
-      side_diaAmt =
-        diamondPrice * (total_sidepcs ?? 0) * (total_sideweight ?? 0);
-
-      const metalPrice = await FetchPrice(
-        "GOLD",
-        "",
-        "",
-        jewelleryDetails?.Metal_color.split(",")[0] ?? "",
-        jewelleryDetails?.Metal_purity.split(",")[0] ?? ""
-      );
-      // console.log("metalPrice : ", metalPrice);
-      // console.log(
-      //   "Metal Amount : ",
-      //   parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2))
-      // );
-      //setMetalPrice(metalPrice);
-      Metal_price = metalPrice;
-      //setMetalAmt(parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2)));
-      Metal_Amt = parseFloat((metalPrice * (Metalweight ?? 0)).toFixed(2));
-    }
-  };
-
-  const calculatePremiumPrice = (
-    basePrice: number,
-    premiumPercentage: number
-  ): number => {
-    return basePrice + basePrice * (premiumPercentage / 100);
   };
 
   // validate excel data
@@ -487,6 +302,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
         // Validate "product_type"
         if (!productType) {
           errors.push("Product Type is missing.");
+        } else if (productType !== "jewellery" && productType !== "Solitaire") {
+          errors.push(
+            `Invalid Product Type: ${productType}. Must be 'jewellery' or 'Solitaire'.`
+          );
         }
 
         // Validate "product_code" and fetch details if applicable
@@ -495,16 +314,43 @@ const JewelleryBulkImportScreen: React.FC = () => {
             errors.push("Product Code is missing.");
           } else {
             try {
+              
               jewellerydetail = await FetchData(productCode);
+
+              // Check if the fetched data is valid
+              if (jewellerydetail?.Item_number !== productCode) {
+                errors.push(`Product Code: ${productCode} is not available.`);
+              }
             } catch (error) {
+              // Handle any errors during the fetch process
               errors.push("Failed to fetch product details for Product Code.");
             }
           }
         }
 
+        // Validate "solitaire_slab" format and range
+        if (caratRange) {
+          const slabParts = caratRange.split("-");
+          if (
+            slabParts.length !== 2 ||
+            isNaN(parseFloat(slabParts[0])) ||
+            isNaN(parseFloat(slabParts[1]))
+          ) {
+            errors.push(`Invalid solitaire_slab format: ${slab}`);
+          } else {
+            const minCarat = parseFloat(slabParts[0]);
+            const maxCarat = parseFloat(slabParts[1]);
+            if (minCarat <= 0 || maxCarat <= 0 || minCarat > maxCarat) {
+              errors.push(`Invalid carat range in solitaire_slab: ${slab}`);
+            }
+          }
+        } else {
+          errors.push("Solitaire Slab is missing.");
+        }
+
         // Validate starting and ending colors
         if (colorF && !checkColorAvailability(caratRange, isRound, colorF)) {
-          errors.push(`Invalid starting color From: ${colorF}`);
+          errors.push(`Invalid color From: ${colorF}`);
         }
         if (colorT) {
           const validColorTOptions = getColorTOptions(
@@ -513,7 +359,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
             colorF
           );
           if (!validColorTOptions.includes(colorT)) {
-            errors.push(`Invalid solitaire color To: ${colorT}`);
+            errors.push(`Invalid color To: ${colorT}`);
           }
         }
 
@@ -522,7 +368,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           clarityF &&
           !checkClarityAvailability(caratRange, isRound, clarityF)
         ) {
-          errors.push(`Invalid solitaire clarity From: ${clarityF}`);
+          errors.push(`Invalid clarity From: ${clarityF}`);
         }
         if (clarityT) {
           const validClarityTOptions = getClarityTOptions(
@@ -531,129 +377,42 @@ const JewelleryBulkImportScreen: React.FC = () => {
             clarityF
           );
           if (!validClarityTOptions.includes(clarityT)) {
-            errors.push(`Invalid solitaire clarity To: ${clarityT}`);
-          }
-        }
-
-        // Validate "solitaire_prem_size"
-        const premSize = getTrimmedValue("solitaire_prem_size");
-        if (premSize !== "-") {
-          if (premSize) {
-            const validPremSizeOptions = getPremiumSizeOptions(caratRange);
-            if (!validPremSizeOptions.includes(premSize)) {
-              errors.push(`Invalid solitaire_prem_size: ${premSize}`);
-            }
-          }
-        }
-
-        // Validate "metal_purity"
-        const metalPurity = getTrimmedValue("metal_purity");
-        if (metalPurity && productType === "jewellery") {
-          const validMetalPurity = jewellerydetail?.Metal_purity.split(",").map(
-            (p) => p.trim()
-          );
-          if (!validMetalPurity || !validMetalPurity.includes(metalPurity)) {
-            errors.push(`Invalid Metal Purity: ${metalPurity}`);
+            errors.push(`Invalid clarity To: ${clarityT}`);
           }
         }
 
         // Validate "metal_color"
         const metalColor = getTrimmedValue("metal_color");
-        if (metalColor && productType === "jewellery") {
-          const validMetalColors = jewellerydetail?.Metal_color.split(",").map(
-            (c) => c.trim()
-          );
-          if (!validMetalColors || !validMetalColors.includes(metalColor)) {
-            errors.push(`Invalid Metal Color: ${metalColor}`);
-          }
+        // Validate "metal_color" against available options
+        if (metalColor && !Metal_Color.includes(metalColor)) {
+          errors.push(`Invalid Metal Color: ${metalColor}`);
         }
 
         // Validate "size_from"
-        const sizeFrom = getTrimmedValue("size_from");
+        const sizeFrom = getTrimmedValue("size");
         if (sizeFrom !== "-") {
-          if (jewellerydetail?.Product_size_from !== "-" && sizeFrom) {
-            if (sizeFrom !== jewellerydetail?.Product_size_from.trim()) {
-              errors.push(`Invalid Size: ${sizeFrom}`);
+          // Validate "size_from" to be between 4 and 26
+          if (sizeFrom) {
+            const sizeFromNumber = parseFloat(sizeFrom);
+            if (
+              isNaN(sizeFromNumber) ||
+              sizeFromNumber < 4 ||
+              sizeFromNumber > 26
+            ) {
+              errors.push(
+                `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
+              );
             }
+          } else {
+            errors.push("Size From is missing.");
           }
         }
 
-        // Validate side stone attributes
-        const sideStoneColor = getTrimmedValue("side_stone_color");
-        const sideStoneQuality = getTrimmedValue("side_stone_quality");
-        if (sideStoneColor !== "-" && sideStoneQuality !== "-")
-          if (sideStoneColor && sideStoneQuality) {
-            const sideStoneAttributes = `${sideStoneColor}-${sideStoneQuality}`;
-            if (
-              productType === "jewellery" &&
-              !sideColClar.includes(sideStoneAttributes)
-            ) {
-              errors.push(
-                `Invalid side stone attributes: ${sideStoneAttributes}`
-              );
-            }
-          }
-        //
         const hasError = row.errorMessages && row.errorMessages.length > 0;
 
         if (hasError) {
           console.log("This row has errors:", row.errorMessages);
         } else {
-          if (productType === "jewellery") {
-            await getRowData(jewellerydetail, productCode);
-          }
-
-          const carat = caratRange.split("-");
-          const shapeMapping: Record<string, string> = {
-            Round: "RND",
-            Princess: "PRN",
-            Oval: "OVL",
-            Pear: "PER",
-          };
-          const shapedata = shapeMapping[shape] || "";
-
-          const SolitaireFrom = await FetchPrice(
-            "SOLITAIRE",
-            carat[0],
-            shapedata,
-            colorT || "",
-            clarityT || ""
-          );
-
-          const SolitaireTo = await FetchPrice(
-            "SOLITAIRE",
-            carat[1],
-            shapedata,
-            colorF || "",
-            clarityF || ""
-          );
-          // console.log("SolitaireFrom :", SolitaireFrom);
-          // console.log("SolitaireTo :", SolitaireTo);
-          const premiumPercentage = getPremiumPercentage(premSize || "");
-          const premiumMinPrice = calculatePremiumPrice(
-            SolitaireFrom,
-            Number(premiumPercentage)
-          );
-          const premiumMaxPrice = calculatePremiumPrice(
-            SolitaireTo,
-            Number(premiumPercentage)
-          );
-          // console.log("premiumMinPrice :", premiumMinPrice);
-          // console.log("premiumMaxPrice :", premiumMaxPrice);
-          const SoliAmtFrom = parseFloat(
-            (premiumMinPrice * parseFloat(carat[0]) * Number(Qty)).toFixed(2)
-          );
-
-          const SoliAmtTo = parseFloat(
-            (premiumMaxPrice * parseFloat(carat[1]) * Number(Qty)).toFixed(2)
-          );
-
-          // console.log("SoliAmtFrom : ", SoliAmtFrom);
-          // console.log("SoliAmtTo : ", SoliAmtTo);
-          //CalculateDivineMountDetails(carat,prem_size)
-          // Construct the payload for this row
-          //let newCartItem: CartDetail | null = null;
-
           const payload: CartDetail = {
             order_for: customerOrder?.order_for || "",
             customer_id: customerOrder?.customer_id || 0,
@@ -672,40 +431,34 @@ const JewelleryBulkImportScreen: React.FC = () => {
             old_varient: jewellerydetail?.Old_varient || "",
             product_code: jewellerydetail?.Item_number || "",
             product_qty: Number(Qty), //jewelleryDetails?.,
-            product_amt_min:
-              SoliAmtFrom + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            product_amt_max: SoliAmtTo + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
+            product_amt_min: 0,
+            //SoliAmtFrom + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
+            product_amt_max: 0, // SoliAmtTo + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
             solitaire_shape: shape,
             solitaire_slab: caratRange,
             solitaire_color: colorF + "-" + colorT,
             solitaire_quality: clarityF + "-" + clarityT,
-            solitaire_prem_size: getTrimmedValue("solitaire_prem_size"), //row["solitaire_prem_size"]?.toString() || "",
-            solitaire_prem_pct: Number(premiumPercentage) || 0,
-            solitaire_amt_min: SoliAmtFrom,
-            solitaire_amt_max: SoliAmtTo,
-            metal_type:
-              getTrimmedValue("metal_purity") === "950PT" ? "PLATINUM" : "GOLD",
-            metal_purity: getTrimmedValue("metal_purity"), //row["metal_purity"]?.toString().trim() || "",
+            solitaire_prem_size: "", //getTrimmedValue("solitaire_prem_size"), //row["solitaire_prem_size"]?.toString() || "",
+            solitaire_prem_pct: 0, //Number(premiumPercentage) || 0,
+            solitaire_amt_min: 0, //SoliAmtFrom,
+            solitaire_amt_max: 0, //SoliAmtTo,
+            metal_type: "",
+            //getTrimmedValue("metal_purity") === "950PT" ? "PLATINUM" : "GOLD",
+            metal_purity: "", //getTrimmedValue("metal_purity"), //row["metal_purity"]?.toString().trim() || "",
             metal_color: getTrimmedValue("metal_color"), //row["metal_color"]?.toString().trim() || "",
-            metal_weight: Metal_weight ?? 0,
-            metal_price: Metal_price ?? 0,
-            mount_amt_min: (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            mount_amt_max: (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
+            metal_weight: 0, //Metal_weight ?? 0,
+            metal_price: 0, //Metal_price ?? 0,
+            mount_amt_min: 0, //(Metal_Amt ?? 0) + (side_diaAmt ?? 0),
+            mount_amt_max: 0, //(Metal_Amt ?? 0) + (side_diaAmt ?? 0),
             size_from:
-              Number(row["size_from"]?.toString().trim()) === 0
+              Number(row["size"]?.toString().trim()) === 0
                 ? "-"
                 : row["size_from"]?.toString().trim() || "",
             size_to: "-", //ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
-            side_stone_pcs: Number(total_sidepcs),
-            side_stone_cts: Number(total_sideweight),
-            side_stone_color:
-              Number(total_sidepcs) === 0
-                ? ""
-                : getTrimmedValue("side_stone_color"), //row["side_stone_color"]?.toString().trim() || "",
-            side_stone_quality:
-              Number(total_sidepcs) === 0
-                ? ""
-                : getTrimmedValue("side_stone_quality"), //row["side_stone_quality"]?.toString().trim() || "",
+            side_stone_pcs: 0, //Number(total_sidepcs),
+            side_stone_cts: 0, //Number(total_sideweight),
+            side_stone_color: "", //Number(total_sidepcs) === 0 ? "" : getTrimmedValue("side_stone_color"),
+            side_stone_quality: "", //Number(total_sidepcs) === 0 ? "" : getTrimmedValue("side_stone_quality"), //row["side_stone_quality"]?.toString().trim() || "",
             cart_remarks: getTrimmedValue("cart_remarks"), //row["cart_remarks"]?.toString() || "",
             order_remarks: "",
             style: jewellerydetail?.Style || "", //new
@@ -745,128 +498,6 @@ const JewelleryBulkImportScreen: React.FC = () => {
     setExcelData(mappedDataWithErrors); // Update excel data with validation results
     // Add valid items to cart data
   };
-
-  // const CalculateDivineMountDetails = (carat: string, size: number) => {
-  //   console.log("Calculating details for carat:", carat, "size:", size);
-
-  //   console.log("Default Size : ", ringSize);
-  //   const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
-  //   let sizeDifference = 0;
-
-  //   // Filter variants by size
-  //   const filteredSize = jewelleryDetails?.Variants?.filter((variant) => {
-  //     console.log("Variant Size:", variant.Size, "Expected Size:", size);
-  //     return Number(variant.Size) === size; // Ensure numeric comparison
-  //   });
-
-  //   // Handle case where size is not found
-  //   if (!filteredSize?.length) {
-  //     console.warn(
-  //       "No matching size found. Falling back to default size:",
-  //       ringSize
-  //     );
-  //     sizeDifference = size - ringSize; // Calculate size difference (positive or negative)
-  //     size = ringSize; // Use default size
-  //   }
-
-  //   // Filter variants by carat and size
-  //   const filteredVariants = jewelleryDetails?.Variants.filter(
-  //     (variant) =>
-  //       variant.Solitaire_slab.trim() === carat.trim() && // Exact match for Solitaire_slab
-  //       Number(variant.Size) === size // Numeric comparison for Size
-  //   );
-
-  //   console.log("Filtered Variants: ", filteredVariants);
-
-  //   // Calculate Total Solitaire Pcs
-  //   const totalPcs = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "STONE" &&
-  //         bomItem.Item_group === "SOLITAIRE"
-  //     );
-
-  //     const total = matchingBom?.reduce((sum, bomItem) => {
-  //       console.log("Matching BOM Pcs:", bomItem?.Pcs); // Debug individual BOM items
-  //       return sum + (bomItem?.Pcs || 0);
-  //     }, 0);
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   console.log("Total Solitaire Pcs: ", totalPcs);
-  //   setTotalSolitairePcs(totalPcs ?? 0);
-
-  //   // Calculate Metal Weight
-  //   const baseMetalweight = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "METAL"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Weight || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   // Adjust Metal Weight based on size difference
-  //   let adjustedMetalWeight = baseMetalweight ?? 0;
-  //   if (!filteredSize?.length && baseMetalweight) {
-  //     const adjustment = baseMetalweight * adjustPercent * sizeDifference;
-  //     adjustedMetalWeight += adjustment;
-  //     console.log(
-  //       `Adjusted Metal Weight: ${adjustedMetalWeight} (Size Difference: ${sizeDifference})`
-  //     );
-  //   }
-
-  //   console.log("Final Metal Weight:", adjustedMetalWeight);
-  //   setMetalweight(adjustedMetalWeight);
-
-  //   // Calculate Total Side Diamond Pcs
-  //   const totalsidepcs = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "STONE" &&
-  //         bomItem.Item_group === "DIAMOND"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Pcs || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   console.log("Total Side Diamond Pcs: ", totalsidepcs);
-  //   setSideDiaTotPcs(totalsidepcs ?? 0);
-
-  //   // Calculate Total Side Diamond Weight
-  //   const totalsideweight = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "STONE" &&
-  //         bomItem.Item_group === "DIAMOND"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Weight || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   console.log("Total Side Diamond Weight: ", totalsideweight);
-  //   setSideDiaTotweight(totalsideweight ?? 0);
-  // };
 
   // Handle reset
   const handleReset = () => {
@@ -911,31 +542,6 @@ const JewelleryBulkImportScreen: React.FC = () => {
     router.push(`/jewellery`);
   };
 
-  // Handle close
-  // const [tstdata, setTstdata] = useState<unknown[]>([
-  //   {
-  //     name: "pks",
-  //     surname: "xyz",
-  //   },
-  //   {
-  //     name: "krs",
-  //     surname: "kumar",
-  //   },
-  // ]);
-  // const handleTest = () => {
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const newData = tstdata.map((rw: any) => {
-  //     if (rw.name.toLowerCase() === "krs") {
-  //       rw.surname = "Hello";
-  //       rw.age = 23;
-  //     } else {
-  //       rw.age = 33;
-  //     }
-  //     return rw;
-  //   });
-
-  //   setTstdata(newData);
-  // };
   // Define columns explicitly
   const columns: TableColumn<ExcelRow>[] = excelData.length
     ? [
@@ -972,7 +578,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
       when: (row: ExcelRow) =>
         !!(row.errorMessages && row.errorMessages.length > 0), // Ensures a boolean is returned
       style: {
-        border: "2px solid red", // Red border for rows with errors
+        //border: "2px solid red", // Red border for rows with errors
         backgroundColor: "#FFEAEA", // Light red background for visibility
       },
     },
@@ -1147,17 +753,8 @@ const JewelleryBulkImportScreen: React.FC = () => {
             >
               <span>Close</span>
             </button>
-
-            {/* <button
-              onClick={handleTest}
-              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black transition-colors flex items-center space-x-2"
-            >
-              <span>Test</span>
-            </button> */}
           </div>
         </div>
-
-        {/* Message */}
 
         {/* Data Table */}
         <div className="overflow-auto border">

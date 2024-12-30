@@ -490,7 +490,19 @@ function CartScreen() {
                   <input
                     type="checkbox"
                     checked={selectedItems.includes(item.id ?? 0)}
-                    onChange={() => handleSelectItem(item.id ?? 0)}
+                    //onChange={() => handleSelectItem(item.id ?? 0)}
+                    onChange={() => {
+                      const isValidSelection =
+                        (item.solitaire_amt_min || 0) +
+                          (item.solitaire_amt_max || 0) >
+                        0;
+
+                      if (isValidSelection) {
+                        handleSelectItem(item.id ?? 0);
+                      } else {
+                        alert("Item cannot be selected. Check you'r Product.");
+                      }
+                    }}
                     className="w-5 h-5"
                   />
                 </div>

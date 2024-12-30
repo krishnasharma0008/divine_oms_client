@@ -42,7 +42,8 @@ function JewelleryDetailScreen() {
   const [metalColor, setMetalColor] = useState<string>("");
   const [ringSizeFrom, setRingSizeFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
   // const [ringSizeTo, setRingSizeTo] = useState<number>(0);
-  const [ringSize, setRingSize] = useState<number>(0);
+  const [baseCarat, setBaseCarat] = useState<string>("");
+  const [baseRingSize, setBaseRingSize] = useState<number>(0);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [customisedData, setCustomisedData] = useState<CustomisationOptions>(); //parseInt(jewelleryDetails?.Product_size_to.toString() ?? "")
   const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
@@ -70,7 +71,7 @@ function JewelleryDetailScreen() {
 
   const router = useRouter();
 
-  const [selectedQty, setSelectedQty] = useState<number>(totalPcs);
+  const [selectedQty, setSelectedQty] = useState<number>(1);
 
   const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
 
@@ -176,12 +177,24 @@ function JewelleryDetailScreen() {
           (item) => item.Is_base_variant === 1
         ).map((item) => Number(item.Size)); // Map the sizes (assuming 'size' is the property for size)
 
+        const baseVariantCarat = jewelleryDetails?.Variants.filter(
+          (item) => item.Is_base_variant === 1
+        ).map((item) => item.Solitaire_slab);
+
         const defaultSize =
           baseVariantSizes && baseVariantSizes.length > 0
             ? baseVariantSizes[0]
             : 0;
+
+        const defaultCarat =
+          baseVariantCarat && baseVariantCarat.length > 0
+            ? baseVariantCarat[0]
+            : "";
+        console.log("defaultCarat : ", defaultCarat);
+        console.log("defaultSize : ", defaultSize);
         setRingSizeFrom(defaultSize);
-        setRingSize(defaultSize); //variant size where Is_base_variant = 1
+        setBaseCarat(defaultCarat);
+        setBaseRingSize(defaultSize); //variant size where Is_base_variant = 1
       }
       const totalPcs = jewelleryDetails?.Variants.filter(
         (variant) => variant.Is_base_variant === 1
@@ -200,7 +213,7 @@ function JewelleryDetailScreen() {
         return acc + total;
       }, 0);
       console.log("Total pcs : ", totalPcs);
-      setSelectedQty(totalPcs ?? 0);
+      //setSelectedQty(totalPcs ?? 0);
       setTotalPcs(totalPcs ?? 0);
 
       const Metalweight = jewelleryDetails?.Variants.filter(
@@ -331,10 +344,10 @@ function JewelleryDetailScreen() {
     );
   };
 
-  const CalculateDivineMountDetails = (carat: string, size: number) => {
+  const CalculateDivineMountDetails = async (carat: string, size: number) => {
     console.log("Calculating details for carat:", carat, "size:", size);
 
-    console.log("Default Size : ", ringSize);
+    console.log("Default Size : ", baseRingSize);
     const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
     let sizeDifference = 0;
 
@@ -348,10 +361,11 @@ function JewelleryDetailScreen() {
     if (!filteredSize?.length) {
       console.warn(
         "No matching size found. Falling back to default size:",
-        ringSize
+        baseRingSize
       );
-      sizeDifference = size - ringSize; // Calculate size difference (positive or negative)
-      size = ringSize; // Use default size
+      sizeDifference = size - baseRingSize; // Calculate size difference (positive or negative)
+      carat = baseCarat;
+      size = baseRingSize; // Use default size
     }
 
     // Filter variants by carat and size
@@ -364,24 +378,24 @@ function JewelleryDetailScreen() {
     console.log("Filtered Variants: ", filteredVariants);
 
     // Calculate Total Solitaire Pcs
-    const totalPcs = filteredVariants?.reduce((acc, variant) => {
-      const matchingBom = jewelleryDetails?.Bom?.filter(
-        (bomItem) =>
-          bomItem.Variant_id === variant.Variant_id &&
-          bomItem.Item_type === "STONE" &&
-          bomItem.Item_group === "SOLITAIRE"
-      );
+    // const totalPcs = filteredVariants?.reduce((acc, variant) => {
+    //   const matchingBom = jewelleryDetails?.Bom?.filter(
+    //     (bomItem) =>
+    //       bomItem.Variant_id === variant.Variant_id &&
+    //       bomItem.Item_type === "STONE" &&
+    //       bomItem.Item_group === "SOLITAIRE"
+    //   );
 
-      const total = matchingBom?.reduce((sum, bomItem) => {
-        console.log("Matching BOM Pcs:", bomItem?.Pcs); // Debug individual BOM items
-        return sum + (bomItem?.Pcs || 0);
-      }, 0);
+    //   const total = matchingBom?.reduce((sum, bomItem) => {
+    //     console.log("Matching BOM Pcs:", bomItem?.Pcs); // Debug individual BOM items
+    //     return sum + (bomItem?.Pcs || 0);
+    //   }, 0);
 
-      return acc + (total || 0);
-    }, 0);
+    //   return acc + (total || 0);
+    // }, 0);
 
-    console.log("Total Solitaire Pcs: ", totalPcs);
-    setTotalPcs(totalPcs ?? 0);
+    // console.log("Total Solitaire Pcs: ", totalPcs);
+    // setTotalPcs(totalPcs ?? 0);
 
     // Calculate Metal Weight
     const baseMetalweight = filteredVariants?.reduce((acc, variant) => {
@@ -451,6 +465,24 @@ function JewelleryDetailScreen() {
 
     console.log("Total Side Diamond Weight: ", totalsideweight);
     setSideDiaTotweight(totalsideweight ?? 0);
+
+    const diamondPrice = await FetchPrice("DIAMOND", "", "", "IJ", "SI");
+    setSDiaPrice(diamondPrice * (totalsidepcs ?? 0) * (totalsideweight ?? 0));
+    console.log("diamondPrice : ", diamondPrice);
+    const metalPrice = await FetchPrice(
+      "GOLD",
+      "",
+      "",
+      jewelleryDetails?.Metal_color.split(",")[0] ?? "",
+      jewelleryDetails?.Metal_purity.split(",")[0] ?? ""
+    );
+
+    console.log("metalPrice :", metalPrice);
+    //setMetalColor(jewelleryDetails?.Metal_color || "");
+    setMetalPrice(metalPrice);
+    setMetalAmtFrom(
+      parseFloat((metalPrice * (adjustedMetalWeight ?? 0)).toFixed(2))
+    );
   };
 
   const handleMetalPurity = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -554,8 +586,8 @@ function JewelleryDetailScreen() {
       );
       setSoliPriceTo(SolitaireTo);
 
-      console.log("SolitaireFrom", SolitaireFrom); //min
-      console.log("SolitaireTo", SolitaireTo); //max
+      // console.log("SolitaireFrom", SolitaireFrom); //min
+      // console.log("SolitaireTo", SolitaireTo); //max
 
       // Default to 0 if premiumPercentage is invalid or not provided
       const premiumPercentage = Number(data.premiumPercentage ?? 0);
@@ -563,8 +595,8 @@ function JewelleryDetailScreen() {
         SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
       const premiumMaxPrice =
         SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
-      console.log("premiumMinPrice", premiumMinPrice); //min
-      console.log("premiumMaxPrice", premiumMaxPrice); //max
+      // console.log("premiumMinPrice", premiumMinPrice); //min
+      // console.log("premiumMaxPrice", premiumMaxPrice); //max
       // Ensure selectedQty is defined before proceeding
       const qty = selectedQty || 1;
 
@@ -604,6 +636,11 @@ function JewelleryDetailScreen() {
       return;
     }
 
+    if (metalPrice == null || metalPrice <= 0) {
+      alert("Metal price must be greater than 0 to proceed.");
+      return;
+    }
+
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,
@@ -614,12 +651,6 @@ function JewelleryDetailScreen() {
       Product_category: jewelleryDetails?.Product_category || "",
       product_sub_category: jewelleryDetails?.Product_sub_category || "", //new
       collection: jewelleryDetails?.Collection || "",
-      // exp_dlv_date: new Date(
-      //   customerOrder?.exp_dlv_date || Date.now()
-      // ).toISOString(),
-      // exp_dlv_date: new Date(
-      //   customerOrder?.exp_dlv_date || Date.now()
-      // ).toISOString(),
       exp_dlv_date: new Date(
         dayjs(customerOrder?.exp_dlv_date || "2025-01-04").format("YYYY-MM-DD")
       ).toISOString(),
