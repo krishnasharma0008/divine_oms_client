@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import DropdownCust from "./dropdown-cust";
 import { usePremiumSizeAndPercentage } from "@/hook";
+import {
+  Solitaire_shape,
+  otherRoundColors,
+  otherRoundColorsCarat,
+  colors,
+  clarities,
+  claritiesRound,
+  claritiesRoundCarat,
+} from "@/util/constants";
 
 interface CustomisationOptions {
   shape: string;
@@ -38,19 +47,15 @@ const SolitaireCustomisationPopup: React.FC<
   const { getPremiumPercentage, getPremiumSizeOptions } =
     usePremiumSizeAndPercentage();
 
-  const options = {
-    shape: ["Round", "Princess", "Oval", "Pear"],
-  };
-
   const isRound = shape === "Round"; // Check if the shape is Round
 
-  const otherRoundColors = ["EF", "GH", "IJ"];
-  const otherRoundColorsCarat = ["EF", "GH"];
-  const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
+  // const otherRoundColors = ["EF", "GH", "IJ"];
+  // const otherRoundColorsCarat = ["EF", "GH"];
+  // const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
 
-  const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
-  const claritiesRound = ["VVS", "VS", "SI"];
-  const claritiesRoundCarat = ["VVS", "VS"];
+  // const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
+  // const claritiesRound = ["VVS", "VS", "SI"];
+  // const claritiesRoundCarat = ["VVS", "VS"];
 
   // Function to get color options based on the slab
   const getColorOptions = (slab: string) => {
@@ -235,7 +240,7 @@ const SolitaireCustomisationPopup: React.FC<
             </label>
             <DropdownCust
               label=""
-              options={options.shape}
+              options={Solitaire_shape}
               value={shape}
               onChange={setShape}
               error={fieldErrors.shape}

@@ -15,6 +15,16 @@ import { createCart } from "@/api/cart";
 import LoginContext from "@/context/login-context";
 import { useRouter } from "next/navigation";
 import { usePremiumSizeAndPercentage } from "@/hook";
+import {
+  Solitaire_shape,
+  otherRoundColors,
+  otherRoundColorsCarat,
+  colors,
+  clarities,
+  claritiesRound,
+  claritiesRoundCarat,
+  slab,
+} from "@/util/constants";
 import dayjs from "dayjs";
 
 const RegularConfirmOrderScreen = () => {
@@ -28,37 +38,6 @@ const RegularConfirmOrderScreen = () => {
 
   const { getPremiumPercentage, getPremiumSizeOptions } =
     usePremiumSizeAndPercentage();
-
-  const shapeoptions = ["Round", "Princess", "Oval", "Pear"];
-
-  const sizeOptions = [
-    "0.10-0.13",
-    "0.14-0.17",
-    "0.18-0.22",
-    "0.23-0.29",
-    "0.30-0.38",
-    "0.39-0.44",
-    "0.45-0.49",
-    "0.50-0.59",
-    "0.60-0.69",
-    "0.70-0.79",
-    "0.80-0.89",
-    "0.90-0.99",
-    "1.00-1.23",
-    "1.24-1.49",
-    "1.50-1.69",
-    "1.70-1.99",
-    "2.00-2.49",
-    "2.50-2.99",
-  ];
-
-  const otherRoundColors = ["EF", "GH", "IJ"];
-  const otherRoundColorsCarat = ["EF", "GH"];
-  const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
-
-  const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
-  const claritiesRound = ["VVS", "VS", "SI"];
-  const claritiesRoundCarat = ["VVS", "VS"];
 
   const pcsOptions = Array.from({ length: 50 }, (_, i) => ({
     label: (i + 1).toString(),
@@ -367,6 +346,14 @@ const RegularConfirmOrderScreen = () => {
   };
 
   const SumitOrder = async () => {
+    const exp_dlv_date = customerOrder?.exp_dlv_date
+      ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
+        ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+        : new Date().toISOString() // fallback to the current date
+      : new Date().toISOString();
+
+    console.log("exp_dlv_date:", exp_dlv_date);
+
     const allPayloads: CartDetail[] = rows
       .filter(
         (row) =>
@@ -392,12 +379,8 @@ const RegularConfirmOrderScreen = () => {
         wear_style: "", //new
         look: "", //new
         portfolio_type: "", //new
-        gender: "", //new new Date(state.invdate || Date.now()).toISOString(),
-        exp_dlv_date: new Date(
-          dayjs(customerOrder?.exp_dlv_date || "2025-01-04").format(
-            "YYYY-MM-DD"
-          )
-        ).toISOString(),
+        gender: "", //new
+        exp_dlv_date: exp_dlv_date,
         old_varient: "",
         product_code: "",
         product_qty: row.pcs,
@@ -587,7 +570,7 @@ const RegularConfirmOrderScreen = () => {
                       <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
-                          options={shapeoptions}
+                          options={Solitaire_shape}
                           value={row.shape}
                           onChange={(value: string) =>
                             handleChange(index, "shape", value)
@@ -601,7 +584,7 @@ const RegularConfirmOrderScreen = () => {
                       <td className="w-28 border border-gray-200 ">
                         <DropdownCust
                           label=""
-                          options={sizeOptions}
+                          options={slab}
                           value={row.size}
                           onChange={(value: string) =>
                             handleChange(index, "size", value)
