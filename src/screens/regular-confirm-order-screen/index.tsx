@@ -447,14 +447,14 @@ const RegularConfirmOrderScreen = () => {
 
   return (
     <>
-      <div className="font-body w-full min-h-screen flex flex-col gap-9 rounded overflow-auto">
+      <div className="font-body w-full min-h-[calc(100vh_-_96px)] flex flex-col gap-9 rounded overflow-auto">
         <div className="flex flex-wrap gap-x-4 gap-y-2">
-          <div className="w-full rounded-xl bg-white p-4 mx-2 shadow-md">
-            <div>
+          <div className="w-full rounded-xl bg-white p-4 mx-2 mt-2 shadow-md">
+            {/* <div>
               <h2 className="font-medium text-2xl pb-4">
                 {customerOrder?.store}
               </h2>
-            </div>
+            </div> */}
             <div className="w-full flex flex-row">
               <div className="w-1/3 flex flex-col">
                 <p className="text-[#888]">Contact Detail</p>
@@ -529,9 +529,9 @@ const RegularConfirmOrderScreen = () => {
           </div>
 
           <div className="w-full rounded-xl bg-white p-4 mx-2 shadow-md">
-            <div>
+            {/* <div>
               <h2 className="font-medium text-2xl pb-4">Select your order</h2>
-            </div>
+            </div> */}
             <div className="w-full">
               <table className="w-full table-auto border-collapse border border-gray-200">
                 {/* Table Header */}
@@ -689,7 +689,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Pcs */}
-                      <td className="w-16 border border-gray-200 pt-2">
+                      <td className="w-[72px] border border-gray-200 pt-2">
                         <Dropdown
                           label=""
                           variant="outlined"

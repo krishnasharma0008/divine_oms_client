@@ -106,7 +106,10 @@ function AdminOrderDetailJewelleryScreen() {
     },
     {
       name: "Ring Size",
-      selector: (row: OrderDetail) => `${row.size_from} - ${row.size_to}`,
+      selector: (row: OrderDetail) => {
+        const ringSize = Number(row.size_from); // Ensure it's a number
+        return isNaN(ringSize) ? "--" : ringSize; // Check for NaN and display fallback
+      },
       center: true,
     },
     {

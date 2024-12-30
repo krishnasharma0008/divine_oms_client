@@ -53,7 +53,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
           <EyeIcon className="fill-black" />
         </button>*/}
       </div>
-      <div className="px-4 pb-2">
+      <div className="px-2 pb-2">
         <div className="grid">
           <div className="w-full flex justify-between">
             <p className="text-left text-gray-700 font-Montserrat text-sm font-semibold">
@@ -75,7 +75,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-between space-x-2">
+          <div className="flex justify-between">
             <div className="flex">
               <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
                 G.WT :&nbsp;
