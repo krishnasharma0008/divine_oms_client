@@ -264,7 +264,7 @@ const ChooseYourOrderScreen = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 min-h-[calc(100vh_-_96px)] rounded p-2 m-2 shadow-md space-y-2">
+    <div className="flex flex-col bg-gray-50 min-h-[calc(100vh_-_96px)] rounded p-2 m-2 shadow-md space-y-2">
       {/* Header */}
       {/* <header className="bg-blue-500 text-white py-4 px-6 shadow-md">
         <h1 className="text-2xl font-semibold">Choose Your Order</h1>
@@ -273,7 +273,7 @@ const ChooseYourOrderScreen = () => {
       {/* Scrollable content */}
       {/* <div className="overflow-y-auto max-h-[50vh] space-y-4 px-4"> */}
       {/* overflow-y-auto max-h-[48vh] */}
-      <main className="flex-1 p-6 space-y-6 bg-white">
+      <main className="flex-1 p-2 space-y-2 bg-white">
         <div>
           <div className="flex w-full justify-between mt-2">
             <div className="w-full px-4">
