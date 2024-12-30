@@ -1,3 +1,5 @@
+export const Solitaire_shape = ["Round", "Princess", "Oval", "Pear"];
+
 // Color and clarity related constants
 export const otherRoundColors = ["EF", "GH", "IJ"];
 export const otherRoundColorsCarat = ["EF", "GH"];
