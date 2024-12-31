@@ -257,7 +257,7 @@ function AdminOrderDetailSolitaireScreen() {
                       {formatByCurrencyINR(row.product_amt_max)}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
-                      -
+                      {row.cart_remarks}
                     </td>
                   </tr>
                 ))}

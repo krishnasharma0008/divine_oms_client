@@ -446,12 +446,12 @@ function CartScreen() {
         {/* Fixed Header */}
         <div className="flex px-2 sticky top-0">
           {/* Shopping Bag Section */}
-          <div className="w-1/2 flex items-center text-black p-2 rounded-lg">
+          <div className="w-full flex items-center text-black p-2 rounded-lg">
             <div className="text-2xl font-medium">
               Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center mr-2">
             <button
               className="w-auto h-10 whitespace-nowrap flex items-center px-6 py-2 bg-black text-white rounded-lg transition duration-300 transform hover:bg-gray-800"
               onClick={navigateToShopping}
@@ -463,14 +463,14 @@ function CartScreen() {
           {(cartData ?? []).length > 0 && (
             <div className="w-1/2 flex justify-end space-x-2">
               <button
-                className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                className="h-10 px-4 whitespace-nowrap py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
                 onClick={DownloadClick}
               >
                 Export to Excel
               </button>
               <button
                 onClick={handleSelectAll}
-                className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                className="h-10 px-4 py-1 whitespace-nowrap bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
               >
                 Select All
               </button>
@@ -693,7 +693,7 @@ function CartScreen() {
                 <button
                   //onClick={() => handleDeleteItem(item.product_code)}
                   onClick={() => handleDeleteItem(item?.id)}
-                  className="absolute top-0 right-2 text-red-600 hover:text-red-800 z-10"
+                  className="absolute top-0 right-2 text-red-600 hover:text-red-800"
                 >
                   X
                 </button>
@@ -711,7 +711,7 @@ function CartScreen() {
 
       {/* Order Summary Section */}
       {(cartData ?? []).length > 0 && (
-        <div className="p-2 w-full border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
+        <div className="p-2 w-1/5 border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
           {(cartData ?? []).length > 0 && (
             <div className="flex flex-col gap-2 px-6 mt-6">
               <h2 className="text-2xl font-semibold text-gray-800">

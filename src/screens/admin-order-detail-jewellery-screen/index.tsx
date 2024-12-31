@@ -147,7 +147,7 @@ function AdminOrderDetailJewelleryScreen() {
     },
     {
       name: "Remarks",
-      selector: (row: OrderDetail) => row.order_remarks || " ",
+      selector: (row: OrderDetail) => row.cart_remarks || " ",
       center: true,
     },
   ];
