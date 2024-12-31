@@ -19,6 +19,7 @@ import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import MessageModal from "@/components/common/message-modal";
 
 dayjs.extend(customParseFormat);
 
@@ -78,6 +79,8 @@ function JewelleryDetailScreen() {
   const [selectedQty, setSelectedQty] = useState<number>(1);
 
   const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
+  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
+  const [isMessage, setIsMessage] = useState<string>("");
 
   useEffect(() => {
     if (formType === "new") {
@@ -97,9 +100,9 @@ function JewelleryDetailScreen() {
     if (cart?.product_code) {
       await FetchData(cart?.product_code);
       //console.log("Product Code : 1");
-      if (!metalColor) {
-        setMetalColor(cart.metal_color || ""); // Set from cart if available
-      }
+      //if (!metalColor) {
+      setMetalColor(cart.metal_color || ""); // Set from cart if available
+      //}
       setMetalPurity(cart.metal_purity || "");
       setRingSizeFrom(Number(cart.size_from)); // Set from cart
       //setRingSizeTo(Number(cart.size_to)); // Set from cart
@@ -443,7 +446,8 @@ function JewelleryDetailScreen() {
 
     if (metalColor && metalPurity && Metalweight) {
       try {
-        const price = await FetchPrice("GOLD", "", "", metalColor, metalPurity);
+        const metal = metalPurity === "950PT" ? "PLATINUM" : "GOLD";
+        const price = await FetchPrice(metal, "", "", metalColor, metalPurity);
         //console.log("Fetched price:", price);
         setMetalPrice(price);
         const amount = parseFloat((price * Metalweight).toFixed(2));
@@ -617,12 +621,15 @@ function JewelleryDetailScreen() {
         customisedData?.clarity?.trim()
       )
     ) {
-      alert("Customise solitaire to add in cart");
+      setIsMessage("");
+      setIsMessage("Customise solitaire to add in cart.");
+      setIsCheckoutModalVisible(true);
       return;
     }
 
     if (metalPrice == null || metalPrice <= 0) {
-      alert("Metal price must be greater than 0 to proceed.");
+      setIsMessage("");
+      setIsMessage("Metal price must be greater than 0 to proceed.");
       return;
     }
     const exp_dlv_date = customerOrder?.exp_dlv_date
@@ -750,6 +757,10 @@ function JewelleryDetailScreen() {
     setSideDiaColorClarity(event.target.value);
     //  {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
     calculateSideDiamondPrice(sideDiaTotweight, event.target.value);
+  };
+
+  const closeCheckoutModal = () => {
+    setIsCheckoutModalVisible(false);
   };
 
   return (
@@ -1033,6 +1044,17 @@ function JewelleryDetailScreen() {
         cts_slab={jewelleryDetails?.Cts_size_slab ?? []}
         customisedData={customisedData}
       />
+
+      {/* alert message */}
+      {isCheckoutModalVisible && (
+        <MessageModal
+          title="Error Meaasge"
+          //onClose={() => setIsCheckoutModalVisible(false)}
+          onConfirm={closeCheckoutModal}
+        >
+          <p>{isMessage}</p>
+        </MessageModal>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ export const claritiesRoundCarat = ["VVS", "VS"];
 
 // Metal color options
 export const Metal_Color = [
+  "PT White",
   "White",
   "Rose",
   "Yellow White",

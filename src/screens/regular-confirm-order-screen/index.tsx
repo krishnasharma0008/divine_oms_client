@@ -26,6 +26,7 @@ import {
   slab,
 } from "@/util/constants";
 import dayjs from "dayjs";
+import MessageModal from "@/components/common/message-modal";
 
 const RegularConfirmOrderScreen = () => {
   // Access customer data from Zustand store
@@ -34,6 +35,8 @@ const RegularConfirmOrderScreen = () => {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext); //
   const { isCartCount, updateCartCount } = useContext(LoginContext);
+  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
+  const [isMessage, setIsMessage] = useState<string>("");
   const router = useRouter();
 
   const { getPremiumPercentage, getPremiumSizeOptions } =
@@ -63,6 +66,36 @@ const RegularConfirmOrderScreen = () => {
   ]);
 
   const handleAdd = () => {
+    // Check for empty fields in existing rows
+    const isAnyRowIncomplete = rows.some((row) =>
+      Object.entries(row).some(([key, value]) => {
+        if (
+          [
+            "shape",
+            "size",
+            "colorFrom",
+            "colorTo",
+            "clarityFrom",
+            "clarityTo",
+          ].includes(key) &&
+          (!value || value.toString().trim() === "")
+        ) {
+          return true; // A required field is empty
+        }
+        return false;
+      })
+    );
+
+    if (isAnyRowIncomplete) {
+      setIsMessage("");
+      setIsMessage(
+        "Please fill in all required fields before adding a new row."
+      );
+      setIsCheckoutModalVisible(true);
+      return; // Prevent adding a new row
+    }
+
+    // Add a new row if all existing rows are complete
     setRows([
       ...rows,
       {
@@ -428,6 +461,10 @@ const RegularConfirmOrderScreen = () => {
     }
   };
 
+  const closeCheckoutModal = () => {
+    setIsCheckoutModalVisible(false);
+  };
+
   return (
     <>
       <div className="font-body w-full min-h-[calc(100vh_-_96px)] flex flex-col gap-9 rounded overflow-auto">
@@ -777,6 +814,16 @@ const RegularConfirmOrderScreen = () => {
             </div>
           </div>
         </div>
+        {/* alert message */}
+        {isCheckoutModalVisible && (
+          <MessageModal
+            title="Error Meaasge"
+            //onClose={() => setIsCheckoutModalVisible(false)}
+            onConfirm={closeCheckoutModal}
+          >
+            <p>{isMessage}</p>
+          </MessageModal>
+        )}
       </div>
     </>
   );

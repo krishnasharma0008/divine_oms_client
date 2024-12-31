@@ -29,6 +29,10 @@ import {
   Metal_Color,
   slab,
 } from "@/util/constants";
+//import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 // Define types
 type ExcelRow = {
@@ -302,7 +306,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
         // Validate "product_type"
         if (!productType) {
           errors.push("Product Type is missing.");
-        } else if (productType !== "jewellery" && productType !== "Solitaire") {
+        } else if (productType !== "jewellery" && productType !== "solitaire") {
           errors.push(
             `Invalid Product Type: ${productType}. Must be 'jewellery' or 'Solitaire'.`
           );
@@ -317,10 +321,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
               jewellerydetail = await FetchData(productCode);
 
               // Check if the fetched data is valid
-              if (
-                jewellerydetail?.Item_number !== productCode ||
-                jewellerydetail?.Old_varient !== productCode
-              ) {
+              if (jewellerydetail?.Item_number !== productCode) {
                 errors.push(`Product Code: ${productCode} is not available.`);
               }
             } catch (error) {
@@ -392,21 +393,23 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
         // Validate "size_from"
         const sizeFrom = getTrimmedValue("size");
-        if (sizeFrom !== "-") {
-          // Validate "size_from" to be between 4 and 26
-          if (sizeFrom) {
-            const sizeFromNumber = parseFloat(sizeFrom);
-            if (
-              isNaN(sizeFromNumber) ||
-              sizeFromNumber < 4 ||
-              sizeFromNumber > 26
-            ) {
-              errors.push(
-                `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
-              );
+        if (productType === "jewellery") {
+          if (!sizeFrom || sizeFrom !== "-") {
+            // Validate "size_from" to be between 4 and 26
+            if (sizeFrom) {
+              const sizeFromNumber = parseFloat(sizeFrom);
+              if (
+                isNaN(sizeFromNumber) ||
+                sizeFromNumber < 4 ||
+                sizeFromNumber > 26
+              ) {
+                errors.push(
+                  `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
+                );
+              }
+            } else {
+              errors.push("Size From is missing.");
             }
-          } else {
-            errors.push("Size From is missing.");
           }
         }
 
@@ -415,6 +418,12 @@ const JewelleryBulkImportScreen: React.FC = () => {
         if (hasError) {
           console.log("This row has errors:", row.errorMessages);
         } else {
+          const exp_dlv_date = customerOrder?.exp_dlv_date
+            ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
+              ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+              : new Date().toISOString() // fallback to the current date
+            : new Date().toISOString();
+
           const payload: CartDetail = {
             order_for: customerOrder?.order_for || "",
             customer_id: customerOrder?.customer_id || 0,
@@ -425,11 +434,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
             Product_category: jewellerydetail?.Product_category || "",
             product_sub_category: jewellerydetail?.Product_sub_category || "", //new
             collection: jewellerydetail?.Collection || "",
-            exp_dlv_date: new Date(
-              dayjs(customerOrder?.exp_dlv_date || "2025-01-04").format(
-                "YYYY-MM-DD"
-              )
-            ).toISOString(),
+            exp_dlv_date: exp_dlv_date,
             old_varient: jewellerydetail?.Old_varient || "",
             product_code: jewellerydetail?.Item_number || "",
             product_qty: Number(Qty), //jewelleryDetails?.,
