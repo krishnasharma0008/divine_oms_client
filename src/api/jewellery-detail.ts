@@ -72,7 +72,7 @@ const getJewelleryProductPrice = (
     },
     data: {
       itemgroup: itemgroup,
-      slab: slab === "" ? null : slab,
+      weight: slab && slab !== "" ? parseFloat(slab) : null,
       shape: shape === "" ? null : shape,
       color: color,
       quality: quality,

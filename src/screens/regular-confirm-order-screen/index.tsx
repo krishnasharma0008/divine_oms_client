@@ -470,11 +470,11 @@ const RegularConfirmOrderScreen = () => {
       <div className="font-body w-full min-h-[calc(100vh_-_96px)] flex flex-col gap-9 rounded overflow-auto">
         <div className="flex flex-wrap gap-x-4 gap-y-2">
           <div className="w-full rounded-xl bg-white p-4 mx-2 mt-2 shadow-md">
-            {/* <div>
-              <h2 className="font-medium text-2xl pb-4">
+            <div>
+              <h2 className="font-medium text-xl pb-4">
                 {customerOrder?.store}
               </h2>
-            </div> */}
+            </div>
             <div className="w-full flex flex-row">
               <div className="w-1/3 flex flex-col">
                 <p className="text-[#888]">Contact Detail</p>
