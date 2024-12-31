@@ -447,7 +447,8 @@ function JewelleryDetailScreen() {
     if (metalColor && metalPurity && Metalweight) {
       try {
         const metal = metalPurity === "950PT" ? "PLATINUM" : "GOLD";
-        const price = await FetchPrice(metal, "", "", metalColor, metalPurity);
+        const color = metalColor === "PT White" ? "White" : metalColor;
+        const price = await FetchPrice(metal, "", "", color, metalPurity);
         //console.log("Fetched price:", price);
         setMetalPrice(price);
         const amount = parseFloat((price * Metalweight).toFixed(2));
@@ -588,7 +589,9 @@ function JewelleryDetailScreen() {
         SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
       // Ensure selectedQty is defined before proceeding
       const qty = selectedQty || 1;
-
+      console.log(
+        parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
+      );
       setSoliAmtFrom(
         parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
       );
@@ -930,7 +933,7 @@ function JewelleryDetailScreen() {
             </div>
             <div className="text-lg hidden">
               <span>Metal Price : </span>
-              <span className="font-semibold">{metalPrice} gms</span>
+              <span className="font-semibold">{metalPrice}</span>
             </div>
           </div>
           <div className="flex justify-between mt-4">
