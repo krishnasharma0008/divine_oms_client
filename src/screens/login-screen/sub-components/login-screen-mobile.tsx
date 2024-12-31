@@ -181,7 +181,7 @@ const LoginScreenMobileInput: React.FC = () => {
         <div className="text-base bg-[#F3F9FA] font-normal leading-4 tracking-normal text-center p-3 rounded-md">
           <p className="text-gray-500">
             Not Registered Yet? Please Contact{" "}
-            <strong className="pinter text-blue-700">+91 9833920008</strong>
+            <strong className="pinter text-blue-700">+91 9518373847</strong>
           </p>
         </div>
       </div>

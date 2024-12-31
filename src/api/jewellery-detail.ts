@@ -60,10 +60,10 @@ const getJewelleryProductList = (
 
 const getJewelleryProductPrice = (
   itemgroup: string,
-  slab: string,
-  shape: string,
-  color: string,
-  quality: string
+  slab?: string,
+  shape?: string,
+  color?: string,
+  quality?: string
 ): Promise<AxiosResponse<GetJewelleryProductPrice>> =>
   callWebService(getJewelleryProdctPriceEndpoint.url, {
     method: getJewelleryProdctPriceEndpoint.method,
@@ -72,8 +72,8 @@ const getJewelleryProductPrice = (
     },
     data: {
       itemgroup: itemgroup,
-      slab: slab,
-      shape: shape,
+      slab: slab === "" ? null : slab,
+      shape: shape === "" ? null : shape,
       color: color,
       quality: quality,
     },

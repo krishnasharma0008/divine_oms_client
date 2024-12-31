@@ -198,10 +198,10 @@ function OrderDetailSolitaireScreen() {
                       {row.solitaire_quality.split("-")[1]}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
-                      5.50
+                      {row.solitaire_prem_size}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
-                      10%
+                      {row.solitaire_prem_pct}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
                       {row.product_qty}
