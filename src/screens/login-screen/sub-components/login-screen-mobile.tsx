@@ -103,9 +103,14 @@ const LoginScreenMobileInput: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen justify-between">
-      <div className="flex-grow w-full flex flex-col items-center px-4 py-6">
-        <div className="w-full flex flex-col items-center justify-center mb-6">
-          <p className="text-base text-[#525252] mb-4 text-center">
+      {/* Header Section */}
+      <header className="w-full p-4 text-black text-left  text-3xl">
+        Login
+      </header>
+
+      <div className="flex-grow w-full flex flex-col items-left px-4">
+        <div className="w-full flex flex-col items-left mb-8">
+          <p className="text-sm text-[#525252] text-left">
             Divine Solitaires Order Management System
           </p>
         </div>
@@ -114,9 +119,9 @@ const LoginScreenMobileInput: React.FC = () => {
             htmlFor="loginType"
             className="text-gray-800 text-sm mb-2 block"
           >
-            {/* Email/Mobile Number */}User Name
+            Email/Mobile Number
           </label>
-          <div className="relative flex items-center mb-4">
+          <div className="relative flex items-center mb-2">
             <input
               id="loginType"
               type="text"
@@ -169,21 +174,22 @@ const LoginScreenMobileInput: React.FC = () => {
             height={520}
             width={612}
             sizes="100vw"
-            className="w-full my-6"
+            className="w-full my-2"
             priority
           />
         </div>
-        {/* <div className="text-base bg-[#F3F9FA] font-normal leading-4 tracking-normal text-center p-3 rounded-md mt-6">
+        <div className="text-base bg-[#F3F9FA] font-normal leading-4 tracking-normal text-center p-3 rounded-md">
           <p className="text-gray-500">
             Not Registered Yet? Please Contact{" "}
-            <strong className="pinter text-violet-700">+91 9877654333</strong>
+            <strong className="pinter text-blue-700">+91 9833920008</strong>
           </p>
-        </div> */}
+        </div>
       </div>
       <div className="mt-4 text-center text-sm">
-        <p>If you have any queries, please email us at:</p>
-        <p>
-          customerservice@divinesolitaires.com / helpdesk@divinesolitaires.com
+        <p>If you have any queries, please email us at.</p>
+        <p className="text-blue-700">
+          {/* customerservice@divinesolitaires.com /  */}
+          helpdesk@divinesolitaires.com
         </p>
       </div>
       <div className="mt-4 text-center text-sm">

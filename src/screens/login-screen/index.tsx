@@ -14,7 +14,7 @@ const LoginScreen: React.FC = () => {
         {pathname === "/login" && <LoginScreenMobileInput />}
         {/* {pathname === "/login/verify" && <LoginScreenOtp />} */}
       </div>
-      <div className="flex flex-col items-center justify-center w-full bg-[#B3C7C4] h-screen basis-1/2">
+      <div className="flex flex-col items-center justify-center w-full bg-[#B3C7C5] h-screen basis-1/2">
         <Image
           src="/logo/login_page.png"
           alt="Image Description"
