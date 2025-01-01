@@ -321,7 +321,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
               jewellerydetail = await FetchData(productCode);
 
               // Check if the fetched data is valid
-              if (jewellerydetail?.Item_number !== productCode) {
+              if (
+                jewellerydetail?.Item_number !== productCode ||
+                jewellerydetail?.Old_varient != productCode
+              ) {
                 errors.push(`Product Code: ${productCode} is not available.`);
               }
             } catch (error) {
