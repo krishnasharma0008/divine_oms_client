@@ -4,7 +4,7 @@ import AdminSidebar from "@/components/common/admin-sidebar";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import LoginContext from "@/context/login-context";
-import { getUser } from "@/local-storage";
+import { deleteAdminToken, getUser } from "@/local-storage";
 //import Image from "next/image";
 
 export interface AdminLayoutWrapperProps {
@@ -41,6 +41,7 @@ const AdminLayoutWrapper: React.FC<AdminLayoutWrapperProps> = ({
 
   const logout = () => {
     toggleLogin(); // Clear login context
+    deleteAdminToken();
     router.push("/admin/login"); // Navigate to admin login page
   };
 
