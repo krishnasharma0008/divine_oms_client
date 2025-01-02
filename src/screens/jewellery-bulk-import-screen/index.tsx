@@ -266,228 +266,211 @@ const JewelleryBulkImportScreen: React.FC = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  //fetch data for jewellery with product_code
+  // Fetch data for jewellery with product_code
   const FetchData = async (product_code: string) => {
-    //showLoader();
     try {
       const response = await getJewelleryProductList(product_code);
       return response.data.data;
-      //hideLoader();
     } catch (error) {
       setCurrentErrorMessages("An error occurred while fetching data.");
-    } finally {
-      //hideLoader();
     }
   };
 
-  // validate excel data
+  // Validate Excel data using sequential await
   const handleValidate = async () => {
-    // Reset CartData at the beginning
-    setCartData([]); // Clears the previous cart data
-    setCurrentErrorMessages(""); // Clear any previous validation message
-    const mappedDataWithErrors = await Promise.all(
-      excelData.map(async (row) => {
-        const errors: string[] = [];
-        const getTrimmedValue = (key: string) =>
-          row[key]?.toString().trim() || "";
-        const isRound = row["solitaire_shape"]?.toString() === "Round";
-        const shape = row["solitaire_shape"]?.toString() || "";
-        const caratRange = row["solitaire_slab"]?.toString() || "";
-        const productCode = row["product_code"]?.toString() || "";
-        const productType = row["product_type"]?.toString() || "";
-        const colorF = row["solitaire_colorFrom"]?.toString() || "";
-        const colorT = row["solitaire_colorTo"]?.toString() || "";
-        const clarityF = row["solitaire_qualityFrom"]?.toString() || "";
-        const clarityT = row["solitaire_qualityTo"]?.toString() || "";
-        const Qty = row["product_qty"]?.toString() || "";
+    showLoader();
+    setCartData([]); // Reset CartData
+    setCurrentErrorMessages(""); // Clear any previous error messages
 
-        let jewellerydetail: JewelleryDetail | undefined;
+    const mappedDataWithErrors = [];
 
-        // Validate "product_type"
-        if (!productType) {
-          errors.push("Product Type is missing.");
-        } else if (productType !== "jewellery" && productType !== "solitaire") {
-          errors.push(
-            `Invalid Product Type: ${productType}. Must be 'jewellery' or 'Solitaire'.`
-          );
-        }
+    for (const row of excelData) {
+      const errors = [];
+      const getTrimmedValue = (key: string) =>
+        row[key]?.toString().trim() || "";
+      const isRound = row["solitaire_shape"]?.toString() === "Round";
+      const shape = row["solitaire_shape"]?.toString() || "";
+      const caratRange = row["solitaire_slab"]?.toString() || "";
+      const productCode = row["product_code"]?.toString().trim() || "";
+      const productType = row["product_type"]?.toString() || "";
+      const colorF = row["solitaire_colorFrom"]?.toString() || "";
+      const colorT = row["solitaire_colorTo"]?.toString() || "";
+      const clarityF = row["solitaire_qualityFrom"]?.toString() || "";
+      const clarityT = row["solitaire_qualityTo"]?.toString() || "";
+      const Qty = row["product_qty"]?.toString() || "";
 
-        // Validate "product_code" and fetch details if applicable
-        if (productType === "jewellery") {
-          if (!productCode) {
-            errors.push("Product Code is missing.");
-          } else {
-            try {
-              jewellerydetail = await FetchData(productCode);
+      let jewellerydetail: JewelleryDetail | undefined;
 
-              // Check if the fetched data is valid
-              if (
-                jewellerydetail?.Item_number !== productCode ||
-                jewellerydetail?.Old_varient != productCode
-              ) {
-                errors.push(`Product Code: ${productCode} is not available.`);
-              }
-            } catch (error) {
-              // Handle any errors during the fetch process
-              errors.push("Failed to fetch product details for Product Code.");
-            }
-          }
-        }
+      // Validate "product_type"
+      if (!productType) {
+        errors.push("Product Type is missing.");
+      } else if (productType !== "jewellery" && productType !== "solitaire") {
+        errors.push(
+          `Invalid Product Type: ${productType}. Must be 'jewellery' or 'Solitaire'.`
+        );
+      }
 
-        // Validate "solitaire_slab" format and range
-        if (caratRange) {
-          const slabParts = caratRange.split("-");
-          if (
-            slabParts.length !== 2 ||
-            isNaN(parseFloat(slabParts[0])) ||
-            isNaN(parseFloat(slabParts[1]))
-          ) {
-            errors.push(`Invalid solitaire_slab format: ${slab}`);
-          } else {
-            const minCarat = parseFloat(slabParts[0]);
-            const maxCarat = parseFloat(slabParts[1]);
-            if (minCarat <= 0 || maxCarat <= 0 || minCarat > maxCarat) {
-              errors.push(`Invalid carat range in solitaire_slab: ${slab}`);
-            }
-          }
+      // Validate "product_code" and fetch details if applicable
+      if (productType === "jewellery") {
+        if (!productCode) {
+          errors.push("Product Code is missing.");
         } else {
-          errors.push("Solitaire Slab is missing.");
-        }
+          try {
+            jewellerydetail = await FetchData(productCode.trim().toUpperCase());
 
-        // Validate starting and ending colors
-        if (colorF && !checkColorAvailability(caratRange, isRound, colorF)) {
-          errors.push(`Invalid color From: ${colorF}`);
-        }
-        if (colorT) {
-          const validColorTOptions = getColorTOptions(
-            caratRange,
-            isRound,
-            colorF
-          );
-          if (!validColorTOptions.includes(colorT)) {
-            errors.push(`Invalid color To: ${colorT}`);
+            if (!jewellerydetail) {
+              errors.push(`Product Code: ${productCode} is not available.`);
+            }
+          } catch (error) {
+            errors.push("Failed to fetch product details for Product Code.");
           }
         }
+      }
 
-        // Validate starting and ending clarity
+      // Validate "solitaire_slab" format and range
+      if (caratRange) {
+        const slabParts = caratRange.split("-");
         if (
-          clarityF &&
-          !checkClarityAvailability(caratRange, isRound, clarityF)
+          slabParts.length !== 2 ||
+          isNaN(parseFloat(slabParts[0])) ||
+          isNaN(parseFloat(slabParts[1]))
         ) {
-          errors.push(`Invalid clarity From: ${clarityF}`);
-        }
-        if (clarityT) {
-          const validClarityTOptions = getClarityTOptions(
-            caratRange,
-            isRound,
-            clarityF
-          );
-          if (!validClarityTOptions.includes(clarityT)) {
-            errors.push(`Invalid clarity To: ${clarityT}`);
-          }
-        }
-
-        // Validate "metal_color"
-        const metalColor = getTrimmedValue("metal_color");
-        // Validate "metal_color" against available options
-        if (metalColor && !Metal_Color.includes(metalColor)) {
-          errors.push(`Invalid Metal Color: ${metalColor}`);
-        }
-
-        // Validate "size_from"
-        const sizeFrom = getTrimmedValue("size");
-        if (productType === "jewellery") {
-          if (!sizeFrom || sizeFrom !== "-") {
-            // Validate "size_from" to be between 4 and 26
-            if (sizeFrom) {
-              const sizeFromNumber = parseFloat(sizeFrom);
-              if (
-                isNaN(sizeFromNumber) ||
-                sizeFromNumber < 4 ||
-                sizeFromNumber > 26
-              ) {
-                errors.push(
-                  `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
-                );
-              }
-            } else {
-              errors.push("Size From is missing.");
-            }
-          }
-        }
-
-        const hasError = row.errorMessages && row.errorMessages.length > 0;
-
-        if (hasError) {
-          console.log("This row has errors:", row.errorMessages);
+          errors.push(`Invalid solitaire_slab format: ${slab}`);
         } else {
-          const exp_dlv_date = customerOrder?.exp_dlv_date
-            ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
-              ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
-              : new Date().toISOString() // fallback to the current date
-            : new Date().toISOString();
-
-          const payload: CartDetail = {
-            order_for: customerOrder?.order_for || "",
-            customer_id: customerOrder?.customer_id || 0,
-            customer_name: customerOrder?.cust_name || "",
-            customer_branch: customerOrder?.store || "",
-            product_type: productType, //customerOrder?.product_type || "",
-            order_type: customerOrder?.order_type || "",
-            Product_category: jewellerydetail?.Product_category || "",
-            product_sub_category: jewellerydetail?.Product_sub_category || "", //new
-            collection: jewellerydetail?.Collection || "",
-            exp_dlv_date: exp_dlv_date,
-            old_varient: jewellerydetail?.Old_varient || "",
-            product_code: jewellerydetail?.Item_number || "",
-            product_qty: Number(Qty), //jewelleryDetails?.,
-            product_amt_min: 0,
-            //SoliAmtFrom + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            product_amt_max: 0, // SoliAmtTo + (Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            solitaire_shape: shape,
-            solitaire_slab: caratRange,
-            solitaire_color: colorF + "-" + colorT,
-            solitaire_quality: clarityF + "-" + clarityT,
-            solitaire_prem_size: "", //getTrimmedValue("solitaire_prem_size"), //row["solitaire_prem_size"]?.toString() || "",
-            solitaire_prem_pct: 0, //Number(premiumPercentage) || 0,
-            solitaire_amt_min: 0, //SoliAmtFrom,
-            solitaire_amt_max: 0, //SoliAmtTo,
-            metal_type: "",
-            //getTrimmedValue("metal_purity") === "950PT" ? "PLATINUM" : "GOLD",
-            metal_purity: "", //getTrimmedValue("metal_purity"), //row["metal_purity"]?.toString().trim() || "",
-            metal_color: getTrimmedValue("metal_color"), //row["metal_color"]?.toString().trim() || "",
-            metal_weight: 0, //Metal_weight ?? 0,
-            metal_price: 0, //Metal_price ?? 0,
-            mount_amt_min: 0, //(Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            mount_amt_max: 0, //(Metal_Amt ?? 0) + (side_diaAmt ?? 0),
-            size_from:
-              Number(row["size"]?.toString().trim()) === 0
-                ? "-"
-                : row["size_from"]?.toString().trim() || "",
-            size_to: "-", //ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
-            side_stone_pcs: 0, //Number(total_sidepcs),
-            side_stone_cts: 0, //Number(total_sideweight),
-            side_stone_color: "", //Number(total_sidepcs) === 0 ? "" : getTrimmedValue("side_stone_color"),
-            side_stone_quality: "", //Number(total_sidepcs) === 0 ? "" : getTrimmedValue("side_stone_quality"), //row["side_stone_quality"]?.toString().trim() || "",
-            cart_remarks: getTrimmedValue("cart_remarks"), //row["cart_remarks"]?.toString() || "",
-            order_remarks: "",
-            style: jewellerydetail?.Style || "", //new
-            wear_style: jewellerydetail?.Wear_style || "", //new
-            look: jewellerydetail?.Look || "", //new
-            portfolio_type: jewellerydetail?.Portfolio_type || "", //new
-            gender: jewellerydetail?.Gender || "", //new
-          };
-          const newCartItem: CartDetail = { ...payload };
-          setCartData((prevCartData) => [...prevCartData, newCartItem]);
+          const minCarat = parseFloat(slabParts[0]);
+          const maxCarat = parseFloat(slabParts[1]);
+          if (minCarat <= 0 || maxCarat <= 0 || minCarat > maxCarat) {
+            errors.push(`Invalid carat range in solitaire_slab: ${slab}`);
+          }
         }
+      } else {
+        errors.push("Solitaire Slab is missing.");
+      }
 
-        // Add errors to row
-        return {
-          ...row,
-          errorMessages: errors.length > 0 ? errors : undefined,
+      // Validate starting and ending colors
+      if (colorF && !checkColorAvailability(caratRange, isRound, colorF)) {
+        errors.push(`Invalid color From: ${colorF}`);
+      }
+      if (colorT) {
+        const validColorTOptions = getColorTOptions(
+          caratRange,
+          isRound,
+          colorF
+        );
+        if (!validColorTOptions.includes(colorT)) {
+          errors.push(`Invalid color To: ${colorT}`);
+        }
+      }
+
+      // Validate starting and ending clarity
+      if (
+        clarityF &&
+        !checkClarityAvailability(caratRange, isRound, clarityF)
+      ) {
+        errors.push(`Invalid clarity From: ${clarityF}`);
+      }
+      if (clarityT) {
+        const validClarityTOptions = getClarityTOptions(
+          caratRange,
+          isRound,
+          clarityF
+        );
+        if (!validClarityTOptions.includes(clarityT)) {
+          errors.push(`Invalid clarity To: ${clarityT}`);
+        }
+      }
+
+      // Validate "metal_color"
+      const metalColor = getTrimmedValue("metal_color");
+      if (metalColor && !Metal_Color.includes(metalColor)) {
+        errors.push(`Invalid Metal Color: ${metalColor}`);
+      }
+
+      // Validate "size_from"
+      const sizeFrom = getTrimmedValue("size");
+      if (productType === "jewellery") {
+        if (sizeFrom !== "-") {
+          const sizeFromNumber = Number(sizeFrom);
+
+          if (isNaN(sizeFromNumber)) {
+            errors.push(
+              `Invalid size: ${sizeFrom}. It must be a valid number.`
+            );
+          } else if (sizeFromNumber < 4 || sizeFromNumber > 26) {
+            errors.push(
+              `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
+            );
+          }
+        } else {
+          console.log(`Skipping size validation for size: ${sizeFrom}`);
+        }
+      }
+
+      const hasError = errors.length > 0;
+
+      if (!hasError) {
+        const exp_dlv_date = customerOrder?.exp_dlv_date
+          ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
+            ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+            : new Date().toISOString()
+          : new Date().toISOString();
+
+        const payload = {
+          order_for: customerOrder?.order_for || "",
+          customer_id: customerOrder?.customer_id || 0,
+          customer_name: customerOrder?.cust_name || "",
+          customer_branch: customerOrder?.store || "",
+          product_type: productType,
+          order_type: customerOrder?.order_type || "",
+          Product_category: jewellerydetail?.Product_category || "",
+          product_sub_category: jewellerydetail?.Product_sub_category || "",
+          collection: jewellerydetail?.Collection || "",
+          exp_dlv_date: exp_dlv_date,
+          old_varient: jewellerydetail?.Old_varient || "",
+          product_code: jewellerydetail?.Item_number || "",
+          product_qty: Number(Qty),
+          product_amt_min: 0,
+          product_amt_max: 0,
+          solitaire_shape: shape,
+          solitaire_slab: caratRange,
+          solitaire_color: colorF + "-" + colorT,
+          solitaire_quality: clarityF + "-" + clarityT,
+          solitaire_prem_size: "",
+          solitaire_prem_pct: 0,
+          solitaire_amt_min: 0,
+          solitaire_amt_max: 0,
+          metal_type: "",
+          metal_purity: "",
+          metal_color: getTrimmedValue("metal_color"),
+          metal_weight: 0,
+          metal_price: 0,
+          mount_amt_min: 0,
+          mount_amt_max: 0,
+          size_from:
+            Number(row["size"]?.toString().trim()) === 0
+              ? "-"
+              : row["size"]?.toString().trim() || "",
+          size_to: "-",
+          side_stone_pcs: 0,
+          side_stone_cts: 0,
+          side_stone_color: "",
+          side_stone_quality: "",
+          cart_remarks: getTrimmedValue("cart_remarks"),
+          order_remarks: "",
+          style: jewellerydetail?.Style || "",
+          wear_style: jewellerydetail?.Wear_style || "",
+          look: jewellerydetail?.Look || "",
+          portfolio_type: jewellerydetail?.Portfolio_type || "",
+          gender: jewellerydetail?.Gender || "",
         };
-      })
-    );
+        setCartData((prevCartData) => [...prevCartData, payload]);
+      }
+
+      mappedDataWithErrors.push({
+        ...row,
+        errorMessages: hasError ? errors : undefined,
+      });
+    }
 
     // Check if there are any errors
     const hasErrors = mappedDataWithErrors.some(
@@ -497,16 +480,16 @@ const JewelleryBulkImportScreen: React.FC = () => {
     if (hasErrors) {
       setCurrentErrorMessages("Validation failed. Please correct the errors.");
       setIsValidated(false);
+      hideLoader();
       setIsModalOpen(true);
     } else {
       setCurrentErrorMessages("Validation successful! All data is valid.");
       setIsValidated(true);
+      hideLoader();
       setIsModalOpen(true);
     }
 
-    // Update the state with new data
     setExcelData(mappedDataWithErrors); // Update excel data with validation results
-    // Add valid items to cart data
   };
 
   // Handle reset

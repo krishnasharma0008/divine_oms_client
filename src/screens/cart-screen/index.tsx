@@ -54,7 +54,7 @@ function CartScreen() {
       showLoader();
       try {
         const res = await getCartDetailList(getUser() ?? "");
-        console.log(res.data.data);
+        //console.log(res.data.data);
         setCartData(res.data.data); // Initialize directly from API
         //setCartCount(res.data.data.length);
         setOrderSummaryRemark(res.data.order_remarks);
@@ -609,8 +609,7 @@ function CartScreen() {
                     <>
                       {item.size_from !== "-" && (
                         <p className="text-sm text-gray-600">
-                          Size :{" "}
-                          {`${item.size_from || "-"}-${item.size_to || "-"}`}
+                          Size : {`${item.size_from || "-"}`}
                         </p>
                       )}
                       <p className="text-sm text-gray-600">

@@ -125,6 +125,7 @@ const LoginScreenMobileInput: React.FC = () => {
             <input
               id="loginType"
               type="text"
+              placeholder="Email/Mobile Number"
               className={`w-full text-gray-800 text-sm border px-4 py-3 rounded-md outline-blue-600 ${
                 loginTypeError ? "border-red-500" : "border-gray-300"
               }`}
@@ -138,6 +139,7 @@ const LoginScreenMobileInput: React.FC = () => {
           <input
             id="password"
             type="password"
+            placeholder="password"
             className={`w-full text-gray-800 text-sm border px-4 py-3 rounded-md outline-blue-600 ${
               passwordError ? "border-red-500" : "border-gray-300"
             }`}
