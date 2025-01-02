@@ -167,6 +167,7 @@ const SolitaireCustomisationPopup: React.FC<
       setClarityF(customisedData?.clarity?.split("-")[0] || "");
       setClarityT(customisedData?.clarity?.split("-")[1] || "");
       setPremiumSize(customisedData?.premiumSize || "");
+      console.log("customisedData?.premiumSize:", customisedData?.premiumSize);
       setPremiumPercentage(customisedData?.premiumPercentage || "");
 
       // Fetch and update premium size options
@@ -178,6 +179,10 @@ const SolitaireCustomisationPopup: React.FC<
       }
     }
   }, [isOpen, customisedData, getPremiumSizeOptions]);
+
+  useEffect(() => {
+    console.log("premiumSize after setting:", premiumSize);
+  }, [premiumSize]);
 
   const handleApply = () => {
     const errors: Record<string, string> = {};
