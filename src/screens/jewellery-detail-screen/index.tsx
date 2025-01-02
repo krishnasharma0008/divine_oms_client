@@ -45,7 +45,6 @@ function JewelleryDetailScreen() {
   const [metalPurity, setMetalPurity] = useState<string>("");
   const [metalColor, setMetalColor] = useState<string>("");
   const [ringSizeFrom, setRingSizeFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
-  // const [ringSizeTo, setRingSizeTo] = useState<number>(0);
   const [baseCarat, setBaseCarat] = useState<string>("");
   const [baseRingSize, setBaseRingSize] = useState<number>(0);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
@@ -53,13 +52,11 @@ function JewelleryDetailScreen() {
   const [soliPriceFrom, setSoliPriceFrom] = useState<number>(0); // Default start parseInt(jewelleryDetails?.Product_size_from.toString() ?? "")
   const [soliPriceTo, setSoliPriceTo] = useState<number>(0);
   const [metalPrice, setMetalPrice] = useState<number>();
-  //const [metalPrice, setMetalPriceFrom] = useState<number>();
   const [metalAmtFrom, setMetalAmtFrom] = useState<number>();
   const [sDiaPrice, setSDiaPrice] = useState<number>();
   const [sDiaAmt, setSDiaAmt] = useState<number>();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext);
-
   const [totalPcs, setTotalPcs] = useState<number>(0);
   const [Metalweight, setMetalweight] = useState<number>(0);
   const [sideDiaTotPcs, setSideDiaTotPcs] = useState<number>(0);
@@ -99,6 +96,31 @@ function JewelleryDetailScreen() {
     console.log("Edit cart data : ", cart?.product_code);
     if (cart?.product_code) {
       await FetchData(cart?.product_code);
+
+      if (jewelleryDetails?.Product_size_from !== "-") {
+        const baseVariantSizes = jewelleryDetails?.Variants.filter(
+          (item) => item.Is_base_variant === 1
+        ).map((item) => Number(item.Size)); // Map the sizes (assuming 'size' is the property for size)
+
+        const baseVariantCarat = jewelleryDetails?.Variants.filter(
+          (item) => item.Is_base_variant === 1
+        ).map((item) => item.Solitaire_slab);
+
+        const defaultSize =
+          baseVariantSizes && baseVariantSizes.length > 0
+            ? baseVariantSizes[0]
+            : 0;
+
+        const defaultCarat =
+          baseVariantCarat && baseVariantCarat.length > 0
+            ? baseVariantCarat[0]
+            : "";
+        console.log("defaultCarat : ", defaultCarat);
+        console.log("defaultSize : ", defaultSize);
+        setRingSizeFrom(defaultSize);
+        setBaseCarat(defaultCarat);
+        setBaseRingSize(defaultSize); //variant size where Is_base_variant = 1
+      }
       //console.log("Product Code : 1");
       //if (!metalColor) {
       setMetalColor(cart.metal_color || ""); // Set from cart if available
@@ -119,9 +141,9 @@ function JewelleryDetailScreen() {
       // Automatically apply the values to the form (if needed)
       handleApply({
         shape: cart.solitaire_shape,
-        color: `${cart.solitaire_color}`, // Assuming color is stored as a string
+        color: cart.solitaire_color, // Assuming color is stored as a string
         carat: cart.solitaire_slab,
-        clarity: `${cart.solitaire_quality}`, // Assuming clarity is stored as a string
+        clarity: cart.solitaire_quality, // Assuming clarity is stored as a string
         premiumSize: cart.solitaire_prem_size,
         premiumPercentage: cart.solitaire_prem_pct.toString(),
       });
@@ -244,7 +266,7 @@ function JewelleryDetailScreen() {
 
       setSideDiaTotweight(totalsideweight ?? 0);
 
-      calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
+      calculateSideDiamondPrice(totalsideweight ?? 0, "IJ-SI");
 
       CalculateMetalAmount(
         jewelleryDetails?.Metal_color.split(",")[0] ?? "",
@@ -474,51 +496,16 @@ function JewelleryDetailScreen() {
       if (totalsideweight && !isNaN(diamondPrice)) {
         const sideDiamondPrice = diamondPrice * totalsideweight;
 
-        //setSDiaPrice(sideDiamondPrice);
         setSDiaAmt(sideDiamondPrice);
       } else {
-        // Handle the case where totalsidepcs or totalsideweight are invalid
         console.error("Invalid side diamond pieces or weight.");
         setSDiaAmt(0);
       }
     } catch (error) {
-      // Handle any errors that occur during the fetch operation
       console.error("Error fetching diamond price:", error);
       setSDiaAmt(0);
     }
   };
-
-  // const calculateSideDiamondPrice = async (
-  //   totalsidepcs: number | null,
-  //   totalsideweight: number | null,
-  //   sideDiaColorClarity: string
-  // ) => {
-  //   console.log("Inputs for calculateSideDiamondPrice:", {
-  //     totalsidepcs,
-  //     totalsideweight,
-  //     sideDiaColorClarity,
-  //   });
-  //   try {
-  //     const [color, clarity] = sideDiaColorClarity.split("-");
-
-  //     const diamondPrice = await FetchPrice("DIAMOND", "", "", color, clarity);
-  //     setSDiaPrice(diamondPrice);
-  //     if (totalsidepcs && totalsideweight && !isNaN(diamondPrice)) {
-  //       const sideDiamondPrice = diamondPrice * totalsidepcs * totalsideweight;
-
-  //       //setSDiaPrice(sideDiamondPrice);
-  //       setSDiaAmt(sideDiamondPrice);
-  //     } else {
-  //       // Handle the case where totalsidepcs or totalsideweight are invalid
-  //       console.error("Invalid side diamond pieces or weight.");
-  //       setSDiaAmt(0);
-  //     }
-  //   } catch (error) {
-  //     // Handle any errors that occur during the fetch operation
-  //     console.error("Error fetching diamond price:", error);
-  //     setSDiaAmt(0);
-  //   }
-  // };
 
   const FetchPrice = async (
     itemgroup: string,
@@ -560,8 +547,8 @@ function JewelleryDetailScreen() {
         : "";
 
     const carat = data.carat?.split("-") || ["0", "0"];
-    const color = data.color?.split(" - ") || ["", ""];
-    const clarity = data.clarity?.split(" - ") || ["", ""];
+    const color = data.color?.split("-") || ["", ""];
+    const clarity = data.clarity?.split("-") || ["", ""];
 
     try {
       const SolitaireFrom = await FetchPrice(

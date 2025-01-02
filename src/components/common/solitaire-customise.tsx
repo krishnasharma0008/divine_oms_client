@@ -159,12 +159,13 @@ const SolitaireCustomisationPopup: React.FC<
   useEffect(() => {
     if (isOpen) {
       // Reset fields with either customised data or default values
+      console.log(customisedData);
       setShape(customisedData?.shape || "");
       setCarat(customisedData?.carat || "");
-      setColorF(customisedData?.color?.split(" - ")[0] || "");
-      setColorT(customisedData?.color?.split(" - ")[1] || "");
-      setClarityF(customisedData?.clarity?.split(" - ")[0] || "");
-      setClarityT(customisedData?.clarity?.split(" - ")[1] || "");
+      setColorF(customisedData?.color?.split("-")[0] || "");
+      setColorT(customisedData?.color?.split("-")[1] || "");
+      setClarityF(customisedData?.clarity?.split("-")[0] || "");
+      setClarityT(customisedData?.clarity?.split("-")[1] || "");
       setPremiumSize(customisedData?.premiumSize || "");
       setPremiumPercentage(customisedData?.premiumPercentage || "");
 
@@ -190,8 +191,8 @@ const SolitaireCustomisationPopup: React.FC<
 
     if (Object.keys(errors).length) return;
 
-    const selectedColor = `${colorF} - ${colorT}`;
-    const selectedClarity = `${clarityF} - ${clarityT}`;
+    const selectedColor = `${colorF}-${colorT}`;
+    const selectedClarity = `${clarityF}-${clarityT}`;
     onApply({
       shape,
       color: selectedColor,
