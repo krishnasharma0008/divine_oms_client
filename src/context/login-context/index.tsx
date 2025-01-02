@@ -13,7 +13,7 @@ import {
   deleteUser,
   setUserRole,
   deleteUserRole,
-  deleteAdminToken,
+  //deleteAdminToken,
   getCartCount,
   setCartCount,
   deleteCartCount,
@@ -91,7 +91,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const toggleLogin = useCallback(() => {
-    deleteAdminToken();
+    //deleteAdminToken();
     deleteToken();
     deleteUser();
     deleteUserRole();
