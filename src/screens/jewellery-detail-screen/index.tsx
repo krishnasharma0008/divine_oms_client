@@ -122,9 +122,9 @@ function JewelleryDetailScreen() {
         setBaseRingSize(defaultSize); //variant size where Is_base_variant = 1
       }
       //console.log("Product Code : 1");
-      //if (!metalColor) {
-      setMetalColor(cart.metal_color || ""); // Set from cart if available
-      //}
+      if (!metalColor) {
+        setMetalColor(cart.metal_color || ""); // Set from cart if available
+      }
       setMetalPurity(cart.metal_purity || "");
       setRingSizeFrom(Number(cart.size_from)); // Set from cart
       //setRingSizeTo(Number(cart.size_to)); // Set from cart
@@ -154,6 +154,7 @@ function JewelleryDetailScreen() {
       setMetalweight(cart.metal_weight);
       //console.log("cart.metal_weight :", cart.metal_weight);
       const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
+      setSideDiaColorClarity(sideDiaColorClarity);
       calculateSideDiamondPrice(cart.side_stone_cts, sideDiaColorClarity);
 
       setMetalAmtFrom(
