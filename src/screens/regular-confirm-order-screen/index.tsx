@@ -618,7 +618,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Size */}
-                      <td className="w-28 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           options={slab}
@@ -632,7 +632,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Color */}
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           options={getColorOptions(row.shape, row.size)}
@@ -643,7 +643,7 @@ const RegularConfirmOrderScreen = () => {
                           }
                         />
                       </td>
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           options={getColorTOptions(
@@ -659,7 +659,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Clarity */}
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           options={getClarityOptions(row.shape, row.size)}
@@ -669,7 +669,7 @@ const RegularConfirmOrderScreen = () => {
                           }
                         />
                       </td>
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           //options={getClarityOptions(row.shape, row.size)}
@@ -686,7 +686,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Premium Size */}
-                      <td className="w-28 border border-gray-200 ">
+                      <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
                           options={getPremiumSizeOptions(row.size)} // Filtered based on size
