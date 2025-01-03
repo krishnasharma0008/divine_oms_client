@@ -535,6 +535,18 @@ function JewelleryDetailScreen() {
     CalculateMetalAmount(selectedValue, metalPurity, Metalweight);
   };
 
+  function getMetalColor(metalColor: string) {
+    if (metalColor === "PT White") {
+      return "White";
+    } else if (metalColor === "Platinum + Yellow Gold") {
+      return "Yellow";
+    } else if (metalColor === "Platinum + Rose Gold") {
+      return "Rose";
+    } else {
+      return metalColor; // Default case: use the original value
+    }
+  }
+
   const CalculateMetalAmount = async (
     metalColor: string,
     metalPurity: string,
@@ -549,7 +561,7 @@ function JewelleryDetailScreen() {
     if (metalColor && metalPurity && Metalweight) {
       try {
         const metal = metalPurity === "950PT" ? "PLATINUM" : "GOLD";
-        const color = metalColor === "PT White" ? "White" : metalColor;
+        const color = getMetalColor(metalColor);
         const price = await FetchPrice(metal, "", "", color, metalPurity);
         //console.log("Fetched price:", price);
         setMetalPrice(price);
@@ -696,6 +708,7 @@ function JewelleryDetailScreen() {
     if (metalPrice == null || metalPrice <= 0) {
       setIsMessage("");
       setIsMessage("Metal price must be greater than 0 to proceed.");
+      setIsCheckoutModalVisible(true);
       return;
     }
     const exp_dlv_date = customerOrder?.exp_dlv_date
@@ -958,7 +971,7 @@ function JewelleryDetailScreen() {
           <div className="flex justify-between">
             <div className="flex items-center space-x-2">
               <label className="block text-lg font-medium text-gray-700">
-                Metal Color
+                Metal :
               </label>
               <select
                 className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
