@@ -33,7 +33,6 @@ interface CustomisationOptions {
 }
 
 function JewelleryDetailScreen() {
-  //const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const formType = searchParams.get("ftype");
@@ -223,7 +222,7 @@ function JewelleryDetailScreen() {
         setBaseSideDiaTotweight(totalsideweight ?? 0);
         setSideDiaTotweight(totalsideweight ?? 0);
 
-        calculateSideDiamondPrice(totalsideweight ?? 0, "IJ-SI");
+        calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
 
         CalculateMetalAmount(
           cart?.metal_color,
@@ -340,7 +339,7 @@ function JewelleryDetailScreen() {
       setBaseSideDiaTotweight(totalsideweight ?? 0);
       setSideDiaTotweight(totalsideweight ?? 0);
 
-      calculateSideDiamondPrice(totalsideweight ?? 0, "IJ-SI");
+      calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
 
       CalculateMetalAmount(
         jewelleryDetails?.Metal_color.split(",")[0] ?? "",
