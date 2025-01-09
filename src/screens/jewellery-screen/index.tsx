@@ -12,7 +12,7 @@ import NotificationContext from "@/context/notification-context";
 //import BulkImportModal from "@/components/common/bulk-import-modal";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
 import MessageModal from "@/components/common/message-modal";
-import { ProductCategory } from "@/api/jewellery-filters";
+import { ProductFilters } from "@/api/jewellery-filters";
 import Loader from "@/components/common/loader";
 
 interface OptionType {
@@ -27,41 +27,60 @@ function JewelleyScreen() {
   const { customerOrder } = useCustomerOrderStore();
   //const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
+  const [selectedSubcategory, setSelectedSubCategory] = useState<string[]>([]);
+  const [selectedcollection, setSelectedCollection] = useState<string[]>([]);
+  const [selectedMetal, setSelectedMetal] = useState<string[]>([]);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false); //to show pjdetails
-  //const [isJDetailModalOpen, setIsJDetailModalOpen] = useState<boolean>(false); //to show pjdetails
   const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
     Array<Jewellery>
   >([]);
 
   const [productCategory, setProductCategory] = useState<OptionType[]>([]);
-  //const { showLoader, hideLoader } = useContext(LoaderContext);
+  const [productSubCategory, setProductSubCategory] = useState<OptionType[]>(
+    []
+  );
+  const [productCollection, setProductCollection] = useState<OptionType[]>([]);
   const { notifyErr } = useContext(NotificationContext);
 
   const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
   const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
-  //const [selectedJewellery, setSelectedJewellery] = useState<JewelleryDetail | null>(null); //eye click
-
-  //const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  //const selectedDate = searchParams.get("selectedDate");
-  // Fetch initial data and handle updates on search params change
+  const metaloptions = [
+    { label: "18KT", value: "18KT" },
+    { label: "950PT", value: "950PT" },
+  ];
+
+  const portfoliooptions = [
+    { label: "Divine (DSJ)", value: "Divine (DSJ)" },
+    { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" },
+  ];
+
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
     setSelectedJewelleryItem([]); // Clear previous items
-    FetchListdata("", "", "", 1); // Load first page of new search results
+    FetchListdata("", "", "", "", "", "", 1); // Load first page of new search results
   }, [searchParams]);
 
   // Fetch data when the page number increments
   useEffect(() => {
     if (currentPage > 1) {
       //FetchListdata("", "", "", currentPage);
-      FetchListdata(searchText, selectedcategory, "", currentPage);
+      FetchListdata(
+        searchText,
+        selectedcategory,
+        selectedSubcategory,
+        selectedcollection,
+        selectedMetal,
+        selectedPortfolio,
+        currentPage
+      );
     }
     FetchProductCategory();
   }, [currentPage]);
@@ -76,25 +95,34 @@ function JewelleyScreen() {
   }, [selectedJewelleryItem]);
 
   const handleClearAll = () => {
-    //setCategory("");
     setCurrentPage(1);
     //setDate(""); // Clear the date filter
     setSelectedCategory([]); // Reset selected categories to an empty array
+    setSelectedSubCategory([]);
+    setSelectedCollection([]);
+    setSelectedMetal([]);
+    setSelectedPortfolio([]);
     setSearchText(""); // Clear the search text input
-    FetchListdata("", "", "", 1); // Reload data with no filters
+    FetchListdata("", "", "", "", "", "", 1); // Reload data with no filters
   };
 
   const handleSearch = () => {
     setCurrentPage(1);
     setLoading(true); // Show spinner
     console.log("Searching with filters:", {
-      //category,
-      //date,
       selectedcategory,
       searchText,
     });
 
-    FetchListdata(searchText, selectedcategory, "", 1);
+    FetchListdata(
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      1
+    );
 
     // Simulate search delay
     setTimeout(() => {
@@ -105,7 +133,10 @@ function JewelleyScreen() {
   const FetchListdata = async (
     item_number: string,
     product_category: string[] | string,
-    shape: string,
+    product_sub_category: string[] | string,
+    product_collection: string[] | string,
+    metal_purity: string[] | string,
+    portfolio_type: string[] | string,
     pageno: number
   ) => {
     try {
@@ -113,10 +144,30 @@ function JewelleyScreen() {
       const categoryParam = Array.isArray(product_category)
         ? product_category.join(",") // Convert to string for API
         : product_category;
+
+      const subcategoryParam = Array.isArray(product_sub_category)
+        ? product_sub_category.join(",") // Convert to string for API
+        : product_sub_category;
+
+      const collectionParam = Array.isArray(product_collection)
+        ? product_collection.join(",") // Convert to string for API
+        : product_collection;
+
+      const metalpurityParam = Array.isArray(metal_purity)
+        ? metal_purity.join(",") // Convert to string for API
+        : metal_purity;
+
+      const portfolioTypeParam = Array.isArray(portfolio_type)
+        ? portfolio_type.join(",") // Convert to string for API
+        : portfolio_type;
       const response = await getJewelleryDetailID(
         item_number,
         categoryParam,
-        shape,
+        subcategoryParam,
+        collectionParam,
+        metalpurityParam,
+        portfolioTypeParam,
+        //shape,
         pageno
       );
       const newItems = response.data.data ?? [];
@@ -135,13 +186,27 @@ function JewelleyScreen() {
   const FetchProductCategory = async () => {
     try {
       setIsLoadingMore(true);
-      const response = await ProductCategory();
-      //console.log(response.data.data ?? []);
-      const CategotyOptions = response.data.data.map((item: string) => ({
+      const response = await ProductFilters();
+
+      const CategotyOptions = response.data.category.map((item: string) => ({
         label: item,
         value: item,
       }));
       setProductCategory(CategotyOptions);
+      const SubCategotyOptions = response.data.sub_category.map(
+        (item: string) => ({
+          label: item,
+          value: item,
+        })
+      );
+      setProductSubCategory(SubCategotyOptions);
+      const CollectionOptions = response.data.collection.map(
+        (item: string) => ({
+          label: item,
+          value: item,
+        })
+      );
+      setProductCollection(CollectionOptions);
     } catch (error) {
       notifyErr("An error occurred while fetching data.");
     } finally {
@@ -200,12 +265,11 @@ function JewelleyScreen() {
 
   const closeCheckoutModal = () => {
     setIsCheckoutModalVisible(false);
-    console.log("Proceeding to checkout with selected items:");
-    // Add further checkout logic here
+    //console.log("Proceeding to checkout with selected items:");
   };
 
   return (
-    <div className="flex min-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
+    <div className="flex max-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
       {/* Left Div with 20% width */}
       <div className="w-full sm:w-1/3 lg:w-1/5 flex flex-col bg-gray-100 text-black my-0.5 ml-0.5">
         {/* Fixed Header */}
@@ -229,7 +293,7 @@ function JewelleyScreen() {
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-auto p-4 max-h-[70vh] sm:max-h-[80vh] lg:max-h-[90vh]">
+        <div className="flex-1 overflow-auto p-2 space-y-4 max-h-[70vh] sm:max-h-[80vh] lg:max-h-[90vh]">
           {/* Search Input with Spinner */}
           {/* Search Input with Spinner */}
           <div className="relative mb-4">
@@ -238,6 +302,11 @@ function JewelleyScreen() {
               placeholder="Search by product code"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
               className="w-full p-2 text-black border rounded-md pr-10"
             />
             {/* {loading && (
@@ -255,19 +324,37 @@ function JewelleyScreen() {
             onChange={setSelectedCategory}
           />
 
-          {/* Date Filter */}
-          {/* <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="date">
-              Date
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-          </div> */}
+          {/* Category Filter */}
+          <CheckboxGroup
+            title="Sub Category"
+            options={productSubCategory}
+            selectedValues={selectedSubcategory}
+            onChange={setSelectedSubCategory}
+          />
+
+          {/* Collection Filter */}
+          <CheckboxGroup
+            title="Collection"
+            options={productCollection}
+            selectedValues={selectedcollection}
+            onChange={setSelectedCollection}
+          />
+
+          {/* Metal Filter */}
+          <CheckboxGroup
+            title="Metal"
+            options={metaloptions}
+            selectedValues={selectedMetal}
+            onChange={setSelectedMetal}
+          />
+
+          {/* Portfolio Filter */}
+          <CheckboxGroup
+            title="Portfolio"
+            options={portfoliooptions}
+            selectedValues={selectedPortfolio}
+            onChange={setSelectedPortfolio}
+          />
         </div>
 
         {/* Fixed Footer */}
@@ -300,7 +387,7 @@ function JewelleyScreen() {
         <div
           ref={dataContainer}
           className="flex-1 overflow-y-auto "
-          style={{ maxHeight: "calc(100vh - 0px)" }}
+          style={{ maxHeight: "calc(100vh - 33px)" }}
         >
           {loading ? (
             // Show spinner while loading

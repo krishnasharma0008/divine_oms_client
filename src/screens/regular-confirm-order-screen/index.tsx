@@ -27,6 +27,7 @@ import {
 } from "@/util/constants";
 import dayjs from "dayjs";
 import MessageModal from "@/components/common/message-modal";
+import { formatByCurrencyINR } from "@/util/format-inr";
 
 const RegularConfirmOrderScreen = () => {
   // Access customer data from Zustand store
@@ -264,7 +265,8 @@ const RegularConfirmOrderScreen = () => {
 
     if (field === "size") {
       const filteredPremiumSizeOptions = getPremiumSizeOptions(value);
-      row.premiumsize = filteredPremiumSizeOptions[0] || ""; // Set the first premium size option
+      console.log(filteredPremiumSizeOptions);
+      row.premiumsize = ""; //filteredPremiumSizeOptions[0] || ""; // Set the first premium size option
       row.premiumper = 0; // Reset premium percentage to 0 when size changes
     }
 
@@ -379,9 +381,12 @@ const RegularConfirmOrderScreen = () => {
   };
 
   const SumitOrder = async () => {
+    console.log("Expected date : ", customerOrder?.exp_dlv_date);
     const exp_dlv_date = customerOrder?.exp_dlv_date
       ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
-        ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+        ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY")
+            .add(dayjs().utcOffset(), "minute")
+            .toISOString() // Adjust with local timezone offset
         : new Date().toISOString() // fallback to the current date
       : new Date().toISOString();
 
@@ -728,10 +733,11 @@ const RegularConfirmOrderScreen = () => {
                         <InputText
                           type="text"
                           //label="Min"
-                          value={row.min.toString()}
+                          value={formatByCurrencyINR(row.min)}
                           //onChange={(e) => handleChange(index, "min", e.target.value)}
                           placeholder="Min"
-                          className=" mt-1"
+                          className=" mt-1 text-black"
+                          disabled={true}
                         />
                       </td>
 
@@ -740,8 +746,9 @@ const RegularConfirmOrderScreen = () => {
                         <InputText
                           type="text"
                           placeholder="Max"
-                          value={row.max.toString()}
-                          className=" mt-1"
+                          value={formatByCurrencyINR(row.max)}
+                          className=" mt-1 text-black"
+                          disabled={true}
                           //onChange={(e) => handleChange(index, "max", e.target.value)}
                         />
                       </td>

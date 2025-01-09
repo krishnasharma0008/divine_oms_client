@@ -24,7 +24,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
 }) => {
   return (
     <div className="w-full border rounded-md items-center justify-center group relative overflow-hidden jewellery-item">
-      <div className="flex justify-center items-center relative p-2">
+      <div className="flex justify-center items-center relative p-1">
         {/* Image with hover magnify effect */}
         {/* <Link href={`/jewellery-detail/${id}`}> */}
         {/* eslint-disable-next-line @next/next/no-img-element */}

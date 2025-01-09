@@ -45,6 +45,9 @@ const ChooseYourOrderScreen = () => {
   const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
   const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState(""); // Delivery Date
+  const [selectedOrderFor, setSelectedOrderFor] = useState(
+    getCustType() === "Retail Customer" ? "Retail Customer" : "Stock"
+  );
 
   const [orderType, setOrderType] = useState("");
 
@@ -54,18 +57,20 @@ const ChooseYourOrderScreen = () => {
   const { customer } = useCustomerStore();
 
   useEffect(() => {
-    // Calculate current date + 14 days
     const today = new Date();
     const expDeliveryDate = new Date(today);
-    expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days
 
-    // Format the date using dayjs
+    if (selectedValue === "solitaire") {
+      expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days for solitaire
+    } else {
+      expDeliveryDate.setDate(today.getDate() + 21); // Add 21 days for jewellery
+    }
+
     const formattedExpDeliveryDate =
       dayjs(expDeliveryDate).format("DD-MM-YYYY");
-    console.log(formattedExpDeliveryDate);
-    // Update the state to show the calculated date
+
     setExpectedDeliveryDate(formattedExpDeliveryDate);
-  }, [customer, expectedDeliveryDate]);
+  }, [selectedValue]);
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -144,6 +149,30 @@ const ChooseYourOrderScreen = () => {
   const handleItemTypeChange = (value: string) => {
     console.log("selected Item Type", value);
     setSelectedValue(value);
+
+    // Calculate current date + 14 days or 21 days based on the value
+    const today = new Date();
+    const expDeliveryDate = new Date(today);
+
+    // Fixing the condition to add either 14 or 21 days based on the value
+    if (value === "solitaire") {
+      expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days
+    } else {
+      expDeliveryDate.setDate(today.getDate() + 21); // Add 21 days
+    }
+
+    // Format the date using dayjs
+    const formattedExpDeliveryDate =
+      dayjs(expDeliveryDate).format("DD-MM-YYYY");
+    console.log(formattedExpDeliveryDate);
+
+    // Update the state to show the calculated date
+    setExpectedDeliveryDate(formattedExpDeliveryDate);
+  };
+
+  const handleOrderForChange = (value: string) => {
+    console.log("selected Order For", value);
+    setSelectedOrderFor(value);
   };
 
   const handleOrderTypeChange = (value: string) => {
@@ -181,12 +210,26 @@ const ChooseYourOrderScreen = () => {
     { label: "Jewellery", value: "jewellery" },
   ];
 
+  const OrderForoptions = [];
+
+  if (getCustType() === "Retail Customer") {
+    OrderForoptions.push({
+      label: "Retail Customer",
+      value: "Retail Customer",
+    });
+  } else {
+    OrderForoptions.push(
+      { label: "Stock", value: "Stock" },
+      { label: "Customer", value: "Customer" }
+    );
+  }
+
   const Consignmentoptions = [
     { label: "TCS", value: "tcs" },
     { label: "RRO / Exhibition", value: "rroexhibitation" },
   ];
-  const SORoptions = [{ label: "Sale or Return(SOR)", value: "sor" }];
-  const Outpurchaseoptions = [{ label: "Outright Purchase", value: "outpur" }];
+  const SORoptions = [{ label: "SOR", value: "sor" }];
+  const Outpurchaseoptions = [{ label: "OP", value: "outpur" }];
   const CustomerOrderoptions = [
     { label: "RCO", value: "rco" },
     { label: "SCO", value: "sco" },
@@ -195,7 +238,7 @@ const ChooseYourOrderScreen = () => {
   const handleProceed = () => {
     // Reset customer order before proceeding
     resetCustomerOrder();
-    console.log("Store : ", selectedSValue);
+    //console.log("Store : ", selectedSValue);
     // Find the selected store
     const selectedStore = stores.find(
       (store) => store.CustomerID.toString() === selectedSValue
@@ -223,7 +266,7 @@ const ChooseYourOrderScreen = () => {
 
     // Prepare payload based on the customer type
     const payload: CustomerOrderDetail = {
-      order_for: getCustType() ?? "",
+      order_for: selectedOrderFor, // getCustType() ?? "",
       customer_id:
         getCustType() === "Jeweller"
           ? Number(selectedStore?.CustomerID)
@@ -264,7 +307,7 @@ const ChooseYourOrderScreen = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 min-h-[calc(100vh_-_96px)] rounded p-2 m-2 shadow-md space-y-2">
+    <div className="flex flex-col bg-gray-50 min-h-[calc(100vh_-_85px)] rounded p-2 m-2 shadow-md space-y-2">
       {/* Header */}
       {/* <header className="bg-blue-500 text-white py-4 px-6 shadow-md">
         <h1 className="text-2xl font-semibold">Choose Your Order</h1>
@@ -398,8 +441,8 @@ const ChooseYourOrderScreen = () => {
           </div>
           {/* </div> */}
 
-          <div className="w-full flex">
-            <div className="w-1/3 flex flex-col">
+          <div className="w-full flex justify-between">
+            <div className="border px-4">
               <div>
                 <p className="text-[#888]">Select Item Type</p>
               </div>
@@ -411,49 +454,62 @@ const ChooseYourOrderScreen = () => {
                   onChange={handleItemTypeChange}
                 />
               </div>
-              <div className="flex px-4 mt-4">
-                <InputText
-                  type="text"
-                  label="EXPECTED DELIVERY DATE"
-                  value={expectedDeliveryDate} //selectedDate
-                  disabled={true}
+            </div>
+            <div className="border px-4">
+              <div>
+                <p className="text-[#888]">Order For</p>
+              </div>
+              <div>
+                <RadioButton
+                  name="Order For"
+                  options={OrderForoptions}
+                  selectedValue={selectedOrderFor}
+                  onChange={handleOrderForChange}
                 />
               </div>
             </div>
-            <div className="w-2/3">
-              <div className="mb-2">
-                <p className="text-[#888]">Order Type</p>
-              </div>
-              <div className="flex justify-around">
-                <SingleSelectCheckbox
-                  title="Consignment"
-                  options={Consignmentoptions}
-                  //onSelect={handleConsignment}
-                  selectedValue={selectedconsignmen}
-                  onChange={handleOrderTypeChange}
-                />
-                <SingleSelectCheckbox
-                  title="" /*Sales or Return(SOR)*/
-                  options={SORoptions}
-                  selectedValue={selectedsor}
-                  onChange={handleOrderTypeChange}
-                  classes="font-semibold"
-                />
-                <SingleSelectCheckbox
-                  title="" /*"Outright Purchase"*/
-                  options={Outpurchaseoptions}
-                  selectedValue={selectedoutrightpur}
-                  onChange={handleOrderTypeChange}
-                  classes="font-semibold"
-                />
-                <SingleSelectCheckbox
-                  title="Customer Order"
-                  options={CustomerOrderoptions}
-                  //onSelect={handleConsignment}
-                  selectedValue={selectedCustOrder}
-                  onChange={handleOrderTypeChange}
-                />
-              </div>
+            <div className="flex px-4 mt-4">
+              <InputText
+                type="text"
+                label="EXPECTED DELIVERY DATE"
+                value={expectedDeliveryDate} //selectedDate
+                disabled={true}
+              />
+            </div>
+          </div>
+          <div className="w-full">
+            <div className="mb-2">
+              <p className="text-[#888]">Order Type</p>
+            </div>
+            <div className="flex justify-around">
+              <SingleSelectCheckbox
+                title="Consignment"
+                options={Consignmentoptions}
+                //onSelect={handleConsignment}
+                selectedValue={selectedconsignmen}
+                onChange={handleOrderTypeChange}
+              />
+              <SingleSelectCheckbox
+                title="Sales or Return" /*Sales or Return(SOR)*/
+                options={SORoptions}
+                selectedValue={selectedsor}
+                onChange={handleOrderTypeChange}
+                classes="font-semibold"
+              />
+              <SingleSelectCheckbox
+                title="Outright Purchase" /*"Outright Purchase"*/
+                options={Outpurchaseoptions}
+                selectedValue={selectedoutrightpur}
+                onChange={handleOrderTypeChange}
+                classes="font-semibold"
+              />
+              <SingleSelectCheckbox
+                title="Customer Order"
+                options={CustomerOrderoptions}
+                //onSelect={handleConsignment}
+                selectedValue={selectedCustOrder}
+                onChange={handleOrderTypeChange}
+              />
             </div>
           </div>
         </div>

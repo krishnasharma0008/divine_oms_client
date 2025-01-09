@@ -79,9 +79,13 @@ function JewelleryDetailScreen() {
 
   const [selectedQty, setSelectedQty] = useState<number>(1);
 
-  const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
+  //const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
   const [isMessage, setIsMessage] = useState<string>("");
+
+  const generateRingSizes = (min: number, max: number) => {
+    return Array.from({ length: max - min + 1 }, (_, i) => i + min);
+  };
 
   useEffect(() => {
     if (formType === "new") {
@@ -119,8 +123,8 @@ function JewelleryDetailScreen() {
           baseVariantCarat && baseVariantCarat.length > 0
             ? baseVariantCarat[0]
             : "";
-        console.log("defaultCarat : ", defaultCarat);
-        console.log("defaultSize : ", defaultSize);
+        //console.log("defaultCarat : ", defaultCarat);
+        //console.log("defaultSize : ", defaultSize);
         setRingSizeFrom(defaultSize);
         setBaseCarat(defaultCarat);
         setBaseRingSize(defaultSize); //variant size where Is_base_variant = 1
@@ -129,7 +133,14 @@ function JewelleryDetailScreen() {
       if (!metalColor) {
         setMetalColor(cart.metal_color || ""); // Set from cart if available
       }
-      setMetalPurity(cart.metal_purity || "");
+
+      if (cart.metal_purity === "") {
+        const defaultPurity =
+          jewelleryDetails?.Metal_purity.split(",")[0].trim();
+        setMetalPurity(defaultPurity ?? "");
+      } else {
+        setMetalPurity(cart.metal_purity || "");
+      }
       setRingSizeFrom(Number(cart.size_from)); // Set from cart
       //setRingSizeTo(Number(cart.size_to)); // Set from cart
       setSelectedQty(cart.product_qty); // Set from cart
@@ -667,9 +678,9 @@ function JewelleryDetailScreen() {
         SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
       // Ensure selectedQty is defined before proceeding
       const qty = selectedQty || 1;
-      console.log(
-        parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
-      );
+      // console.log(
+      //   parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
+      // );
       setSoliAmtFrom(
         parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
       );
@@ -712,7 +723,9 @@ function JewelleryDetailScreen() {
     }
     const exp_dlv_date = customerOrder?.exp_dlv_date
       ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
-        ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+        ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY")
+            .add(dayjs().utcOffset(), "minute")
+            .toISOString()
         : new Date().toISOString() // fallback to the current date
       : new Date().toISOString();
 
@@ -749,7 +762,13 @@ function JewelleryDetailScreen() {
       metal_price: metalPrice ?? 0,
       mount_amt_min: (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
       mount_amt_max: (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
-      size_from: ringSizeFrom === 0 ? "-" : ringSizeFrom.toString(),
+      //size_from: ringSizeFrom === 0 ? "-" : ringSizeFrom.toString(),
+      size_from:
+        ringSizeFrom == null || isNaN(ringSizeFrom)
+          ? ""
+          : ringSizeFrom === 0
+          ? "-"
+          : ringSizeFrom.toString(),
       size_to: "-", //ringSizeTo === 0 ? "-" : ringSizeTo.toString(),
       side_stone_pcs: Number(sideDiaTotPcs),
       side_stone_cts: Number(sideDiaTotweight),
@@ -805,28 +824,35 @@ function JewelleryDetailScreen() {
 
   const handleQtyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newQty = Number(e.target.value);
-    if (newQty <= 0) {
+
+    if (newQty <= 0 || isNaN(newQty)) {
       notifyErr("Quantity must be at least 1.");
       return;
     }
 
     const carat = customisedData?.carat?.split("-") || ["0", "0"];
+    const minCarat = parseFloat(carat[0]) || 0; // Default to 0 if invalid
+    const maxCarat = parseFloat(carat[1]) || 0; // Default to 0 if invalid
+    const premiumPercentage = Number(customisedData?.premiumPercentage) || 0;
 
     setSelectedQty(newQty);
-    // console.log("soliPriceFrom", soliPriceFrom);
-    // console.log("soliPriceTo", soliPriceTo);
+
+    // Validate soliPriceFrom and soliPriceTo
+    const validSoliPriceFrom = soliPriceFrom || 0;
+    const validSoliPriceTo = soliPriceTo || 0;
+
+    // Calculate premium prices
     const premiumMinPrice =
-      soliPriceFrom +
-      soliPriceFrom * (Number(customisedData?.premiumPercentage) / 100);
+      validSoliPriceFrom + validSoliPriceFrom * (premiumPercentage / 100);
     const premiumMaxPrice =
-      soliPriceTo +
-      soliPriceTo * (Number(customisedData?.premiumPercentage) / 100);
-    setSoliAmtFrom(
-      parseFloat((premiumMinPrice * parseFloat(carat[0]) * newQty).toFixed(2))
-    );
-    setSoliAmtTo(
-      parseFloat((premiumMaxPrice * parseFloat(carat[1]) * newQty).toFixed(2))
-    );
+      validSoliPriceTo + validSoliPriceTo * (premiumPercentage / 100);
+
+    // Calculate amounts with default fallback for invalid values
+    const calculatedSoliAmtFrom = premiumMinPrice * minCarat * newQty;
+    const calculatedSoliAmtTo = premiumMaxPrice * maxCarat * newQty;
+
+    setSoliAmtFrom(parseFloat(calculatedSoliAmtFrom.toFixed(2)) || 0); // Default to 0 if NaN
+    setSoliAmtTo(parseFloat(calculatedSoliAmtTo.toFixed(2)) || 0); // Default to 0 if NaN
   };
 
   const handleSideDiaClarityChange = (
@@ -1026,7 +1052,10 @@ function JewelleryDetailScreen() {
                         value={ringSizeFrom}
                         onChange={handleFromChange}
                       >
-                        {ringSizes.map((size) => (
+                        {generateRingSizes(
+                          Number(jewelleryDetails?.Product_size_from),
+                          Number(jewelleryDetails?.Product_size_to)
+                        ).map((size) => (
                           <option key={size} value={size}>
                             {size}
                           </option>
@@ -1049,30 +1078,34 @@ function JewelleryDetailScreen() {
                 </div>
               </div>
             )}
-          <div className="flex justify-between mt-4">
-            <div className="flex items-center space-x-2">
-              <div className="text-lg">
-                <span>Side Daimond :</span>
-                <span className="font-semibold">
-                  {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
-                </span>
-                <span className="hidden">Side diamond price :{sDiaPrice}</span>
-              </div>
-              <div className="flex">
-                <select
-                  className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                  value={sideDiaColorClarity}
-                  onChange={handleSideDiaClarityChange}
-                >
-                  {sideDiaColorClarityOption.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
+          {sideDiaTotPcs > 0 && (
+            <div className="flex justify-between mt-4">
+              <div className="flex items-center space-x-2">
+                <div className="text-lg">
+                  <span>Side Daimond :</span>
+                  <span className="font-semibold">
+                    {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
+                  </span>
+                  <span className="hidden">
+                    Side diamond price :{sDiaPrice}
+                  </span>
+                </div>
+                <div className="flex">
+                  <select
+                    className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
+                    value={sideDiaColorClarity}
+                    onChange={handleSideDiaClarityChange}
+                  >
+                    {sideDiaColorClarityOption.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="flex w-full space-x-2 justify-end">
