@@ -93,9 +93,16 @@ export const CreateOrderEndpoint: Endpoint = {
   url: "cart/toorder",
 };
 
-export const GetProductCategoryEndpoint: Endpoint = {
+//old
+// export const GetProductCategoryEndpoint: Endpoint = {
+//   method: HTTP_METHOD.GET,
+//   url: "erp/get-product-category",
+// };
+
+//new
+export const GetFiltersEndpoint: Endpoint = {
   method: HTTP_METHOD.GET,
-  url: "erp/get-product-category",
+  url: "erp/get-filters",
 };
 
 export const OrderListEndpoint: Endpoint = {

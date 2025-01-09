@@ -2,19 +2,21 @@ import { AxiosResponse } from "axios";
 
 import { getToken } from "@/local-storage";
 
-import { GetProductCategoryEndpoint } from "./endpoints";
+import { GetFiltersEndpoint } from "./endpoints";
 import callWebService from "./web-service";
 
 export interface GetCategoryResponse {
-  data: Array<string>;
+  category: Array<string>;
+  collection: Array<string>;
+  sub_category: Array<string>;
 }
 
-const ProductCategory = (): Promise<AxiosResponse<GetCategoryResponse>> =>
-  callWebService(GetProductCategoryEndpoint.url, {
-    method: GetProductCategoryEndpoint.method,
+const ProductFilters = (): Promise<AxiosResponse<GetCategoryResponse>> =>
+  callWebService(GetFiltersEndpoint.url, {
+    method: GetFiltersEndpoint.method,
     headers: {
       Authorization: "Bearer " + getToken(),
     },
   });
 
-export { ProductCategory };
+export { ProductFilters };

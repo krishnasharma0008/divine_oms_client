@@ -71,6 +71,7 @@ const AdminLoginScreen: React.FC = () => {
           href="#"
           className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="w-auto h-28 mr-2"
             src="/logo/new_logo.png"

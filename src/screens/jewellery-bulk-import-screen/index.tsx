@@ -411,7 +411,9 @@ const JewelleryBulkImportScreen: React.FC = () => {
       if (!hasError) {
         const exp_dlv_date = customerOrder?.exp_dlv_date
           ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
-            ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").toISOString()
+            ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY")
+                .add(dayjs().utcOffset(), "minute")
+                .toISOString()
             : new Date().toISOString()
           : new Date().toISOString();
 
@@ -446,10 +448,16 @@ const JewelleryBulkImportScreen: React.FC = () => {
           metal_price: 0,
           mount_amt_min: 0,
           mount_amt_max: 0,
+          // size_from:
+          //   Number(row["size"]?.toString().trim()) === 0
+          //     ? "-"
+          //     : row["size"]?.toString().trim() || "",
           size_from:
-            Number(row["size"]?.toString().trim()) === 0
-              ? "-"
-              : row["size"]?.toString().trim() || "",
+            row["size"] && !isNaN(Number(row["size"].toString().trim()))
+              ? Number(row["size"].toString().trim()) === 0
+                ? "-"
+                : row["size"].toString().trim()
+              : "",
           size_to: "-",
           side_stone_pcs: 0,
           side_stone_cts: 0,

@@ -47,6 +47,8 @@ function CartScreen() {
 
   const [cartMsg, setCartMsg] = useState<cart_to_order_info[]>([]);
 
+  const [isMsg, setIsMsg] = useState<string>(""); //error message
+
   const router = useRouter();
 
   useEffect(() => {
@@ -235,6 +237,16 @@ function CartScreen() {
 
   //const handleCopyItem = async (item: CartDetail) => {
   const handleCopyItem = async (item: CartDetail) => {
+    const exp_dlv_date = item.exp_dlv_date
+      ? dayjs(item.exp_dlv_date, "DD-MM-YYYY").isValid()
+        ? dayjs(item.exp_dlv_date, "DD-MM-YYYY")
+            .add(dayjs().utcOffset(), "minute")
+            .toISOString()
+        : new Date().toISOString() // fallback to the current date
+      : new Date().toISOString();
+
+    console.log("exp_dlv_date:", exp_dlv_date);
+
     const payload: CartDetail = {
       order_for: item.order_for || "",
       customer_id: item.customer_id || 0,
@@ -246,9 +258,7 @@ function CartScreen() {
       product_sub_category: item.product_sub_category || "", //new
       collection: item.collection || "",
       //exp_dlv_date: new Date(item.exp_dlv_date || Date.now()).toISOString(),
-      exp_dlv_date: new Date(
-        dayjs(item.exp_dlv_date || "2025-01-04").format("YYYY-MM-DD")
-      ).toISOString(),
+      exp_dlv_date: exp_dlv_date,
       old_varient: item.old_varient || "",
       product_code: item.product_code || "",
       product_qty: item.product_qty || 1,
@@ -265,7 +275,8 @@ function CartScreen() {
       metal_purity: item.metal_purity || "",
       metal_color: item.metal_color || "",
       metal_weight: item.metal_weight || 0,
-      size_from: item.size_from || "",
+      //size_from: item.size_from || "",
+      size_from: item.size_from != null ? item.size_from : "",
       size_to: item.size_to || "",
       side_stone_pcs: item.side_stone_pcs || 0,
       side_stone_cts: item.side_stone_cts || 0,
@@ -333,6 +344,26 @@ function CartScreen() {
 
   const handleProceedToCheckout = async () => {
     if (selectedItems.length === 0) {
+      setIsMsg("");
+      setIsMsg("Please select at least one item to proceed to checkout.");
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+
+    // Ensure only 1 partner jeweller (customer_name) is selected
+    const selectedCartItems = cartData.filter((item) =>
+      selectedItems.includes(item.id ?? 0)
+    );
+
+    const uniquePartners = new Set(
+      selectedCartItems.map((item) => item.customer_name)
+    );
+
+    if (uniquePartners.size !== 1) {
+      setIsMsg("");
+      setIsMsg(
+        "You can only select one partner jeweller to proceed with checkout."
+      );
       setIsCheckoutModalVisible(true);
       return;
     }
@@ -607,7 +638,7 @@ function CartScreen() {
                   </div>
                   {item.product_type === "jewellery" && (
                     <>
-                      {item.size_from !== "-" && (
+                      {item.size_from !== "-" && Number(item.size_from) > 3 && (
                         <p className="text-sm text-gray-600">
                           Size : {`${item.size_from || "-"}`}
                         </p>
@@ -618,18 +649,20 @@ function CartScreen() {
                           item.metal_purity || "-"
                         }`}
                       </p>
-                      <p className="text-sm text-gray-600">
-                        Side Diamonds :{" "}
-                        {item.side_stone_cts
-                          ? `${item.side_stone_cts.toFixed(2)} cts`
-                          : "-"}{" "}
-                        {item.side_stone_color
-                          ? `${item.side_stone_color}`
-                          : "-"}{" "}
-                        {item.side_stone_quality
-                          ? `${item.side_stone_quality}`
-                          : "-"}
-                      </p>
+                      {item.side_stone_cts > 0 && (
+                        <p className="text-sm text-gray-600">
+                          Side Diamonds :{" "}
+                          {item.side_stone_cts
+                            ? `${item.side_stone_cts.toFixed(2)} cts`
+                            : "-"}{" "}
+                          {item.side_stone_color
+                            ? `${item.side_stone_color}`
+                            : "-"}{" "}
+                          {item.side_stone_quality
+                            ? `${item.side_stone_quality}`
+                            : "-"}
+                        </p>
+                      )}
                       <p className="flex text-sm text-gray-600">
                         Metal Weight :&nbsp;
                         <p className="font-semibold text-black">
@@ -786,7 +819,7 @@ function CartScreen() {
                   //onClose={() => setIsCheckoutModalVisible(false)}
                   onConfirm={closeCheckoutModal}
                 >
-                  <p>Please select at least one item to proceed to checkout.</p>
+                  <p>{isMsg}</p>
                 </MessageModal>
               )}
 

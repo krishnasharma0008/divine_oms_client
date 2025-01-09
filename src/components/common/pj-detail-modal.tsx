@@ -1,6 +1,5 @@
 import React from "react";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
-import dayjs from "dayjs";
 
 interface ModalProps {
   isOpen: boolean;
@@ -15,17 +14,24 @@ const PJDetailModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     { label: "Store", value: customerOrder?.store },
     { label: "Address", value: customerOrder?.address },
     { label: "Contact Detail", value: customerOrder?.contactno },
-    { label: "Item Type", value: customerOrder?.product_type },
-    { label: "Order Type", value: customerOrder?.order_type },
-    { label: "Incentive/Deduction", value: "1 % Extra" },
-    { label: "Delivery", value: "Within 28 working days" },
-    { label: "Price List", value: "Price at the time of booking." },
-    { label: "Courier charges", value: "Not charged" },
-    { label: "Comments", value: "Invoice will go with 1% credit note" },
     {
-      label: "Expected Date",
-      value: dayjs(customerOrder?.exp_dlv_date).format("DD-MM-YYYY"),
+      label: "Item Type",
+      value: customerOrder?.product_type
+        ? customerOrder.product_type.charAt(0).toUpperCase() +
+          customerOrder.product_type.slice(1)
+        : "",
     },
+    { label: "Order Type", value: customerOrder?.order_type },
+    { label: "Order For", value: customerOrder?.order_for },
+    //{ label: "Incentive/Deduction", value: "1 % Extra" },
+    //{ label: "Delivery", value: "Within 28 working days" },
+    //{ label: "Price List", value: "Price at the time of booking." },
+    //{ label: "Courier charges", value: "Not charged" },
+    //{ label: "Comments", value: "Invoice will go with 1% credit note" },
+    // {
+    //   label: "Expected Date",
+    //   value: customerOrder?.exp_dlv_date,
+    // },
   ];
 
   if (!isOpen) return null;

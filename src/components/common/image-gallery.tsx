@@ -73,6 +73,7 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
             } rounded-lg`}
           >
             {image.title.startsWith("Image") ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={image.thumbnailUrl}
                 alt={image.title}
@@ -95,6 +96,7 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <button className="p-1 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/jewellery/play.png"
                       alt="play button"
@@ -117,6 +119,7 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
             //style={{ height: `${mainImageHeight}px` }} // Set the height to match 4 thumbnails
           >
             {filteredImages[selectedImage].title.startsWith("Image") ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={filteredImages[selectedImage].url}
                 alt={filteredImages[selectedImage].title}

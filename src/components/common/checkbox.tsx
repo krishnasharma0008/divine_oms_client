@@ -31,20 +31,20 @@ const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 
   return (
     <Card
-      className="w-auto p-4"
+      className="w-full p-2"
       style={{ borderTop: "1px solid rgb(0 0 0 / 0.1)" }}
     >
       {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
       <div
-        className="flex flex-col space-y-2 overflow-y-auto"
-        style={{
-          maxHeight: "160px", // Approximately 4 items tall (adjust as needed)
-        }}
+        className="flex flex-col space-y-2 "
+        // style={{
+        //   maxHeight: "160px", // Approximately 4 items tall (adjust as needed)
+        // }}
       >
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex items-center space-x-2" // Reduced padding between options
+            className="flex items-center space-x-1" // Reduced padding between options
           >
             <Checkbox
               id={option.value}
