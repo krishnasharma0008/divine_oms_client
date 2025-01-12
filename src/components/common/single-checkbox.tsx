@@ -36,7 +36,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
               checked={selectedValue === option.value}
               onChange={() => onChange(option.value)}
             />
-            <span className={`${classes} text-black`}>{option.label}</span>
+            <span className={`${classes} text-black w-32`}>{option.label}</span>
           </label>
         ))}
       </div>
