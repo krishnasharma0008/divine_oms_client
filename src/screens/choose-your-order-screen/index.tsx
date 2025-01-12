@@ -441,12 +441,12 @@ const ChooseYourOrderScreen = () => {
           </div>
           {/* </div> */}
 
-          <div className="w-full flex justify-between">
-            <div className="border px-4">
-              <div>
-                <p className="text-[#888]">Select Item Type</p>
-              </div>
-              <div>
+          <div className="w-full flex justify-between pl-4">
+            <fieldset className="w-auto p-2 border border-black/10 rounded-md">
+              <legend className="text-base font-semibold">
+                Select Item Type
+              </legend>
+              <div className="px-4">
                 <RadioButton
                   name="Select Item Type"
                   options={Ioptions}
@@ -454,19 +454,18 @@ const ChooseYourOrderScreen = () => {
                   onChange={handleItemTypeChange}
                 />
               </div>
-            </div>
-            <div className="border px-4">
-              <div>
-                <p className="text-[#888]">Order For</p>
-              </div>
-              <div>
+            </fieldset>
+            <div className="px-4">
+              <fieldset className="w-auto p-2 border border-black/10 rounded-md">
+                <legend className="text-base font-semibold">Order For</legend>
+
                 <RadioButton
                   name="Order For"
                   options={OrderForoptions}
                   selectedValue={selectedOrderFor}
                   onChange={handleOrderForChange}
                 />
-              </div>
+              </fieldset>
             </div>
             <div className="flex px-4 mt-4">
               <InputText
@@ -477,45 +476,45 @@ const ChooseYourOrderScreen = () => {
               />
             </div>
           </div>
-          <div className="w-full">
-            <div className="mb-2">
-              <p className="text-[#888]">Order Type</p>
-            </div>
-            <div className="flex justify-around">
-              <SingleSelectCheckbox
-                title="Consignment"
-                options={Consignmentoptions}
-                //onSelect={handleConsignment}
-                selectedValue={selectedconsignmen}
-                onChange={handleOrderTypeChange}
-              />
-              <SingleSelectCheckbox
-                title="Sales or Return" /*Sales or Return(SOR)*/
-                options={SORoptions}
-                selectedValue={selectedsor}
-                onChange={handleOrderTypeChange}
-                classes="font-semibold"
-              />
-              <SingleSelectCheckbox
-                title="Outright Purchase" /*"Outright Purchase"*/
-                options={Outpurchaseoptions}
-                selectedValue={selectedoutrightpur}
-                onChange={handleOrderTypeChange}
-                classes="font-semibold"
-              />
-              <SingleSelectCheckbox
-                title="Customer Order"
-                options={CustomerOrderoptions}
-                //onSelect={handleConsignment}
-                selectedValue={selectedCustOrder}
-                onChange={handleOrderTypeChange}
-              />
-            </div>
+          <div className="w-full pl-4 mt-6">
+            <fieldset className="w-auto p-2 border border-black/10 rounded-md">
+              <legend className="text-base font-semibold">Order Type</legend>
+              <div className="flex justify-around">
+                <SingleSelectCheckbox
+                  title="Consignment"
+                  options={Consignmentoptions}
+                  //onSelect={handleConsignment}
+                  selectedValue={selectedconsignmen}
+                  onChange={handleOrderTypeChange}
+                />
+                <SingleSelectCheckbox
+                  title="Sales or Return" /*Sales or Return(SOR)*/
+                  options={SORoptions}
+                  selectedValue={selectedsor}
+                  onChange={handleOrderTypeChange}
+                  //classes="font-semibold"
+                />
+                <SingleSelectCheckbox
+                  title="Outright Purchase" /*"Outright Purchase"*/
+                  options={Outpurchaseoptions}
+                  selectedValue={selectedoutrightpur}
+                  onChange={handleOrderTypeChange}
+                  //classes="font-semibold"
+                />
+                <SingleSelectCheckbox
+                  title="Customer Order"
+                  options={CustomerOrderoptions}
+                  //onSelect={handleConsignment}
+                  selectedValue={selectedCustOrder}
+                  onChange={handleOrderTypeChange}
+                />
+              </div>
+            </fieldset>
           </div>
         </div>
       </main>
       <footer>
-        <div className="w-full text-[#888] px-4">
+        <div className="w-full text-[#888] px-6">
           Disclaimer: We are not committing for delivering the order on the
           delivery date. We will try our best to deliver within time.
         </div>

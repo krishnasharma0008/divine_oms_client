@@ -96,12 +96,11 @@ const Navbar: React.FC = () => {
           <Link href="/">
             <div className="flex flex-row justify-center items-center">
               <Image
-                src="/logo/old_logo.png"
+                src="/logo/new_logo.png"
                 alt="Company Logo"
-                width={869}
-                height={567}
-                className="h-auto w-auto max-h-[71px] max-w-[164px] lg:max-h-[74px] lg:max-w-[184px] cursor-pointer py-1"
-                layout="intrinsic"
+                layout="fill"
+                className="object-contain py-2"
+                loading="lazy"
               />
             </div>
           </Link>
