@@ -57,16 +57,19 @@ function JewelleyScreen() {
     { label: "950PT", value: "950PT" },
   ];
 
-  const portfoliooptions = [];
+  const portfoliooptions = [
+    { label: "Divine (DSJ)", value: "Divine (DSJ)" },
+    { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" },
+  ];
 
-  if (customerOrder?.order_for === "Stock") {
-    portfoliooptions.push({ label: "Divine (DSJ)", value: "Divine (DSJ)" });
-  } else {
-    portfoliooptions.push(
-      { label: "Divine (DSJ)", value: "Divine (DSJ)" },
-      { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" }
-    );
-  }
+  // if (customerOrder?.order_for === "Stock") {
+  //   portfoliooptions.push({ label: "Divine (DSJ)", value: "Divine (DSJ)" });
+  // } else {
+  //   portfoliooptions.push(
+  //     { label: "Divine (DSJ)", value: "Divine (DSJ)" },
+  //     { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" }
+  //   );
+  // }
 
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
