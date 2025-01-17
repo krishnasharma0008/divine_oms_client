@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getAdminToken } from "@/local-storage";
+import dayjs from "dayjs";
 //import { DropdownCust } from "@/components";
 
 function AdminOrderDetailJewelleryScreen() {
@@ -60,6 +61,11 @@ function AdminOrderDetailJewelleryScreen() {
     {
       name: "Product",
       selector: (row: OrderDetail) => row.product_code,
+      center: true,
+    },
+    {
+      name: "Old",
+      selector: (row: OrderDetail) => row.old_varient,
       center: true,
     },
     {
@@ -212,6 +218,24 @@ function AdminOrderDetailJewelleryScreen() {
     },
   };
 
+  const getOrderType = (OrderType: string) => {
+    let otype = "";
+    if (OrderType === "tcs") {
+      otype = "Consignment TCS";
+    } else if (OrderType === "rroexhibitation") {
+      otype = "Consignment RRO / Exhibition";
+    } else if (OrderType === "sor") {
+      otype = "Sales or Return";
+    } else if (OrderType === "outpur") {
+      otype = "Outright Purchase";
+    } else if (OrderType === "rco") {
+      otype = "Customer Order RCO";
+    } else if (OrderType === "sco") {
+      otype = "Customer Order SCO";
+    }
+    return otype;
+  };
+
   return (
     <div className="space-y-4 m-4">
       {/* Main Content Section */}
@@ -287,6 +311,26 @@ function AdminOrderDetailJewelleryScreen() {
         <div className="table w-full">
           {[
             ["Status", orderData[0]?.order_status || "--"],
+            [
+              "Date of Order",
+              orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : "",
+            ],
+            ["Partner Jeweller", orderData[0]?.customer_name || "--"],
+            ["Store Name", orderData[0]?.customer_branch || "--"],
+            ["Order Type", getOrderType(orderData[0]?.order_type || "--")],
+            ["Order For", orderData[0]?.order_for || "--"],
+            [
+              "Delivery Date",
+              orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : "",
+            ],
+            ["Placed By", orderData[0]?.username || "--"],
+            ["RBH", "--"], // Placeholder
+            ["ZBH", "--"], // Placeholder
+
             ["Partner Jeweller", orderData[0]?.customer_name || "--"],
             ["Store", orderData[0]?.customer_branch || "--"],
             ["Dispatch Details", "--"],

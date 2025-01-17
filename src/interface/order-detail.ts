@@ -3,6 +3,7 @@ export interface OrderDetail {
   username: string;
   orderno: number;
   order_for: string;
+  order_type: string;
   customer_id: number;
   customer_name: string;
   customer_branch: string;
@@ -42,4 +43,6 @@ export interface OrderDetail {
   order_remarks: string;
   image_url: string;
   order_status: string;
+  old_varient: string;
+  order_createdat: string;
 }

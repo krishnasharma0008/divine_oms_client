@@ -52,6 +52,7 @@ const LoginScreenMobileInput: React.FC = () => {
       } else {
         notifyErr(NOTIFICATION_MESSAGES.LOGIN_FAIL);
       }
+      //(cartData ?? []).length
     } catch (err) {
       console.error("Error during login:", err);
       notifyErr(NOTIFICATION_MESSAGES.SOMETHING_WRONG);

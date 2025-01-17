@@ -349,7 +349,7 @@ function JewelleryDetailScreen() {
       }, 0);
       setBaseSideDiaTotweight(totalsideweight ?? 0);
       setSideDiaTotweight(totalsideweight ?? 0);
-
+      console.log("Add totalsideweight : ", totalsideweight);
       calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
 
       CalculateMetalAmount(
@@ -545,44 +545,134 @@ function JewelleryDetailScreen() {
     CalculateMetalAmount(selectedValue, metalPurity, Metalweight);
   };
 
-  function getMetalColor(metalColor: string) {
-    if (metalColor === "PT White") {
-      return "White";
-    } else if (metalColor === "Platinum + Yellow Gold") {
-      return "Yellow";
-    } else if (metalColor === "Platinum + Rose Gold") {
-      return "Rose";
-    } else {
-      return metalColor; // Default case: use the original value
+  const getValidPurity = (metal: string, purity: string): string => {
+    if (metal === "Platinum") {
+      if (purity !== "950PT") {
+        //console.log(`Purity for Platinum is invalid. Defaulting to 950PT.`);
+        return "950PT";
+      }
+      return purity; // If the purity matches, return it
     }
-  }
+
+    // For Gold, check if purity is within the expected range (14KT to 22KT)
+    if (metal === "Gold") {
+      const purityValue = parseInt(purity, 10);
+
+      // If purity is not in the range of 14KT to 22KT, set to '18KT'
+      if (isNaN(purityValue) || purityValue < 8 || purityValue > 22) {
+        console.log(
+          `Purity for Gold is invalid or out of range. Defaulting to 18KT.`
+        );
+        return "18KT";
+      }
+      return purity; // If the purity matches, return it
+    }
+
+    console.log("Invalid metal type or purity.");
+    return "Unknown"; // Default value if the metal type is neither Gold nor Platinum
+  };
+
+  const getMetalColor = (metal: string, color: string): string => {
+    // Normalize inputs
+    const normalizedMetal = metal.trim().toLowerCase();
+    const normalizedColor = color.trim().toLowerCase();
+
+    let validColor = "";
+
+    // Handle platinum cases
+    if (normalizedMetal === "platinum") {
+      validColor = "White"; // For Platinum, always return White regardless of the color description
+    }
+    // Handle gold cases
+    else if (normalizedMetal === "gold") {
+      if (
+        normalizedColor.includes("yellow gold") ||
+        normalizedColor.includes("yellow")
+      ) {
+        validColor = "Yellow"; // If the color includes "yellow gold", return Yellow
+      } else if (
+        normalizedColor.includes("rose gold") ||
+        normalizedColor.includes("rose")
+      ) {
+        validColor = "Rose"; // If the color includes "rose gold", return Rose
+      } else if (
+        normalizedColor.includes("white gold") ||
+        normalizedColor.includes("white")
+      ) {
+        validColor = "White"; // Default to Yellow if other color is unspecified
+      }
+    }
+
+    return validColor;
+  };
 
   const CalculateMetalAmount = async (
     metalColor: string,
     metalPurity: string,
     Metalweight: number
   ) => {
-    console.log("Inputs for CalculateMetalAmount:", {
-      metalColor,
-      metalPurity,
-      Metalweight,
-    });
+    try {
+      // Filter BOM to get the total weight for GOLD and PLATINUM separately, with fallback to 0 if undefined
+      const goldWeight =
+        jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Item_group === "GOLD" && bomItem.Item_type === "METAL"
+        ).reduce((acc, bomItem) => acc + (bomItem.Weight || 0), 0) ?? 0;
 
-    if (metalColor && metalPurity && Metalweight) {
-      try {
-        const metal = metalPurity === "950PT" ? "PLATINUM" : "GOLD";
-        const color = getMetalColor(metalColor);
-        const price = await FetchPrice(metal, "", "", color, metalPurity);
-        //console.log("Fetched price:", price);
-        setMetalPrice(price);
-        const amount = parseFloat((price * Metalweight).toFixed(2));
-        //console.log("Calculated metal amount:", amount);
-        setMetalAmtFrom(amount);
-      } catch (error) {
-        console.error("Error in CalculateMetalAmount:", error);
+      const platinumWeight =
+        jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Item_group === "PLATINUM" && bomItem.Item_type === "METAL"
+        ).reduce((acc, bomItem) => acc + (bomItem.Weight || 0), 0) ?? 0;
+
+      console.log("Gold Weight: ", goldWeight);
+      console.log("Platinum Weight: ", platinumWeight);
+
+      // Fetch prices for GOLD and PLATINUM if they exist
+      let goldPrice = 0;
+      let platinumPrice = 0;
+
+      if (goldWeight > 0) {
+        goldPrice = await FetchPrice(
+          "GOLD",
+          "",
+          "",
+          getMetalColor("GOLD", metalColor),
+          getValidPurity("Gold", metalPurity)
+        );
+        //console.log("Gold Price: ", goldPrice);
       }
-    } else {
-      console.warn("Invalid inputs for metal amount calculation.");
+
+      if (platinumWeight > 0) {
+        platinumPrice = await FetchPrice(
+          "PLATINUM",
+          "",
+          "",
+          getMetalColor("PLATINUM", metalColor),
+          getValidPurity("Platinum", metalPurity)
+        );
+        //console.log("Platinum Price: ", platinumPrice);
+      }
+
+      // Calculate amounts for available metals
+      const goldAmount = goldWeight > 0 ? goldWeight * goldPrice : 0;
+      const platinumAmount =
+        platinumWeight > 0 ? platinumWeight * platinumPrice : 0;
+      console.log("Gold Wt: ", goldWeight);
+      console.log("Platinum Wt: ", platinumWeight);
+      console.log("Gold Amount: ", goldAmount);
+      console.log("Platinum Amount: ", platinumAmount);
+
+      // Calculate the total amount and total metal weight
+      const totalMetalAmount = goldAmount + platinumAmount;
+      //const totalMetalWeight = goldWeight + platinumWeight;
+      setMetalAmtFrom(totalMetalAmount);
+      if (Metalweight > 0) {
+        setMetalPrice(totalMetalAmount / Metalweight);
+        //console.log("Price per Unit Weight: ", pricePerUnitWeight);
+      }
+    } catch (error) {
+      console.error("Error in CalculateMetalAmount:", error);
     }
   };
 
@@ -597,7 +687,7 @@ function JewelleryDetailScreen() {
       setSDiaPrice(diamondPrice);
       if (totalsideweight && !isNaN(diamondPrice)) {
         const sideDiamondPrice = diamondPrice * totalsideweight;
-
+        console.log("Total Side amt : ", sideDiamondPrice);
         setSDiaAmt(sideDiamondPrice);
       } else {
         console.error("Invalid side diamond pieces or weight.");
@@ -1154,6 +1244,7 @@ function JewelleryDetailScreen() {
         onApply={handleApply}
         cts_slab={jewelleryDetails?.Cts_size_slab ?? []}
         customisedData={customisedData}
+        collection={jewelleryDetails?.Collection ?? ""}
       />
 
       {/* alert message */}

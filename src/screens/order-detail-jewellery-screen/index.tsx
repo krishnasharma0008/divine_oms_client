@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getToken } from "@/local-storage";
+import dayjs from "dayjs";
 
 function OrderDetailJewelleryScreen() {
   //const { id } = useParams<{ id: string }>();
@@ -57,6 +58,11 @@ function OrderDetailJewelleryScreen() {
     {
       name: "Product",
       selector: (row: OrderDetail) => row.product_code,
+      center: true,
+    },
+    {
+      name: "Old",
+      selector: (row: OrderDetail) => row.old_varient,
       center: true,
     },
     {
@@ -144,7 +150,7 @@ function OrderDetailJewelleryScreen() {
     },
     {
       name: "Remarks",
-      selector: (row: OrderDetail) => row.order_remarks || " ",
+      selector: (row: OrderDetail) => row.cart_remarks || " ",
       center: true,
     },
   ];
@@ -195,6 +201,25 @@ function OrderDetailJewelleryScreen() {
       },
     },
   };
+
+  const getOrderType = (OrderType: string) => {
+    let otype = "";
+    if (OrderType === "tcs") {
+      otype = "Consignment TCS";
+    } else if (OrderType === "rroexhibitation") {
+      otype = "Consignment RRO / Exhibition";
+    } else if (OrderType === "sor") {
+      otype = "Sales or Return";
+    } else if (OrderType === "outpur") {
+      otype = "Outright Purchase";
+    } else if (OrderType === "rco") {
+      otype = "Customer Order RCO";
+    } else if (OrderType === "sco") {
+      otype = "Customer Order SCO";
+    }
+    return otype;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
       {/* Main Content Section */}
@@ -276,6 +301,76 @@ function OrderDetailJewelleryScreen() {
           Order Summary
         </h2>
         <div className="space-y-4">
+          {/* Date of Order orderData?.order_date */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Date of Order</span>
+            <span className="text-lg font-semibold text-gray-800">{orderData[0]?.order_createdat
+                ? dayjs(orderData[0]?.order_createdat).format("DD MMM, YYYY")
+                : ""}</span>
+          </div>
+
+          {/* Customer Name */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Customer Name</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.customer_name || "--"}
+            </span>
+          </div>
+
+          {/* Store Name */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Store Name</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.customer_branch || "--"}
+            </span>
+          </div>
+
+          {/* Order Type */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Order Type</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {getOrderType(orderData[0]?.order_type) || "--"}
+            </span>
+          </div>
+
+          {/* Order For */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Order For</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_for || "--"}
+            </span>
+          </div>
+
+          {/* Delivery Date */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Delivery Date</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : ""}
+            </span>
+          </div>
+
+          {/* Placed By */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Placed By</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.username || "--"}
+            </span>
+          </div>
+
+          {/* RBH */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">RBH</span>
+            <span className="text-lg font-semibold text-gray-800">--</span>
+          </div>
+
+          {/* ZBH */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">ZBH</span>
+            <span className="text-lg font-semibold text-gray-800">--</span>
+          </div>
+
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Quantity</span>
             <span className="text-lg font-semibold text-gray-800">
@@ -285,9 +380,8 @@ function OrderDetailJewelleryScreen() {
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Amount</span>
             <span className="text-lg font-semibold text-gray-800">
-              {`${formatByCurrencyINR(totalAmountMin)} - ${formatByCurrencyINR(
-                totalAmountMax
-              )}`}
+              {formatByCurrencyINR(totalAmountMin)} -{" "}
+              {formatByCurrencyINR(totalAmountMax)}
             </span>
           </div>
           <div className="flex justify-between items-center">

@@ -13,7 +13,6 @@ import {
   deleteUser,
   setUserRole,
   deleteUserRole,
-  //deleteAdminToken,
   getCartCount,
   setCartCount,
   deleteCartCount,
@@ -29,6 +28,7 @@ type TContext = {
   toggleLogin: () => void;
   isCartCount: number;
   updateCartCount: (count: number) => void;
+  setIsCartCount: React.Dispatch<React.SetStateAction<number>>; // Added type for setIsCartCount
 };
 
 const LoginContext = createContext<TContext>({
@@ -40,6 +40,7 @@ const LoginContext = createContext<TContext>({
   toggleLogin: () => {},
   isCartCount: 0,
   updateCartCount: () => {},
+  setIsCartCount: () => {}, // Default value for setIsCartCount
 });
 
 export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
@@ -51,6 +52,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   const [isCartCount, setIsCartCount] = useState<number>(
     getCartCount() || 0 // Initialize with localStorage value or 0
   );
+
   const validateToken = useCallback(() => {
     const token = getToken();
     if (token) {
@@ -79,6 +81,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
           setUser(res.data.dpname);
           setUserRole(res.data.designation);
           setIsCartCount(Number(res.data.cartcount)); // Update cart count
+          setCartCount(res.data.cartcount.toString()); // Store in localStorage
           return true;
         }
         return false;
@@ -91,16 +94,13 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const toggleLogin = useCallback(() => {
-    //deleteAdminToken();
     deleteToken();
     deleteUser();
     deleteUserRole();
-    //localStorage.clear(); // Clear all keys
     setIsLogin(false);
     setIsOtpVerified(false);
     deleteCartCount();
     setEmailOrMobileState(null);
-    //setIsCartCount(0); // Reset cart count
     localStorage.removeItem("customer-order-storage");
     localStorage.removeItem("customer-storage");
     localStorage.removeItem("custtype");
@@ -117,6 +117,11 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
     setIsCartCount(initialCartCount || 0); // Initialize cart count on mount
   }, [validateToken]);
 
+  // Synchronize cart count with localStorage on every change
+  useEffect(() => {
+    setCartCount(isCartCount.toString());
+  }, [isCartCount]); // This ensures localStorage is updated whenever the state changes
+
   return (
     <LoginContext.Provider
       value={{
@@ -128,6 +133,7 @@ export const LoginContextProvider: React.FC<{ children: ReactNode }> = ({
         toggleLogin,
         isCartCount,
         updateCartCount,
+        setIsCartCount, // Pass setIsCartCount in the provider value
       }}
     >
       {children}

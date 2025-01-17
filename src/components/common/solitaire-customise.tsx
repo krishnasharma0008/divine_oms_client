@@ -3,9 +3,11 @@ import DropdownCust from "./dropdown-cust";
 import { usePremiumSizeAndPercentage } from "@/hook";
 import {
   Solitaire_shape,
+  Solus_shape,
   otherRoundColors,
   otherRoundColorsCarat,
   colors,
+  Solus_colors,
   clarities,
   claritiesRound,
   claritiesRoundCarat,
@@ -26,11 +28,12 @@ interface SolitaireCustomisationPopupProps {
   onApply: (data: CustomisationOptions) => void;
   cts_slab: string[];
   customisedData?: CustomisationOptions;
+  collection: string;
 }
 
 const SolitaireCustomisationPopup: React.FC<
   SolitaireCustomisationPopupProps
-> = ({ isOpen, onClose, onApply, cts_slab, customisedData }) => {
+> = ({ isOpen, onClose, onApply, cts_slab, customisedData, collection }) => {
   const [shape, setShape] = useState<string>("");
   const [colorF, setColorF] = useState<string>("");
   const [colorT, setColorT] = useState<string>("");
@@ -61,37 +64,44 @@ const SolitaireCustomisationPopup: React.FC<
   const getColorOptions = (slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
 
-    if (isRound) {
-      if (carat < 0.18) {
-        return otherRoundColors;
-      } else {
-        return colors;
-      }
+    if (collection === "SOLUS") {
+      return Solus_colors; // Use solus color options if collection is SOLUS
     } else {
-      if (carat >= 0.1 && carat <= 0.17) {
-        return otherRoundColorsCarat;
+      if (isRound) {
+        if (carat < 0.18) {
+          return otherRoundColors;
+        } else {
+          return colors;
+        }
       } else {
-        return colors.filter(
-          (color) => color !== "I" && color !== "J" && color !== "K"
-        );
+        if (carat >= 0.1 && carat <= 0.17) {
+          return otherRoundColorsCarat;
+        } else {
+          return colors.filter(
+            (color) => color !== "I" && color !== "J" && color !== "K"
+          );
+        }
       }
     }
   };
 
   const getClarityOptions = (slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
-
-    if (isRound) {
-      if (carat < 0.18) {
-        return claritiesRound;
-      } else {
-        return clarities;
-      }
+    if (collection === "SOLUS") {
+      return claritiesRoundCarat; // Use solus color options if collection is SOLUS
     } else {
-      if (carat >= 0.1 && carat <= 0.17) {
-        return claritiesRoundCarat;
+      if (isRound) {
+        if (carat < 0.18) {
+          return claritiesRound;
+        } else {
+          return clarities;
+        }
       } else {
-        return clarities.slice(0, 5);
+        if (carat >= 0.1 && carat <= 0.17) {
+          return claritiesRoundCarat;
+        } else {
+          return clarities.slice(0, 5);
+        }
       }
     }
   };
@@ -246,7 +256,7 @@ const SolitaireCustomisationPopup: React.FC<
             </label>
             <DropdownCust
               label=""
-              options={Solitaire_shape}
+              options={collection === "SOLUS" ? Solus_shape : Solitaire_shape}
               value={shape}
               onChange={setShape}
               error={fieldErrors.shape}
