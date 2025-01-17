@@ -579,6 +579,9 @@ function CartScreen() {
                     </p>
                   </div>
                   <p className="text-sm text-gray-600">
+                    Order For : {item.order_for || "-"}
+                  </p>
+                  <p className="text-sm text-gray-600">
                     Store : {item.customer_branch || "-"}
                   </p>
                   <p className="text-sm text-gray-600">
