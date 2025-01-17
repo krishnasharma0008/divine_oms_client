@@ -1,9 +1,11 @@
 export const Solitaire_shape = ["Round", "Princess", "Oval", "Pear"];
+export const Solus_shape = ["Radiant", "Cushion", "Heart"];
 
 // Color and clarity related constants
 export const otherRoundColors = ["EF", "GH", "IJ"];
 export const otherRoundColorsCarat = ["EF", "GH"];
 export const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
+export const Solus_colors = ["Yellow Vivid", "Yellow Intense"];
 
 export const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
 export const claritiesRound = ["VVS", "VS", "SI"];

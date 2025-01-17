@@ -29,7 +29,8 @@ interface cart_to_order_info {
 
 function CartScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
-  const { isCartCount, updateCartCount } = useContext(LoginContext);
+  const { isCartCount, setIsCartCount, updateCartCount } =
+    useContext(LoginContext);
   const [cartData, setCartData] = useState<CartDetail[]>([]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -60,6 +61,8 @@ function CartScreen() {
         setCartData(res.data.data); // Initialize directly from API
         //setCartCount(res.data.data.length);
         setOrderSummaryRemark(res.data.order_remarks);
+        const cartCount = res.data.data.length;
+        setIsCartCount(cartCount);
       } catch (error) {
         console.error("Error fetching cart details:", error);
       } finally {
@@ -688,7 +691,9 @@ function CartScreen() {
                   <p className="flex text-sm text-gray-600">
                     Expected Delivery Date : &nbsp;
                     <p className="font-semibold text-black">
-                      {dayjs(item.exp_dlv_date).format("DD-MM-YYYY")}
+                      {dayjs(item.exp_dlv_date).isValid()
+                        ? dayjs(item.exp_dlv_date).format("DD-MM-YYYY")
+                        : " "}
                     </p>
                   </p>
                   {/* Clickable Remark */}
@@ -830,6 +835,7 @@ function CartScreen() {
               {isCheckoutModalMessageVisible && (
                 <MessageModal
                   title="Success"
+                  //onClose={() => setIsCheckoutModalVisible(false)}
                   onConfirm={closeCheckoutMessageModal}
                 >
                   <p>Your order has been created successfully.</p>
