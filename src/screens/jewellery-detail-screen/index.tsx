@@ -567,6 +567,7 @@ function JewelleryDetailScreen() {
   };
 
   const getMetalColor = (metal: string, color: string): string => {
+    console.log("Metal color:", color);
     // Normalize inputs
     const normalizedMetal = metal.trim().toLowerCase();
     const normalizedColor = color.trim().toLowerCase();
@@ -625,7 +626,13 @@ function JewelleryDetailScreen() {
       // Fetch prices for GOLD and PLATINUM if they exist
       let goldPrice = 0;
       let platinumPrice = 0;
-
+      // console.log(
+      //   "metalColor on metal change : ",
+      //   metalColor.includes("+")
+      //     ? getMetalColor("GOLD", metalColor)
+      //     : metalColor
+      // );
+      // console.log("metalPurity : ", getValidPurity("gold", metalPurity));
       if (goldWeight > 0) {
         goldPrice = await FetchPrice(
           "GOLD",
@@ -719,6 +726,14 @@ function JewelleryDetailScreen() {
     }
   };
 
+  const getSolitaireColor = (color: string): string => {
+    if (color === "Yellow Vivid") {
+      return "VDY";
+    } else if (color === "Yellow Intense") {
+      return "INY";
+    }
+    return color;
+  };
   const handleApply = async (data: CustomisationOptions) => {
     setCustomisedData(data);
     setIsPopupOpen(false);
@@ -732,6 +747,12 @@ function JewelleryDetailScreen() {
         ? "OVL"
         : data.shape === "Pear"
         ? "PER"
+        : data.shape === "Radiant"
+        ? "RADQ"
+        : data.shape === "Cushion"
+        ? "CUSQ"
+        : data.shape === "Heart"
+        ? "HRT"
         : "";
 
     const carat = data.carat?.split("-") || ["0", "0"];
@@ -743,7 +764,7 @@ function JewelleryDetailScreen() {
         "SOLITAIRE",
         carat[0],
         shape,
-        color[1],
+        getSolitaireColor(color[1]),
         clarity[1]
       );
       setSoliPriceFrom(SolitaireFrom);
@@ -752,7 +773,7 @@ function JewelleryDetailScreen() {
         "SOLITAIRE",
         carat[1],
         shape,
-        color[0],
+        getSolitaireColor(color[0]),
         clarity[0]
       );
       setSoliPriceTo(SolitaireTo);

@@ -50,6 +50,11 @@ function CartScreen() {
 
   const [isMsg, setIsMsg] = useState<string>(""); //error message
 
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isProceedingToCheckout, setIsProceedingToCheckout] = useState(false); // To track the order confirmation flow
+
   const router = useRouter();
 
   useEffect(() => {
@@ -74,7 +79,7 @@ function CartScreen() {
   }, [showLoader, hideLoader]);
 
   const navigateToShopping = () => {
-    router.push("/");
+    router.push("/jewellery");
   };
 
   const handleRemarkClick = (item: CartDetail, rtype: string) => {
@@ -347,15 +352,69 @@ function CartScreen() {
     router.push(`/jewellery/jewellery-detail?${queryParams}`);
   };
 
-  const handleProceedToCheckout = async () => {
+  // const handleProceedToCheckout = async () => {
+  //   if (selectedItems.length === 0) {
+  //     setIsMsg("");
+  //     setIsMsg("Please select at least one item to proceed to checkout.");
+  //     setIsCheckoutModalVisible(true);
+  //     return;
+  //   }
+
+  //   // Ensure only 1 partner jeweller (customer_name) is selected
+  //   const selectedCartItems = cartData.filter((item) =>
+  //     selectedItems.includes(item.id ?? 0)
+  //   );
+
+  //   const uniquePartners = new Set(
+  //     selectedCartItems.map((item) => item.customer_name)
+  //   );
+
+  //   if (uniquePartners.size !== 1) {
+  //     setIsMsg("");
+  //     setIsMsg(
+  //       "You can only select one partner jeweller to proceed with checkout."
+  //     );
+  //     setIsCheckoutModalVisible(true);
+  //     return;
+  //   }
+
+  //   try {
+  //     showLoader();
+  //     const response = await CreateOrder(selectedItems);
+  //     console.log("Order successfully created:", response.data);
+
+  //     // Set cartMsg with the cart_to_order_info array from the response
+  //     if (response.data && response.data.cart_to_order_info) {
+  //       setCartMsg(response.data.cart_to_order_info);
+  //     }
+
+  //     if (response.data.msg === "Sucess") {
+  //       const decrementCount = selectedItems.length;
+  //       updateCartCount(isCartCount - decrementCount);
+  //       setIsCheckoutModalMessageVisible(true);
+  //     } else {
+  //       console.error("Unexpected response:", response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating order:", error);
+  //   } finally {
+  //     hideLoader();
+  //   }
+  // };
+
+  const handleProceedToCheckout = () => {
     if (selectedItems.length === 0) {
-      setIsMsg("");
       setIsMsg("Please select at least one item to proceed to checkout.");
       setIsCheckoutModalVisible(true);
       return;
     }
 
-    // Ensure only 1 partner jeweller (customer_name) is selected
+    if (!cartData || cartData.length === 0) {
+      setIsMsg("Your cart is empty. Please add items to proceed.");
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+
     const selectedCartItems = cartData.filter((item) =>
       selectedItems.includes(item.id ?? 0)
     );
@@ -365,7 +424,6 @@ function CartScreen() {
     );
 
     if (uniquePartners.size !== 1) {
-      setIsMsg("");
       setIsMsg(
         "You can only select one partner jeweller to proceed with checkout."
       );
@@ -373,28 +431,42 @@ function CartScreen() {
       return;
     }
 
+    setIsConfirmationModalVisible(true); // Show confirmation modal
+  };
+
+  const handlePlaceOrder = async () => {
+    setIsProceedingToCheckout(true); // Mark as proceeding with checkout
+
     try {
       showLoader();
       const response = await CreateOrder(selectedItems);
-      console.log("Order successfully created:", response.data);
 
-      // Set cartMsg with the cart_to_order_info array from the response
-      if (response.data && response.data.cart_to_order_info) {
+      if (response.data?.cart_to_order_info) {
         setCartMsg(response.data.cart_to_order_info);
       }
 
-      if (response.data.msg === "Sucess") {
-        const decrementCount = selectedItems.length;
-        updateCartCount(isCartCount - decrementCount);
+      if (response.data?.msg === "Sucess") {
+        updateCartCount(isCartCount - selectedItems.length);
         setIsCheckoutModalMessageVisible(true);
       } else {
-        console.error("Unexpected response:", response.data);
+        setIsMsg("Failed to create order. Please try again.");
+        setIsCheckoutModalVisible(true);
       }
     } catch (error) {
       console.error("Error creating order:", error);
+      setIsMsg(
+        "An error occurred while processing your request. Please try again."
+      );
+      setIsCheckoutModalVisible(true);
     } finally {
       hideLoader();
+      setIsConfirmationModalVisible(false); // Close the confirmation modal
+      setIsProceedingToCheckout(false); // Reset the state
     }
+  };
+
+  const handleGoBackToCart = () => {
+    setIsConfirmationModalVisible(false); // Close the confirmation modal
   };
 
   const closeCheckoutModal = () => {
@@ -536,7 +608,9 @@ function CartScreen() {
                       if (isValidSelection) {
                         handleSelectItem(item.id ?? 0);
                       } else {
-                        alert("Item cannot be selected. Check you'r Product.");
+                        alert(
+                          "Solitaire not selected for some products, please customize products"
+                        );
                       }
                     }}
                     className="w-5 h-5"
@@ -777,20 +851,6 @@ function CartScreen() {
                 </div>
               </div>
 
-              {/* Delivery Dates */}
-              {/* <div className="flex justify-between items-center py-2">
-              <span className="text-xl text-gray-600">
-                Required Delivery Date
-              </span>
-              <div className="text-lg font-semibold text-black">{""}</div>
-            </div> */}
-              {/* <div className="flex justify-between items-center py-2">
-                <span className="text-xl text-gray-600">
-                  Expected Delivery Date
-                </span>
-                <div className="text-lg font-semibold text-black">{""}</div>
-              </div> */}
-
               {/* Proceed to Checkout Button */}
               <div className="mt-6 w-full flex items-center justify-center ">
                 <button
@@ -800,6 +860,34 @@ function CartScreen() {
                   Proceed to Checkout
                 </button>
               </div>
+
+              {isConfirmationModalVisible && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Are you sure you want to place the order?
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-2">
+                      You cannot cancel the order once it is placed and the
+                      order will be executed.
+                    </p>
+                    <div className="mt-4 flex gap-4">
+                      <button
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        onClick={handlePlaceOrder}
+                      >
+                        Place Order
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
+                        onClick={handleGoBackToCart}
+                      >
+                        Go back to Cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Remark Section */}
               <div className="flex justify-center items-center py-2">
