@@ -546,30 +546,24 @@ function JewelleryDetailScreen() {
   };
 
   const getValidPurity = (metal: string, purity: string): string => {
-    if (metal === "Platinum") {
-      if (purity !== "950PT") {
-        //console.log(`Purity for Platinum is invalid. Defaulting to 950PT.`);
-        return "950PT";
-      }
-      return purity; // If the purity matches, return it
-    }
+    // if (metal.toLowerCase() === "platinum") {
+    //   //if (purity !== "950PT") {
+    //   //console.log(`Purity for Platinum is invalid. Defaulting to 950PT.`);
+    //   //return "950PT";
+    //   //}
+    //   return purity; // If the purity matches, return it
+    // }
 
-    // For Gold, check if purity is within the expected range (14KT to 22KT)
-    if (metal === "Gold") {
-      const purityValue = parseInt(purity, 10);
-
-      // If purity is not in the range of 14KT to 22KT, set to '18KT'
-      if (isNaN(purityValue) || purityValue < 8 || purityValue > 22) {
-        console.log(
-          `Purity for Gold is invalid or out of range. Defaulting to 18KT.`
-        );
+    // For Gold, check if purity is within the expected range (10KT to 22KT)
+    if (metal.toLowerCase() === "gold") {
+      if (purity === "950PT") {
         return "18KT";
       }
-      return purity; // If the purity matches, return it
     }
+    return purity;
 
-    console.log("Invalid metal type or purity.");
-    return "Unknown"; // Default value if the metal type is neither Gold nor Platinum
+    //console.log("Invalid metal type or purity.");
+    //return "Unknown"; // Default value if the metal type is neither Gold nor Platinum
   };
 
   const getMetalColor = (metal: string, color: string): string => {
@@ -637,10 +631,11 @@ function JewelleryDetailScreen() {
           "GOLD",
           "",
           "",
-          getMetalColor("GOLD", metalColor),
-          getValidPurity("Gold", metalPurity)
+          metalColor.includes("+")
+            ? getMetalColor("GOLD", metalColor)
+            : metalColor,
+          getValidPurity("gold", metalPurity)
         );
-        //console.log("Gold Price: ", goldPrice);
       }
 
       if (platinumWeight > 0) {
@@ -648,10 +643,11 @@ function JewelleryDetailScreen() {
           "PLATINUM",
           "",
           "",
-          getMetalColor("PLATINUM", metalColor),
-          getValidPurity("Platinum", metalPurity)
+          metalColor.includes("+")
+            ? getMetalColor("PLATINUM", metalColor)
+            : metalColor,
+          metalPurity
         );
-        //console.log("Platinum Price: ", platinumPrice);
       }
 
       // Calculate amounts for available metals

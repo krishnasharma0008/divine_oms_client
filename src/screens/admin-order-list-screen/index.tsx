@@ -228,41 +228,21 @@ function AdminOrderListScreen() {
               <span className="text-gray-600 text-xl">No data available.</span>
             </div>
           ) : isDataLoaded ? (
-            <>
-              <DataTable
-                columns={columns}
-                data={excelData}
-                customStyles={customStyles}
-                fixedHeader
-                //fixedHeaderScrollHeight="70.5vh"
-                highlightOnHover
-                noHeader
-                pagination
-                paginationServer
-                paginationComponentOptions={CustomPagination}
-                paginationTotalRows={totalRows}
-                paginationDefaultPage={selectedPage}
-                onChangePage={onPageClick}
-              />
-              {/* <div className="flex items-center space-x-4 -mt-12">
-                <InputText
-                  className="!w-[3rem] !border-gray_light !h-[2.5rem] !pt-0 !pb-0"
-                  onChange={onSelectedPageChange}
-                  placeholder="Page"
-                  type="text"
-                  value={selectedPage.toString()}
-                  min={1}
-                  max={totalPages}
-                />
-                <button
-                  type="button"
-                  className="bg-[#00A0B6] text-white px-5 py-1.5 rounded -mt-4"
-                  onClick={goToSelectedPage}
-                >
-                  Go
-                </button>
-              </div> */}
-            </>
+            <DataTable
+              columns={columns}
+              data={excelData}
+              customStyles={customStyles}
+              fixedHeader
+              //fixedHeaderScrollHeight="70.5vh"
+              highlightOnHover
+              noHeader
+              pagination
+              paginationServer
+              paginationComponentOptions={CustomPagination}
+              paginationTotalRows={totalRows}
+              paginationDefaultPage={selectedPage}
+              onChangePage={onPageClick}
+            />
           ) : (
             <div className="flex justify-center items-center py-10">
               <span className="text-gray-600 text-xl">
