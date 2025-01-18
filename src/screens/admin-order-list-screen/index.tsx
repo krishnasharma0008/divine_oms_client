@@ -10,48 +10,20 @@ import { OrderList } from "@/interface/order-list";
 import { getAdminToken, getUser } from "@/local-storage";
 import { DownloadOrderListExcel, getOrderList } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
-//import { InputText } from "@/components";
-//import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { CustomPagination } from "@/components";
 
 function AdminOrderListScreen() {
-  //const router = useRouter();
-
   const [excelData, setExcelData] = useState<OrderList[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
   const { showLoader, hideLoader } = useContext(LoaderContext);
 
-  // const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalRows, setTotalRows] = useState<number>(1);
+  const [totalRows, setTotalRows] = useState<number>(0);
   const [selectedPage, setSelectedPage] = useState<number>(1);
-
-  // const onSelectedPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const inputPage = parseInt(event.target.value, 10);
-  //   if (inputPage >= 1 && inputPage <= totalPages) {
-  //     setSelectedPage(inputPage);
-  //   } else {
-  //     alert(`Please enter a page number between 1 and ${totalPages}`);
-  //   }
-  // };
-
-  const onPageClick = (pageNumber: number) => {
-    if (selectedPage >= 1) setSelectedPage(pageNumber);
-    //fetchData(pageNumber);
-  };
-
-  // const goToSelectedPage = () => {
-  //   if (selectedPage >= 1 && selectedPage <= totalPages) {
-  //     fetchData(selectedPage);
-  //   }
-  // };
-
-  useEffect(() => {
-    fetchData(1);
-  }, []);
+  //const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchData = async (pageNo: number) => {
-    //if (loading) return; // Prevent multiple concurrent calls
     setLoading(true);
     showLoader();
     try {
@@ -61,9 +33,8 @@ function AdminOrderListScreen() {
         getAdminToken() ?? ""
       );
       setExcelData(result.data.data ?? []);
-      // setTotalPages(result.data.total_page);
-      // setTotalRows(result.data.total_row);
-      setTotalRows(10);
+      //setTotalRows(result.data.total_row); // Make sure to set total rows from the API response
+      setTotalRows(100);
       setIsDataLoaded(true);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -73,9 +44,23 @@ function AdminOrderListScreen() {
     }
   };
 
-  // const handleProcessClick = () => {
-  //   fetchData(1);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= Math.ceil(totalRows / 10)) {
+      setSelectedPage(newPage);
+      fetchData(newPage); // Fetch data for the new page
+    }
+  };
+
+  // In your AdminOrderListScreen component
+  // const handleRowsPerPageChange = (newRowsPerPage: number) => {
+  //   setRowsPerPage(newRowsPerPage);
+  //   setSelectedPage(1); // Reset to page 1 when rows per page is changed
+  //   fetchData(1); // Fetch data for the first page
   // };
+
+  useEffect(() => {
+    fetchData(selectedPage); // Fetch data for the current page when the component mounts
+  }, [selectedPage]); // Re-fetch data when selected page or rows per page changes
 
   const columns: TableColumn<OrderList>[] = [
     {
@@ -129,10 +114,7 @@ function AdminOrderListScreen() {
       cell: (row: OrderList) => (
         <Link
           href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
-          //target="_blank"
-          rel="noopener noreferrer"
         >
-          {/* {row.orderno} */}
           <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
             View
           </button>
@@ -167,31 +149,18 @@ function AdminOrderListScreen() {
     },
   };
 
-  const CustomPagination = {
-    noRowsPerPage: true,
-    rowsPerPageText: "",
-    selectAllRowsItem: false,
-    //selectAllRowsItemText: "All",
-  };
-
   const ExcelDownload = async () => {
-    //console.log("Download Excel");
     try {
       showLoader();
       const result = await DownloadOrderListExcel();
       const href = window.URL.createObjectURL(new Blob([result.data]));
-
       const anchorElement = document.createElement("a");
-
       anchorElement.href = href;
       anchorElement.download = `Order_List_${new Date()}.xlsx`;
-
       document.body.appendChild(anchorElement);
       anchorElement.click();
-
       document.body.removeChild(anchorElement);
       window.URL.revokeObjectURL(href);
-
       hideLoader();
     } catch (error) {
       hideLoader();
@@ -228,21 +197,25 @@ function AdminOrderListScreen() {
               <span className="text-gray-600 text-xl">No data available.</span>
             </div>
           ) : isDataLoaded ? (
-            <DataTable
-              columns={columns}
-              data={excelData}
-              customStyles={customStyles}
-              fixedHeader
-              //fixedHeaderScrollHeight="70.5vh"
-              highlightOnHover
-              noHeader
-              pagination
-              paginationServer
-              paginationComponentOptions={CustomPagination}
-              paginationTotalRows={totalRows}
-              paginationDefaultPage={selectedPage}
-              onChangePage={onPageClick}
-            />
+            <>
+              <DataTable
+                columns={columns}
+                data={excelData}
+                customStyles={customStyles}
+                fixedHeader
+                highlightOnHover
+                noHeader
+                pagination={false}
+              />
+              {/* Custom Pagination Controls */}
+              <CustomPagination
+                totalRows={totalRows}
+                rowsPerPage={10}
+                selectedPage={selectedPage}
+                onPageChange={handlePageChange}
+                //onRowsPerPageChange={handleRowsPerPageChange}
+              />
+            </>
           ) : (
             <div className="flex justify-center items-center py-10">
               <span className="text-gray-600 text-xl">
