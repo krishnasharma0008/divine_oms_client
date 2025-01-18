@@ -61,7 +61,7 @@ function OrderDetailJewelleryScreen() {
       center: true,
     },
     {
-      name: "Old",
+      name: "Old Product",
       selector: (row: OrderDetail) => row.old_varient,
       center: true,
     },
@@ -204,17 +204,17 @@ function OrderDetailJewelleryScreen() {
 
   const getOrderType = (OrderType: string) => {
     let otype = "";
-    if (OrderType === "tcs") {
+    if (OrderType === "TCS") {
       otype = "Consignment TCS";
-    } else if (OrderType === "rroexhibitation") {
+    } else if (OrderType === "RRO / Exhibition") {
       otype = "Consignment RRO / Exhibition";
-    } else if (OrderType === "sor") {
+    } else if (OrderType === "SOR") {
       otype = "Sales or Return";
-    } else if (OrderType === "outpur") {
+    } else if (OrderType === "OP") {
       otype = "Outright Purchase";
-    } else if (OrderType === "rco") {
+    } else if (OrderType === "RCO") {
       otype = "Customer Order RCO";
-    } else if (OrderType === "sco") {
+    } else if (OrderType === "SCO") {
       otype = "Customer Order SCO";
     }
     return otype;
@@ -304,9 +304,11 @@ function OrderDetailJewelleryScreen() {
           {/* Date of Order orderData?.order_date */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Date of Order</span>
-            <span className="text-lg font-semibold text-gray-800">{orderData[0]?.order_createdat
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_createdat
                 ? dayjs(orderData[0]?.order_createdat).format("DD MMM, YYYY")
-                : ""}</span>
+                : ""}
+            </span>
           </div>
 
           {/* Customer Name */}

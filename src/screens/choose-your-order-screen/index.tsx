@@ -225,14 +225,14 @@ const ChooseYourOrderScreen = () => {
   }
 
   const Consignmentoptions = [
-    { label: "TCS", value: "tcs" },
-    { label: "RRO / Exhibition", value: "rroexhibitation" },
+    { label: "TCS", value: "TCS" },
+    { label: "RRO / Exhibition", value: "RRO / Exhibition" },
   ];
-  const SORoptions = [{ label: "SOR", value: "sor" }];
-  const Outpurchaseoptions = [{ label: "OP", value: "outpur" }];
+  const SORoptions = [{ label: "SOR", value: "SOR" }];
+  const Outpurchaseoptions = [{ label: "OP", value: "OP" }];
   const CustomerOrderoptions = [
-    { label: "RCO", value: "rco" },
-    { label: "SCO", value: "sco" },
+    { label: "RCO", value: "RCO" },
+    { label: "SCO", value: "SCO" },
   ];
 
   const handleProceed = () => {
