@@ -420,6 +420,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
         const payload = {
           order_for: customerOrder?.order_for || "",
           customer_id: customerOrder?.customer_id || 0,
+          customer_code: customerOrder?.cust_code || "", //new additation
           customer_name: customerOrder?.cust_name || "",
           customer_branch: customerOrder?.store || "",
           product_type: productType,
@@ -430,6 +431,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           exp_dlv_date: exp_dlv_date,
           old_varient: jewellerydetail?.Old_varient || "",
           product_code: jewellerydetail?.Item_number || "",
+          solitaire_pcs: 0,
           product_qty: Number(Qty),
           product_amt_min: 0,
           product_amt_max: 0,

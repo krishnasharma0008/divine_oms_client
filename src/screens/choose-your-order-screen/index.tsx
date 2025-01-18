@@ -38,6 +38,7 @@ const ChooseYourOrderScreen = () => {
   const [stores, setStores] = useState<PJCustomerStoreDetail[]>([]); // Store details
   const [selectedSValue, setSelectedSValue] = useState<string>(""); // Selected store state
   const [selectedValue, setSelectedValue] = useState("jewellery"); // Item type radio button
+  const [selectedCustCode, setSelectedCustCode] = useState("");
   const [selectedContact, setSelectedContact] = useState("");
   const [selectedAdd, setSelectedAdd] = useState("");
   const [selectedconsignmen, setSelectedConsignment] = useState(""); // Single checkbox
@@ -135,6 +136,9 @@ const ChooseYourOrderScreen = () => {
     );
 
     if (selectedStore) {
+      setSelectedCustCode(
+        selectedStore.Code === null ? "" : selectedStore.Code
+      );
       // Set the contact and address based on the selected store
       setSelectedContact(
         selectedStore.ContactNo === null ? "" : selectedStore.ContactNo
@@ -177,25 +181,25 @@ const ChooseYourOrderScreen = () => {
 
   const handleOrderTypeChange = (value: string) => {
     console.log("selected Order Type", value);
-    if (value === "tcs" || value === "rroexhibitation") {
+    if (value === "TCS" || value === "RRO / Exhibition") {
       console.log("selected Consignment", value);
       setSelectedConsignment(value);
       setSelectedSOR("");
       setSelectedOutrightPur("");
       setSelectedCustOrder("");
-    } else if (value === "sor") {
+    } else if (value === "SOR") {
       console.log("selected Sale Of Order", value);
       setSelectedConsignment("");
       setSelectedSOR(value);
       setSelectedOutrightPur("");
       setSelectedCustOrder("");
-    } else if (value === "outpur") {
+    } else if (value === "OP") {
       console.log("selected Out Purchase", value);
       setSelectedConsignment("");
       setSelectedSOR("");
       setSelectedOutrightPur(value);
       setSelectedCustOrder("");
-    } else if (value === "rco" || value === "sco") {
+    } else if (value === "RCO" || value === "SCO") {
       console.log("selected Customer Order", value);
       setSelectedConsignment("");
       setSelectedSOR("");
@@ -273,6 +277,7 @@ const ChooseYourOrderScreen = () => {
           : customer?.id ?? 0,
       product_type: selectedValue, //itemtype
       order_type: orderType, //ordertype
+      cust_code: getCustType() === "Jeweller" ? selectedCustCode : "", //customer code
       cust_name:
         getCustType() === "Jeweller"
           ? isCustomerName ?? ""

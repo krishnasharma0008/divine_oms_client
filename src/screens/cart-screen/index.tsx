@@ -253,6 +253,7 @@ function CartScreen() {
     const payload: CartDetail = {
       order_for: item.order_for || "",
       customer_id: item.customer_id || 0,
+      customer_code: item?.customer_code || "", //new additation
       customer_name: item.customer_name || "",
       customer_branch: item.customer_branch || "",
       product_type: item.product_type || "",
@@ -264,6 +265,7 @@ function CartScreen() {
       exp_dlv_date: exp_dlv_date,
       old_varient: item.old_varient || "",
       product_code: item.product_code || "",
+      solitaire_pcs: item.solitaire_pcs, //new additation
       product_qty: item.product_qty || 1,
       product_amt_min: item.product_amt_min || 0,
       product_amt_max: item.product_amt_max || 0,
@@ -297,7 +299,7 @@ function CartScreen() {
       wear_style: item.wear_style || "", //new
       look: item.look || "", //new
       portfolio_type: item.portfolio_type || "", //new
-      gender: item.gender || "", //new
+      gender: item.gender || "",
     };
 
     try {

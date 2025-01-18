@@ -7,6 +7,7 @@ export interface CustomerOrderDetail {
   //outright_purchase: string;
   //customer_order: string;
   order_type: string; //
+  cust_code: string;
   cust_name: string;
   store: string;
   contactno: string;

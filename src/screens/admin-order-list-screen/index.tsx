@@ -23,8 +23,8 @@ function AdminOrderListScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
 
   // const [totalPages, setTotalPages] = useState<number>(1);
-  // const [totalRows, setTotalRows] = useState<number>(1);
-  // const [selectedPage, setSelectedPage] = useState<number>(1);
+  const [totalRows, setTotalRows] = useState<number>(1);
+  const [selectedPage, setSelectedPage] = useState<number>(1);
 
   // const onSelectedPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const inputPage = parseInt(event.target.value, 10);
@@ -35,10 +35,10 @@ function AdminOrderListScreen() {
   //   }
   // };
 
-  // const onPageClick = (pageNumber: number) => {
-  //   setSelectedPage(pageNumber);
-  //   //fetchData(pageNumber);
-  // };
+  const onPageClick = (pageNumber: number) => {
+    if (selectedPage >= 1) setSelectedPage(pageNumber);
+    //fetchData(pageNumber);
+  };
 
   // const goToSelectedPage = () => {
   //   if (selectedPage >= 1 && selectedPage <= totalPages) {
@@ -63,6 +63,7 @@ function AdminOrderListScreen() {
       setExcelData(result.data.data ?? []);
       // setTotalPages(result.data.total_page);
       // setTotalRows(result.data.total_row);
+      setTotalRows(10);
       setIsDataLoaded(true);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -167,6 +168,7 @@ function AdminOrderListScreen() {
   };
 
   const CustomPagination = {
+    noRowsPerPage: true,
     rowsPerPageText: "",
     selectAllRowsItem: false,
     //selectAllRowsItemText: "All",
@@ -238,9 +240,9 @@ function AdminOrderListScreen() {
                 pagination
                 paginationServer
                 paginationComponentOptions={CustomPagination}
-                // paginationTotalRows={totalRows}
-                // paginationDefaultPage={selectedPage}
-                // onChangePage={onPageClick}
+                paginationTotalRows={totalRows}
+                paginationDefaultPage={selectedPage}
+                onChangePage={onPageClick}
               />
               {/* <div className="flex items-center space-x-4 -mt-12">
                 <InputText

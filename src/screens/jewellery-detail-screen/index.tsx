@@ -163,7 +163,7 @@ function JewelleryDetailScreen() {
         premiumPercentage: cart.solitaire_prem_pct.toString(),
       });
 
-      setTotalPcs(cart.product_qty);
+      setTotalPcs(cart.solitaire_pcs);
       if (Number(cart.side_stone_pcs) < 0) {
         setSideDiaTotPcs(cart.side_stone_pcs);
         setSideDiaTotweight(cart.side_stone_cts); //
@@ -823,6 +823,7 @@ function JewelleryDetailScreen() {
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,
+      customer_code: customerOrder?.cust_code || "", //new additation
       customer_name: customerOrder?.cust_name || "",
       customer_branch: customerOrder?.store || "",
       product_type: customerOrder?.product_type || "",
@@ -834,6 +835,7 @@ function JewelleryDetailScreen() {
       exp_dlv_date: exp_dlv_date,
       old_varient: jewelleryDetails?.Old_varient || "",
       product_code: jewelleryDetails?.Item_number || "",
+      solitaire_pcs: totalPcs, //new additation
       product_qty: selectedQty,
       product_amt_min: soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
       product_amt_max: soliAmtTo + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),

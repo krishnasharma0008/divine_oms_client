@@ -202,23 +202,23 @@ function OrderDetailJewelleryScreen() {
     },
   };
 
-  const getOrderType = (OrderType: string) => {
-    let otype = "";
-    if (OrderType === "TCS") {
-      otype = "Consignment TCS";
-    } else if (OrderType === "RRO / Exhibition") {
-      otype = "Consignment RRO / Exhibition";
-    } else if (OrderType === "SOR") {
-      otype = "Sales or Return";
-    } else if (OrderType === "OP") {
-      otype = "Outright Purchase";
-    } else if (OrderType === "RCO") {
-      otype = "Customer Order RCO";
-    } else if (OrderType === "SCO") {
-      otype = "Customer Order SCO";
-    }
-    return otype;
-  };
+  // const getOrderType = (OrderType: string) => {
+  //   let otype = "";
+  //   if (OrderType === "TCS") {
+  //     otype = "Consignment TCS";
+  //   } else if (OrderType === "RRO / Exhibition") {
+  //     otype = "Consignment RRO / Exhibition";
+  //   } else if (OrderType === "SOR") {
+  //     otype = "Sales or Return";
+  //   } else if (OrderType === "OP") {
+  //     otype = "Outright Purchase";
+  //   } else if (OrderType === "RCO") {
+  //     otype = "Customer Order RCO";
+  //   } else if (OrderType === "SCO") {
+  //     otype = "Customer Order SCO";
+  //   }
+  //   return otype;
+  // };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
@@ -331,7 +331,7 @@ function OrderDetailJewelleryScreen() {
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Order Type</span>
             <span className="text-lg font-semibold text-gray-800">
-              {getOrderType(orderData[0]?.order_type) || "--"}
+              {orderData[0]?.order_type || "--"}
             </span>
           </div>
 
