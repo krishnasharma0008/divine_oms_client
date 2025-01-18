@@ -218,23 +218,23 @@ function AdminOrderDetailJewelleryScreen() {
     },
   };
 
-  const getOrderType = (OrderType: string) => {
-    let otype = "";
-    if (OrderType === "TCS") {
-      otype = "Consignment TCS";
-    } else if (OrderType === "RRO / Exhibition") {
-      otype = "Consignment RRO / Exhibition";
-    } else if (OrderType === "SOR") {
-      otype = "Sales or Return";
-    } else if (OrderType === "OP") {
-      otype = "Outright Purchase";
-    } else if (OrderType === "RCO") {
-      otype = "Customer Order RCO";
-    } else if (OrderType === "SCO") {
-      otype = "Customer Order SCO";
-    }
-    return otype;
-  };
+  // const getOrderType = (OrderType: string) => {
+  //   let otype = "";
+  //   if (OrderType === "TCS") {
+  //     otype = "Consignment TCS";
+  //   } else if (OrderType === "RRO / Exhibition") {
+  //     otype = "Consignment RRO / Exhibition";
+  //   } else if (OrderType === "SOR") {
+  //     otype = "Sales or Return";
+  //   } else if (OrderType === "OP") {
+  //     otype = "Outright Purchase";
+  //   } else if (OrderType === "RCO") {
+  //     otype = "Customer Order RCO";
+  //   } else if (OrderType === "SCO") {
+  //     otype = "Customer Order SCO";
+  //   }
+  //   return otype;
+  // };
 
   return (
     <div className="space-y-4 m-4">
@@ -319,7 +319,7 @@ function AdminOrderDetailJewelleryScreen() {
             ],
             ["Partner Jeweller", orderData[0]?.customer_name || "--"],
             ["Store Name", orderData[0]?.customer_branch || "--"],
-            ["Order Type", getOrderType(orderData[0]?.order_type || "--")],
+            ["Order Type", orderData[0]?.order_type || "--"],
             ["Order For", orderData[0]?.order_for || "--"],
             [
               "Delivery Date",

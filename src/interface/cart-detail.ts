@@ -2,6 +2,7 @@ export interface CartDetail {
   id?: number;
   order_for: string;
   customer_id: number;
+  customer_code: string;
   customer_name: string;
   customer_branch: string;
   order_type: string;
@@ -16,6 +17,7 @@ export interface CartDetail {
   exp_dlv_date: string; // date
   old_varient: string; //new
   product_code: string;
+  solitaire_pcs: number;
   product_qty: number;
   product_amt_min: number;
   product_amt_max: number;

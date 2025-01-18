@@ -406,6 +406,7 @@ const RegularConfirmOrderScreen = () => {
         // Populate the payload similar to the current logic
         order_for: customerOrder?.order_for || "",
         customer_id: customerOrder?.customer_id || 0,
+        customer_code: customerOrder?.cust_code || "", //new additation
         customer_name: customerOrder?.cust_name || "",
         customer_branch: customerOrder?.store || "",
         product_type: customerOrder?.product_type || "",
@@ -421,6 +422,7 @@ const RegularConfirmOrderScreen = () => {
         exp_dlv_date: exp_dlv_date,
         old_varient: "",
         product_code: "",
+        solitaire_pcs:row.pcs,//new addation
         product_qty: row.pcs,
         product_amt_min: row.min,
         product_amt_max: row.max,
