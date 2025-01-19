@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getToken } from "@/local-storage";
+import dayjs from "dayjs";
 
 function OrderDetailSolitaireScreen() {
   const searchParams = useSearchParams();
@@ -249,6 +250,78 @@ function OrderDetailSolitaireScreen() {
           Order Summary
         </h2>
         <div className="space-y-4">
+          {/* Date of Order orderData?.order_date */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Date of Order</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_createdat
+                ? dayjs(orderData[0]?.order_createdat).format("DD MMM, YYYY")
+                : ""}
+            </span>
+          </div>
+
+          {/* Customer Name */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Customer Name</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.customer_name || "--"}
+            </span>
+          </div>
+
+          {/* Store Name */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Store Name</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.customer_branch || "--"}
+            </span>
+          </div>
+
+          {/* Order Type */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Order Type</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_type || "--"}
+            </span>
+          </div>
+
+          {/* Order For */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Order For</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_for || "--"}
+            </span>
+          </div>
+
+          {/* Delivery Date */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Delivery Date</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : ""}
+            </span>
+          </div>
+
+          {/* Placed By */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Placed By</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.username || "--"}
+            </span>
+          </div>
+
+          {/* RBH */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">RBH</span>
+            <span className="text-lg font-semibold text-gray-800">--</span>
+          </div>
+
+          {/* ZBH */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">ZBH</span>
+            <span className="text-lg font-semibold text-gray-800">--</span>
+          </div>
+
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Total Quantity</span>
             <div className="text-lg font-semibold text-gray-800">

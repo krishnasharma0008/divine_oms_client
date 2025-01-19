@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getAdminToken } from "@/local-storage";
+import dayjs from "dayjs";
 
 function AdminOrderDetailSolitaireScreen() {
   const searchParams = useSearchParams();
@@ -296,11 +297,31 @@ function AdminOrderDetailSolitaireScreen() {
       {/* Order Summary Section */}
       <div className="max-w-lg bg-white p-6 rounded-lg shadow-md mx-auto">
         {/* <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">
-          Order Summary
-        </h2> */}
+                Order Summary
+              </h2> */}
         <div className="table w-full">
           {[
             ["Status", orderData[0]?.order_status || "--"],
+            [
+              "Date of Order",
+              orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : "",
+            ],
+            ["Partner Jeweller", orderData[0]?.customer_name || "--"],
+            ["Store Name", orderData[0]?.customer_branch || "--"],
+            ["Order Type", orderData[0]?.order_type || "--"],
+            ["Order For", orderData[0]?.order_for || "--"],
+            [
+              "Delivery Date",
+              orderData[0]?.exp_dlv_date
+                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+                : "",
+            ],
+            ["Placed By", orderData[0]?.username || "--"],
+            ["RBH", "--"], // Placeholder
+            ["ZBH", "--"], // Placeholder
+
             ["Partner Jeweller", orderData[0]?.customer_name || "--"],
             ["Store", orderData[0]?.customer_branch || "--"],
             ["Dispatch Details", "--"],

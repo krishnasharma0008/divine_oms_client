@@ -31,19 +31,26 @@ const AdminSidebar: React.FC = () => {
 
   return (
     <div className="bg-gray-400 h-screen transition-all duration-300 w-[255px] fixed z-20">
-      <div className="flex bg-white justify-center items-center h-16 border-b border-gray-300 pl-4 py-4">
+      <div className="flex bg-white justify-center items-center h-[60px] border-b border-gray-300 pl-4 py-4">
         <Link href="/">
-          <Image
+          {/* <Image
             src="/logo/old_logo.png"
             alt="Company Logo"
             width={120}
             height={60}
             className="h-auto w-auto max-h-[64px] object-contain"
+          /> */}
+          <Image
+            src="/logo/new_logo.png"
+            alt="Company Logo"
+            layout="fill"
+            className="object-contain pb-0.5 h-auto w-auto max-h-[60px]"
+            loading="lazy"
           />
         </Link>
       </div>
 
-      <nav className="mt-4">
+      <nav>
         {sidebarNav.map((nav, index) => (
           <div key={index}>
             {/* Check if the item has a submenu or not */}
