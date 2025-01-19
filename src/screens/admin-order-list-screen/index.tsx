@@ -1,7 +1,13 @@
 "use client";
 
-import dayjs from "dayjs";
-import React, { useContext, useEffect, useState } from "react";
+import dayjs from "dayjs"; // Ensure you have installed dayjs
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  memo,
+  useCallback,
+} from "react";
 import DataTable, {
   TableColumn,
   TableStyles,
@@ -11,7 +17,24 @@ import { getAdminToken, getUser } from "@/local-storage";
 import { DownloadOrderListExcel, getOrderList } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 import Link from "next/link";
+import Image from "next/image"; // Make sure to import Image from next/image
 import { CustomPagination } from "@/components";
+
+// Memoize the DataTable to prevent unnecessary re-renders
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const MemoizedDataTable = memo(({ columns, data, customStyles }: any) => (
+  <DataTable
+    columns={columns}
+    data={data}
+    customStyles={customStyles}
+    fixedHeader
+    highlightOnHover
+    noHeader
+    pagination={false}
+  />
+));
+
+MemoizedDataTable.displayName = "MemoizedDataTable"; // Add display name for debugging
 
 function AdminOrderListScreen() {
   const [excelData, setExcelData] = useState<OrderList[]>([]);
@@ -21,29 +44,32 @@ function AdminOrderListScreen() {
 
   const [totalRows, setTotalRows] = useState<number>(0);
   const [selectedPage, setSelectedPage] = useState<number>(1);
-  //const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const fetchData = async (pageNo: number) => {
-    setLoading(true);
-    showLoader();
-    try {
-      const result = await getOrderList(
-        getUser() ?? "",
-        pageNo,
-        getAdminToken() ?? ""
-      );
-      setExcelData(result.data.data ?? []);
-      //setTotalRows(result.data.total_row); // Make sure to set total rows from the API response
-      setTotalRows(100);
-      setIsDataLoaded(true);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-      hideLoader();
-    }
-  };
+  // Memoize the fetchData function to prevent unnecessary re-fetching
+  const fetchData = useCallback(
+    async (pageNo: number) => {
+      setLoading(true);
+      //showLoader();
+      try {
+        const result = await getOrderList(
+          getUser() ?? "",
+          pageNo,
+          getAdminToken() ?? ""
+        );
+        setExcelData(result.data.data ?? []);
+        setTotalRows(result.data.total_row); // Set total rows dynamically from API response
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+        //hideLoader();
+      }
+    },
+    [showLoader, hideLoader]
+  );
 
+  // Page change handler
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalRows / 10)) {
       setSelectedPage(newPage);
@@ -51,16 +77,10 @@ function AdminOrderListScreen() {
     }
   };
 
-  // In your AdminOrderListScreen component
-  // const handleRowsPerPageChange = (newRowsPerPage: number) => {
-  //   setRowsPerPage(newRowsPerPage);
-  //   setSelectedPage(1); // Reset to page 1 when rows per page is changed
-  //   fetchData(1); // Fetch data for the first page
-  // };
-
+  // Initial data fetch or page change
   useEffect(() => {
-    fetchData(selectedPage); // Fetch data for the current page when the component mounts
-  }, [selectedPage]); // Re-fetch data when selected page or rows per page changes
+    fetchData(selectedPage);
+  }, [selectedPage, fetchData]);
 
   const columns: TableColumn<OrderList>[] = [
     {
@@ -186,26 +206,15 @@ function AdminOrderListScreen() {
           </button>
         </div>
 
-        {/* Loader and Data Table */}
-        <div className="overflow-auto border">
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <span className="text-gray-600 text-xl">Loading...</span>
-            </div>
-          ) : isDataLoaded && excelData.length === 0 ? (
-            <div className="flex justify-center items-center py-10">
-              <span className="text-gray-600 text-xl">No data available.</span>
-            </div>
-          ) : isDataLoaded ? (
+        {/* Table with Loader */}
+        <div className="overflow-auto border relative">
+          {isDataLoaded ? (
             <>
-              <DataTable
+              {/* Only update the table */}
+              <MemoizedDataTable
                 columns={columns}
                 data={excelData}
                 customStyles={customStyles}
-                fixedHeader
-                highlightOnHover
-                noHeader
-                pagination={false}
               />
               {/* Custom Pagination Controls */}
               <CustomPagination
@@ -213,14 +222,24 @@ function AdminOrderListScreen() {
                 rowsPerPage={10}
                 selectedPage={selectedPage}
                 onPageChange={handlePageChange}
-                //onRowsPerPageChange={handleRowsPerPageChange}
               />
             </>
           ) : (
             <div className="flex justify-center items-center py-10">
-              <span className="text-gray-600 text-xl">
-                Click &quot;Process&quot; to load data.
-              </span>
+              <span className="text-gray-600 text-xl">No data available.</span>
+            </div>
+          )}
+
+          {/* Show Loader Image Inside Table */}
+          {loading && (
+            <div className="absolute inset-0 flex justify-center items-center bg-white opacity-75 z-10">
+              <Image
+                src="/loader.gif"
+                alt="loader"
+                height={50} // Set the desired height for the loader
+                width={50} // Set the desired width for the loader
+                className="m-auto"
+              />
             </div>
           )}
         </div>
