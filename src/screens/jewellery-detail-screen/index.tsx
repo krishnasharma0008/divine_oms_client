@@ -175,7 +175,11 @@ function JewelleryDetailScreen() {
         //console.log("cart.metal_weight :", cart.metal_weight);
         const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
         setSideDiaColorClarity(sideDiaColorClarity);
-        calculateSideDiamondPrice(cart.side_stone_cts, sideDiaColorClarity);
+        calculateSideDiamondPrice(
+          cart.side_stone_cts,
+          sideDiaColorClarity,
+          cart.product_qty
+        );
 
         setMetalAmtFrom(
           parseFloat((cart.metal_price * (cart.metal_weight ?? 0)).toFixed(3))
@@ -277,13 +281,18 @@ function JewelleryDetailScreen() {
         setBaseSideDiaTotweight(totalsideweight ?? 0);
         setSideDiaTotweight(totalsideweight ?? 0);
 
-        calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
+        calculateSideDiamondPrice(
+          totalsideweight ?? 0,
+          sideDiaColorClarity,
+          cart.product_qty
+        );
 
         CalculateMetalAmount(
           cart?.metal_color,
           jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
           goldWeight ?? 0,
-          platinumWeight ?? 0
+          platinumWeight ?? 0,
+          cart.product_qty
         );
       }
     }
@@ -435,13 +444,18 @@ function JewelleryDetailScreen() {
       setBaseSideDiaTotweight(totalsideweight ?? 0);
       setSideDiaTotweight(totalsideweight ?? 0);
       console.log("Add totalsideweight : ", totalsideweight);
-      calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
+      calculateSideDiamondPrice(
+        totalsideweight ?? 0,
+        sideDiaColorClarity,
+        selectedQty
+      );
 
       CalculateMetalAmount(
         jewelleryDetails?.Metal_color.split(",")[0] ?? "",
         jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
         goldWeight ?? 0,
-        platinumWeight ?? 0
+        platinumWeight ?? 0,
+        selectedQty
       );
     } catch (error) {
       notifyErr("Failed to fetch initial data.");
@@ -495,11 +509,16 @@ function JewelleryDetailScreen() {
     setRingSizeFrom(Number(selectedSizeSlab));
     CalculateDivineMountDetails(
       String(customisedData?.carat),
-      Number(selectedSizeSlab)
+      Number(selectedSizeSlab),
+      selectedQty ?? 1
     );
   };
 
-  const CalculateDivineMountDetails = async (carat: string, size: number) => {
+  const CalculateDivineMountDetails = async (
+    carat: string,
+    size: number,
+    qty: number
+  ) => {
     console.log("Calculating details for carat:", carat, "size:", size);
 
     console.log("Default Size : ", baseRingSize);
@@ -642,7 +661,8 @@ function JewelleryDetailScreen() {
 
     calculateSideDiamondPrice(
       totalsideweight === 0 ? baseSideDiaTotweight ?? 0 : totalsideweight ?? 0,
-      sideDiaColorClarity
+      sideDiaColorClarity,
+      qty
     );
     console.log("baseGoldweight : ", baseGoldweight);
     console.log("basePlatinumweight : ", basePlatinumweight);
@@ -652,7 +672,10 @@ function JewelleryDetailScreen() {
       jewelleryDetails?.Metal_color.split(",")[0] ?? "",
       jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
       adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight,
-      adjustedPlatinumWeight === 0 ? basePlatinumweight : adjustedPlatinumWeight
+      adjustedPlatinumWeight === 0
+        ? basePlatinumweight
+        : adjustedPlatinumWeight,
+      qty ?? 1
     );
   };
 
@@ -661,7 +684,13 @@ function JewelleryDetailScreen() {
     console.log("Metal Purity : ", selectedValue);
     setMetalPurity(selectedValue);
 
-    CalculateMetalAmount(metalColor, selectedValue, Goldweight, Platinumweight);
+    CalculateMetalAmount(
+      metalColor,
+      selectedValue,
+      Goldweight,
+      Platinumweight,
+      selectedQty
+    );
   };
 
   const handleMetalColor = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -672,7 +701,8 @@ function JewelleryDetailScreen() {
       selectedValue,
       metalPurity,
       Goldweight,
-      Platinumweight
+      Platinumweight,
+      selectedQty
     );
   };
 
@@ -736,7 +766,8 @@ function JewelleryDetailScreen() {
     metalColor: string,
     metalPurity: string,
     goldWeight: number,
-    platinumWeight: number
+    platinumWeight: number,
+    qty: number
   ) => {
     try {
       // Filter BOM to get the total weight for GOLD and PLATINUM separately, with fallback to 0 if undefined
@@ -772,10 +803,13 @@ function JewelleryDetailScreen() {
         );
       }
 
+      //const qty = selectedQty || 1;
+      const selectedQty = qty || 1;
       // Calculate amounts for available metals
-      const goldAmount = goldWeight > 0 ? goldWeight * goldPrice : 0;
+      const goldAmount =
+        goldWeight > 0 ? goldWeight * goldPrice * selectedQty : 0;
       const platinumAmount =
-        platinumWeight > 0 ? platinumWeight * platinumPrice : 0;
+        platinumWeight > 0 ? platinumWeight * platinumPrice * selectedQty : 0;
 
       const totalMetalAmount = goldAmount + platinumAmount;
 
@@ -790,15 +824,19 @@ function JewelleryDetailScreen() {
 
   const calculateSideDiamondPrice = async (
     totalsideweight: number | null,
-    sideDiaColorClarity: string
+    sideDiaColorClarity: string,
+    qty: number
   ) => {
     try {
       const [color, clarity] = sideDiaColorClarity.split("-");
 
       const diamondPrice = await FetchPrice("DIAMOND", "", "", color, clarity);
       setSDiaPrice(diamondPrice);
+
+      const selectedQty = qty || 1;
+
       if (totalsideweight && !isNaN(diamondPrice)) {
-        const sideDiamondPrice = diamondPrice * totalsideweight;
+        const sideDiamondPrice = diamondPrice * totalsideweight * selectedQty;
         console.log("Total Side amt : ", sideDiamondPrice);
         setSDiaAmt(sideDiamondPrice);
       } else {
@@ -869,6 +907,8 @@ function JewelleryDetailScreen() {
     const color = data.color?.split("-") || ["", ""];
     const clarity = data.clarity?.split("-") || ["", ""];
 
+    const qty = selectedQty || 1;
+
     try {
       const SolitaireFrom = await FetchPrice(
         "SOLITAIRE",
@@ -894,7 +934,6 @@ function JewelleryDetailScreen() {
       const premiumMaxPrice =
         SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
 
-      const qty = selectedQty || 1;
       const total_solitaire_pcs = totalPcs || 1;
 
       setSoliAmtFrom(
@@ -926,7 +965,11 @@ function JewelleryDetailScreen() {
       jewelleryDetails?.Product_size_from &&
       jewelleryDetails?.Product_size_from !== "-"
     ) {
-      CalculateDivineMountDetails(String(data.carat), Number(ringSizeFrom));
+      CalculateDivineMountDetails(
+        String(data.carat),
+        Number(ringSizeFrom),
+        qty ?? 1
+      );
     }
   };
 
@@ -1061,7 +1104,7 @@ function JewelleryDetailScreen() {
       notifyErr("Quantity must be at least 1.");
       return;
     }
-
+    const total_solitaire_pcs = totalPcs || 1;
     const carat = customisedData?.carat?.split("-") || ["0", "0"];
     const minCarat = parseFloat(carat[0]) || 0; // Default to 0 if invalid
     const maxCarat = parseFloat(carat[1]) || 0; // Default to 0 if invalid
@@ -1080,11 +1123,24 @@ function JewelleryDetailScreen() {
       validSoliPriceTo + validSoliPriceTo * (premiumPercentage / 100);
 
     // Calculate amounts with default fallback for invalid values
-    const calculatedSoliAmtFrom = premiumMinPrice * minCarat * newQty;
-    const calculatedSoliAmtTo = premiumMaxPrice * maxCarat * newQty;
+    const calculatedSoliAmtFrom =
+      premiumMinPrice * minCarat * newQty * total_solitaire_pcs;
+    const calculatedSoliAmtTo =
+      premiumMaxPrice * maxCarat * newQty * total_solitaire_pcs;
 
     setSoliAmtFrom(parseFloat(calculatedSoliAmtFrom.toFixed(2)) || 0); // Default to 0 if NaN
     setSoliAmtTo(parseFloat(calculatedSoliAmtTo.toFixed(2)) || 0); // Default to 0 if NaN
+
+    // if (
+    //   jewelleryDetails?.Product_size_from &&
+    //   jewelleryDetails?.Product_size_from !== "-"
+    // ) {
+    CalculateDivineMountDetails(
+      String(customisedData?.carat),
+      Number(ringSizeFrom),
+      newQty
+    );
+    //}
   };
 
   const handleSideDiaClarityChange = (
@@ -1092,7 +1148,11 @@ function JewelleryDetailScreen() {
   ) => {
     setSideDiaColorClarity(event.target.value);
     //  {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
-    calculateSideDiamondPrice(sideDiaTotweight, event.target.value);
+    calculateSideDiamondPrice(
+      sideDiaTotweight,
+      event.target.value,
+      selectedQty
+    );
   };
 
   const closeCheckoutModal = () => {
