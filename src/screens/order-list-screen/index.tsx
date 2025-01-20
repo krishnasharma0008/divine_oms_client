@@ -53,6 +53,11 @@ function OrderListScreen() {
       width: "50px",
     },
     {
+      name: "Order No.",
+      selector: (row: OrderList) => row.orderno || "",
+      width: "130px",
+    },
+    {
       name: "Order Date",
       selector: (row: OrderList) =>
         row.order_createdat !== null

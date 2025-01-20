@@ -188,7 +188,11 @@ const Navbar: React.FC = () => {
           <div className="relative cursor-pointer" onClick={ViewCart}>
             <ShoppingCartIcon />
             {isCartCount > 0 && (
-              <span className="absolute top-0 left-4 flex items-center justify-center text-xs font-light text-white bg-green-500 rounded-full w-4 h-4">
+              <span
+                className={`absolute top-0 left-4 flex items-center justify-center text-xs font-light text-white bg-green-500 rounded-full ${
+                  isCartCount > 9 ? "w-6 h-6" : "w-4 h-4"
+                }`}
+              >
                 {isCartCount}
               </span>
             )}
