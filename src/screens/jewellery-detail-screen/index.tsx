@@ -47,6 +47,8 @@ function JewelleryDetailScreen() {
 
   const [baseCarat, setBaseCarat] = useState<string>("");
   const [baseRingSize, setBaseRingSize] = useState<number>(0);
+  const [baseGoldweight, setBaseGoldweight] = useState<number>(0);
+  const [basePlatinumweight, setBasePlatinumweight] = useState<number>(0);
   const [baseMetalweight, setBaseMetalweight] = useState<number>(0);
   const [baseSideDiaTotPcs, setBaseSideDiaTotPcs] = useState<number>(0);
   const [baseSideDiaTotweight, setBaseSideDiaTotweight] = useState<number>(0);
@@ -62,6 +64,8 @@ function JewelleryDetailScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext);
   const [totalPcs, setTotalPcs] = useState<number>(0);
+  const [Goldweight, setGoldweight] = useState<number>(0);
+  const [Platinumweight, setPlatinumweight] = useState<number>(0);
   const [Metalweight, setMetalweight] = useState<number>(0);
   const [sideDiaTotPcs, setSideDiaTotPcs] = useState<number>(0);
   const [sideDiaTotweight, setSideDiaTotweight] = useState<number>(0);
@@ -177,12 +181,28 @@ function JewelleryDetailScreen() {
           parseFloat((cart.metal_price * (cart.metal_weight ?? 0)).toFixed(3))
         );
       } else {
-        const Metalweight = jewelleryDetails?.Variants.filter(
+        // const Metalweight = jewelleryDetails?.Variants.filter(
+        //   (variant) => variant.Is_base_variant === 1
+        // ).reduce((acc, variant) => {
+        //   const matchingBom = jewelleryDetails?.Bom.filter(
+        //     (bomItem) =>
+        //       bomItem.Variant_id === variant.Variant_id &&
+        //       bomItem.Item_type === "METAL"
+        //   );
+        //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        //   const total = matchingBom.reduce(
+        //     (sum, bomItem) => sum + (bomItem.Weight || 0),
+        //     0
+        //   );
+        //   return acc + total;
+        // }, 0);
+        const goldWeight = jewelleryDetails?.Variants.filter(
           (variant) => variant.Is_base_variant === 1
         ).reduce((acc, variant) => {
           const matchingBom = jewelleryDetails?.Bom.filter(
             (bomItem) =>
               bomItem.Variant_id === variant.Variant_id &&
+              bomItem.Item_group === "GOLD" &&
               bomItem.Item_type === "METAL"
           );
           // Sum up Pcs from the matching Bom items (if Pcs is a number)
@@ -192,6 +212,30 @@ function JewelleryDetailScreen() {
           );
           return acc + total;
         }, 0);
+        // setBaseMetalweight(Metalweight ?? 0);
+        // setMetalweight(Metalweight ?? 0);
+        setBaseGoldweight(goldWeight ?? 0);
+        setGoldweight(goldWeight ?? 0);
+        const platinumWeight = jewelleryDetails?.Variants.filter(
+          (variant) => variant.Is_base_variant === 1
+        ).reduce((acc, variant) => {
+          const matchingBom = jewelleryDetails?.Bom.filter(
+            (bomItem) =>
+              bomItem.Variant_id === variant.Variant_id &&
+              bomItem.Item_group === "PLATINUM" &&
+              bomItem.Item_type === "METAL"
+          );
+          // Sum up Pcs from the matching Bom items (if Pcs is a number)
+          const total = matchingBom.reduce(
+            (sum, bomItem) => sum + (bomItem.Weight || 0),
+            0
+          );
+          return acc + total;
+        }, 0);
+        setBasePlatinumweight(platinumWeight ?? 0);
+        setPlatinumweight(platinumWeight ?? 0);
+
+        const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);
         setBaseMetalweight(Metalweight ?? 0);
         setMetalweight(Metalweight ?? 0);
 
@@ -238,7 +282,8 @@ function JewelleryDetailScreen() {
         CalculateMetalAmount(
           cart?.metal_color,
           jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
-          Metalweight ?? 0
+          goldWeight ?? 0,
+          platinumWeight ?? 0
         );
       }
     }
@@ -294,12 +339,28 @@ function JewelleryDetailScreen() {
       //setSelectedQty(totalPcs ?? 0);
       setTotalPcs(totalPcs ?? 0);
 
-      const Metalweight = jewelleryDetails?.Variants.filter(
+      // const Metalweight = jewelleryDetails?.Variants.filter(
+      //   (variant) => variant.Is_base_variant === 1
+      // ).reduce((acc, variant) => {
+      //   const matchingBom = jewelleryDetails?.Bom.filter(
+      //     (bomItem) =>
+      //       bomItem.Variant_id === variant.Variant_id &&
+      //       bomItem.Item_type === "METAL"
+      //   );
+      //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
+      //   const total = matchingBom.reduce(
+      //     (sum, bomItem) => sum + (bomItem.Weight || 0),
+      //     0
+      //   );
+      //   return acc + total;
+      // }, 0);
+      const goldWeight = jewelleryDetails?.Variants.filter(
         (variant) => variant.Is_base_variant === 1
       ).reduce((acc, variant) => {
         const matchingBom = jewelleryDetails?.Bom.filter(
           (bomItem) =>
             bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_group === "GOLD" &&
             bomItem.Item_type === "METAL"
         );
         // Sum up Pcs from the matching Bom items (if Pcs is a number)
@@ -309,6 +370,30 @@ function JewelleryDetailScreen() {
         );
         return acc + total;
       }, 0);
+      // setBaseMetalweight(Metalweight ?? 0);
+      // setMetalweight(Metalweight ?? 0);
+      setBaseGoldweight(goldWeight ?? 0);
+      setGoldweight(goldWeight ?? 0);
+      const platinumWeight = jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc, variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_group === "PLATINUM" &&
+            bomItem.Item_type === "METAL"
+        );
+        // Sum up Pcs from the matching Bom items (if Pcs is a number)
+        const total = matchingBom.reduce(
+          (sum, bomItem) => sum + (bomItem.Weight || 0),
+          0
+        );
+        return acc + total;
+      }, 0);
+      setBasePlatinumweight(platinumWeight ?? 0);
+      setPlatinumweight(platinumWeight ?? 0);
+
+      const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);
       setBaseMetalweight(Metalweight ?? 0);
       setMetalweight(Metalweight ?? 0);
 
@@ -355,7 +440,8 @@ function JewelleryDetailScreen() {
       CalculateMetalAmount(
         jewelleryDetails?.Metal_color.split(",")[0] ?? "",
         jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
-        Metalweight ?? 0
+        goldWeight ?? 0,
+        platinumWeight ?? 0
       );
     } catch (error) {
       notifyErr("Failed to fetch initial data.");
@@ -422,9 +508,10 @@ function JewelleryDetailScreen() {
 
     // Filter variants by size
     const filteredSize = jewelleryDetails?.Variants?.filter((variant) => {
-      console.log("Variant Size:", variant.Size, "Expected Size:", size);
+      //console.log("Variant Size:", variant.Size, "Expected Size:", size);
       return Number(variant.Size) === size; // Ensure numeric comparison
     });
+
     console.log("filteredSize ", filteredSize);
     // Handle case where size is not found
     if (!filteredSize?.length) {
@@ -444,14 +531,31 @@ function JewelleryDetailScreen() {
         Number(variant.Size) === size // Numeric comparison for Size
     );
 
-    //console.log("Filtered Variants: ", filteredVariants);
+    console.log("Filtered Variants: ", filteredVariants);
 
     // Calculate Metal Weight
-    const Metalweight = filteredVariants?.reduce((acc, variant) => {
+    const goldWeight = filteredVariants?.reduce((acc, variant) => {
       const matchingBom = jewelleryDetails?.Bom?.filter(
         (bomItem) =>
           bomItem.Variant_id === variant.Variant_id &&
-          bomItem.Item_type === "METAL"
+          bomItem.Item_type === "METAL" &&
+          bomItem.Item_group === "GOLD"
+      );
+      const total = matchingBom?.reduce(
+        (sum, bomItem) => sum + (bomItem?.Weight || 0),
+        0
+      );
+
+      return acc + (total || 0);
+    }, 0);
+    console.log(`Gold Weight: ${goldWeight}`);
+
+    const platinumWeight = filteredVariants?.reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom?.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_type === "METAL" &&
+          bomItem.Item_group === "PLATINUM"
       );
 
       const total = matchingBom?.reduce(
@@ -461,17 +565,32 @@ function JewelleryDetailScreen() {
 
       return acc + (total || 0);
     }, 0);
+    console.log(`Platinum Weight: ${platinumWeight}`);
+    //const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);
 
     // Adjust Metal Weight based on size difference
-    let adjustedMetalWeight = Metalweight ?? 0;
-    if (!filteredSize?.length && Metalweight) {
-      const adjustment = Metalweight * adjustPercent * sizeDifference;
-      adjustedMetalWeight += adjustment;
+    let adjustedGoldWeight = goldWeight ?? 0;
+    if (!filteredSize?.length && goldWeight) {
+      const adjustment = goldWeight * adjustPercent * sizeDifference;
+      adjustedGoldWeight += adjustment;
       console.log(
-        `Adjusted Metal Weight: ${adjustedMetalWeight} (Size Difference: ${sizeDifference})`
+        `Adjusted Metal Weight: ${adjustedGoldWeight} (Size Difference: ${sizeDifference})`
       );
     }
 
+    let adjustedPlatinumWeight = platinumWeight ?? 0;
+    if (!filteredSize?.length && platinumWeight) {
+      const adjustment = platinumWeight * adjustPercent * sizeDifference;
+      adjustedPlatinumWeight += adjustment;
+      console.log(
+        `Adjusted Metal Weight: ${adjustedPlatinumWeight} (Size Difference: ${sizeDifference})`
+      );
+    }
+    const adjustedMetalWeight =
+      (adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight) +
+      (adjustedPlatinumWeight === 0
+        ? basePlatinumweight
+        : adjustedPlatinumWeight);
     console.log("Final Metal Weight:", adjustedMetalWeight);
     setMetalweight(
       adjustedMetalWeight === 0 ? baseMetalweight : adjustedMetalWeight
@@ -522,11 +641,15 @@ function JewelleryDetailScreen() {
     );
 
     calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
-
+    console.log("baseGoldweight : ", baseGoldweight);
+    console.log("basePlatinumweight : ", basePlatinumweight);
+    console.log("adjustedGoldWeight : ", adjustedGoldWeight);
+    console.log("adjustedPlatinumWeight : ", adjustedPlatinumWeight);
     CalculateMetalAmount(
       jewelleryDetails?.Metal_color.split(",")[0] ?? "",
       jewelleryDetails?.Metal_purity.split(",")[0] ?? "",
-      adjustedMetalWeight
+      adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight,
+      adjustedPlatinumWeight === 0 ? basePlatinumweight : adjustedPlatinumWeight
     );
   };
 
@@ -535,14 +658,19 @@ function JewelleryDetailScreen() {
     console.log("Metal Purity : ", selectedValue);
     setMetalPurity(selectedValue);
 
-    CalculateMetalAmount(metalColor, selectedValue, Metalweight);
+    CalculateMetalAmount(metalColor, selectedValue, Goldweight, Platinumweight);
   };
 
   const handleMetalColor = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     setMetalColor(selectedValue);
 
-    CalculateMetalAmount(selectedValue, metalPurity, Metalweight);
+    CalculateMetalAmount(
+      selectedValue,
+      metalPurity,
+      Goldweight,
+      Platinumweight
+    );
   };
 
   const getValidPurity = (metal: string, purity: string): string => {
@@ -604,21 +732,11 @@ function JewelleryDetailScreen() {
   const CalculateMetalAmount = async (
     metalColor: string,
     metalPurity: string,
-    Metalweight: number
+    goldWeight: number,
+    platinumWeight: number
   ) => {
     try {
       // Filter BOM to get the total weight for GOLD and PLATINUM separately, with fallback to 0 if undefined
-      const goldWeight =
-        jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Item_group === "GOLD" && bomItem.Item_type === "METAL"
-        ).reduce((acc, bomItem) => acc + (bomItem.Weight || 0), 0) ?? 0;
-
-      const platinumWeight =
-        jewelleryDetails?.Bom.filter(
-          (bomItem) =>
-            bomItem.Item_group === "PLATINUM" && bomItem.Item_type === "METAL"
-        ).reduce((acc, bomItem) => acc + (bomItem.Weight || 0), 0) ?? 0;
 
       console.log("Gold Weight: ", goldWeight);
       console.log("Platinum Weight: ", platinumWeight);
@@ -626,13 +744,7 @@ function JewelleryDetailScreen() {
       // Fetch prices for GOLD and PLATINUM if they exist
       let goldPrice = 0;
       let platinumPrice = 0;
-      // console.log(
-      //   "metalColor on metal change : ",
-      //   metalColor.includes("+")
-      //     ? getMetalColor("GOLD", metalColor)
-      //     : metalColor
-      // );
-      // console.log("metalPurity : ", getValidPurity("gold", metalPurity));
+
       if (goldWeight > 0) {
         goldPrice = await FetchPrice(
           "GOLD",
@@ -661,18 +773,12 @@ function JewelleryDetailScreen() {
       const goldAmount = goldWeight > 0 ? goldWeight * goldPrice : 0;
       const platinumAmount =
         platinumWeight > 0 ? platinumWeight * platinumPrice : 0;
-      console.log("Gold Wt: ", goldWeight);
-      console.log("Platinum Wt: ", platinumWeight);
-      console.log("Gold Amount: ", goldAmount);
-      console.log("Platinum Amount: ", platinumAmount);
 
-      // Calculate the total amount and total metal weight
       const totalMetalAmount = goldAmount + platinumAmount;
-      //const totalMetalWeight = goldWeight + platinumWeight;
+
       setMetalAmtFrom(totalMetalAmount);
       if (Metalweight > 0) {
         setMetalPrice(totalMetalAmount / Metalweight);
-        //console.log("Price per Unit Weight: ", pricePerUnitWeight);
       }
     } catch (error) {
       console.error("Error in CalculateMetalAmount:", error);
