@@ -93,6 +93,7 @@ function AdminOrderListScreen() {
     {
       name: "Order No",
       selector: (row: OrderList) => row.orderno,
+      width: "130px",
     },
     {
       name: "ORDER DATE",

@@ -640,7 +640,10 @@ function JewelleryDetailScreen() {
       totalsideweight === 0 ? baseSideDiaTotweight ?? 0 : totalsideweight ?? 0
     );
 
-    calculateSideDiamondPrice(totalsideweight ?? 0, sideDiaColorClarity);
+    calculateSideDiamondPrice(
+      totalsideweight === 0 ? baseSideDiaTotweight ?? 0 : totalsideweight ?? 0,
+      sideDiaColorClarity
+    );
     console.log("baseGoldweight : ", baseGoldweight);
     console.log("basePlatinumweight : ", basePlatinumweight);
     console.log("adjustedGoldWeight : ", adjustedGoldWeight);
@@ -840,6 +843,7 @@ function JewelleryDetailScreen() {
     }
     return color;
   };
+
   const handleApply = async (data: CustomisationOptions) => {
     setCustomisedData(data);
     setIsPopupOpen(false);
@@ -889,16 +893,29 @@ function JewelleryDetailScreen() {
         SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
       const premiumMaxPrice =
         SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
-      // Ensure selectedQty is defined before proceeding
+
       const qty = selectedQty || 1;
-      // console.log(
-      //   parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
-      // );
+      const total_solitaire_pcs = totalPcs || 1;
+
       setSoliAmtFrom(
-        parseFloat((premiumMinPrice * parseFloat(carat[0]) * qty).toFixed(2))
+        parseFloat(
+          (
+            premiumMinPrice *
+            parseFloat(carat[0]) *
+            qty *
+            total_solitaire_pcs
+          ).toFixed(2)
+        )
       );
       setSoliAmtTo(
-        parseFloat((premiumMaxPrice * parseFloat(carat[1]) * qty).toFixed(2))
+        parseFloat(
+          (
+            premiumMaxPrice *
+            parseFloat(carat[1]) *
+            qty *
+            total_solitaire_pcs
+          ).toFixed(2)
+        )
       );
     } catch (error) {
       console.error("Error fetching price details:", error);
@@ -1299,7 +1316,7 @@ function JewelleryDetailScreen() {
                 <div className="text-lg">
                   <span>Side Daimond :</span>
                   <span className="font-semibold">
-                    {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(2)}
+                    {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(3)}
                   </span>
                   <span className="hidden">
                     Side diamond price :{sDiaPrice}
