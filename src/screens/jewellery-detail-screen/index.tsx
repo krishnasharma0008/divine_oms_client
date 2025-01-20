@@ -792,13 +792,12 @@ function JewelleryDetailScreen() {
       }
 
       if (platinumWeight > 0) {
+        console.log("check");
         platinumPrice = await FetchPrice(
           "PLATINUM",
           "",
           "",
-          metalColor.includes("+")
-            ? getMetalColor("PLATINUM", metalColor)
-            : metalColor,
+          getMetalColor("PLATINUM", metalColor),
           metalPurity
         );
       }
