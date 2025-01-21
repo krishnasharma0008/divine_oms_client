@@ -155,6 +155,9 @@ function AdminOrderDetailJewelleryScreen() {
       name: "Remarks",
       selector: (row: OrderDetail) => row.cart_remarks || " ",
       center: true,
+      width: "300px",
+      wrap: true,
+      format: (row) => `${row.cart_remarks.slice(0, 200)}`,
     },
   ];
 
