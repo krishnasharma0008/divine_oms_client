@@ -55,6 +55,11 @@ function OrderDetailJewelleryScreen() {
       width: "50px",
       center: true,
     },
+    // {
+    //   name: "Order No",
+    //   selector: (row: OrderDetail) => row.orderno,
+    //   width: "130px",
+    // },
     {
       name: "Product",
       selector: (row: OrderDetail) => row.product_code,

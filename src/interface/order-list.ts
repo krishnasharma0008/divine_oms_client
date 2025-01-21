@@ -1,6 +1,7 @@
 export interface OrderList {
   id?: number;
   //username: string;
+  order_status: string;
   orderno: string;
   order_createdat: string;
   customer_name: string;
