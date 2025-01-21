@@ -20,7 +20,13 @@ function AdminOrderDetailSolitaireScreen() {
 
   const [orderStatus, setOrderStatus] = useState<string>("");
 
-  const status = ["WIP", "Delivered to SD", "Cancelled", "Open"];
+  const status = [
+    "WIP",
+    "Delivered to SD",
+    "Cancelled",
+    "Open",
+    "Order Closed",
+  ];
 
   useEffect(() => {
     if (id) {
@@ -143,6 +149,12 @@ function AdminOrderDetailSolitaireScreen() {
                     rowSpan={2}
                     className="text-sm font-semibold text-gray-600 py-0.5 px-0.5 text-center border border-gray-200"
                   >
+                    Order No.
+                  </th>
+                  <th
+                    rowSpan={2}
+                    className="text-sm font-semibold text-gray-600 py-0.5 px-0.5 text-center border border-gray-200"
+                  >
                     Shape
                   </th>
                   <th
@@ -225,9 +237,12 @@ function AdminOrderDetailSolitaireScreen() {
                       {rowIndex + 1}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
-                      {row.solitaire_shape}
+                      {row.orderno}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
+                      {row.solitaire_shape}
+                    </td>
+                    <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200 whitespace-nowrap">
                       {row.solitaire_slab}
                     </td>
                     <td className="text-sm text-gray-700 py-0.5 px-0.5 text-center border border-gray-200">
@@ -265,25 +280,28 @@ function AdminOrderDetailSolitaireScreen() {
               </tbody>
               <tfoot>
                 <tr className="bg-gray-100 border-t border-gray-200">
-                  <td className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right">
+                  <td
+                    colSpan={3}
+                    className="font-semibold text-gray-600 py-0.5 px-0.5 text-right whitespace-nowrap"
+                  >
                     Order Remark :-
                   </td>
                   <td
-                    colSpan={7}
-                    className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right"
+                    colSpan={6}
+                    className="font-semibold text-gray-600 py-0.5 px-0.5 text-left"
                   >
                     {orderRemarks}
                   </td>
-                  <td className="text-lg font-semibold text-gray-600 py-0.5 px-0.5 text-right">
+                  <td className="font-semibold text-gray-600 py-0.5 px-0.5 text-right">
                     Total:
                   </td>
-                  <td className="text-lg font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
+                  <td className="font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
                     {totalPcs}
                   </td>
-                  <td className="text-lg font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
+                  <td className="font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
                     ₹{totalRangeMin.toLocaleString()}
                   </td>
-                  <td className="text-lg font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
+                  <td className="font-semibold text-gray-800 py-0.5 px-0.5 text-center border border-gray-200">
                     ₹{totalRangeMax.toLocaleString()}
                   </td>
                   <td className="border border-gray-200"></td>

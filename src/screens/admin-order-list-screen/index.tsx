@@ -91,6 +91,11 @@ function AdminOrderListScreen() {
       width: "50px",
     },
     {
+      name: "Order Status",
+      selector: (row: OrderList) => row.order_status,
+      width: "130px",
+    },
+    {
       name: "Order No",
       selector: (row: OrderList) => row.orderno,
       width: "130px",

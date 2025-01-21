@@ -24,7 +24,13 @@ function AdminOrderDetailJewelleryScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const [orderStatus, setOrderStatus] = useState<string>("");
 
-  const status = ["WIP", "Delivered to SD", "Cancelled", "Open"];
+  const status = [
+    "WIP",
+    "Delivered to SD",
+    "Cancelled",
+    "Open",
+    "Order Closed",
+  ];
 
   useEffect(() => {
     if (id) {
@@ -56,6 +62,11 @@ function AdminOrderDetailJewelleryScreen() {
       name: "#",
       cell: (row: OrderDetail, index: number) => index + 1,
       width: "50px",
+      center: true,
+    },
+    {
+      name: "Order No.",
+      selector: (row: OrderDetail) => row.orderno,
       center: true,
     },
     {
