@@ -327,8 +327,8 @@ function AdminOrderDetailJewelleryScreen() {
             ["Status", orderData[0]?.order_status || "--"],
             [
               "Date of Order",
-              orderData[0]?.exp_dlv_date
-                ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
+              orderData[0]?.order_createdat
+                ? dayjs(orderData[0]?.order_createdat).format("DD MMM, YYYY")
                 : "",
             ],
             ["Partner Jeweller", orderData[0]?.customer_name || "--"],
