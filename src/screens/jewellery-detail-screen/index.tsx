@@ -1,7 +1,7 @@
 "use client";
 
 import ImageGallery from "@/components/common/image-gallery";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ShoppingCartIcon from "@/components/icons/shopping-cart-icon";
 import {
@@ -96,7 +96,6 @@ function JewelleryDetailScreen() {
       console.log("ID is not empty");
       resetCartDetail();
       //resetCustomisedData();
-
       handleAddCart();
     }
     if (formType === "Edit") {
@@ -127,8 +126,6 @@ function JewelleryDetailScreen() {
           baseVariantCarat && baseVariantCarat.length > 0
             ? baseVariantCarat[0]
             : "";
-        //console.log("defaultCarat : ", defaultCarat);
-        //console.log("defaultSize : ", defaultSize);
         setRingSizeFrom(defaultSize);
         setBaseCarat(defaultCarat);
         setBaseRingSize(defaultSize); //variant size where Is_base_variant = 1
@@ -185,21 +182,6 @@ function JewelleryDetailScreen() {
           parseFloat((cart.metal_price * (cart.metal_weight ?? 0)).toFixed(3))
         );
       } else {
-        // const Metalweight = jewelleryDetails?.Variants.filter(
-        //   (variant) => variant.Is_base_variant === 1
-        // ).reduce((acc, variant) => {
-        //   const matchingBom = jewelleryDetails?.Bom.filter(
-        //     (bomItem) =>
-        //       bomItem.Variant_id === variant.Variant_id &&
-        //       bomItem.Item_type === "METAL"
-        //   );
-        //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
-        //   const total = matchingBom.reduce(
-        //     (sum, bomItem) => sum + (bomItem.Weight || 0),
-        //     0
-        //   );
-        //   return acc + total;
-        // }, 0);
         const goldWeight = jewelleryDetails?.Variants.filter(
           (variant) => variant.Is_base_variant === 1
         ).reduce((acc, variant) => {
@@ -216,8 +198,6 @@ function JewelleryDetailScreen() {
           );
           return acc + total;
         }, 0);
-        // setBaseMetalweight(Metalweight ?? 0);
-        // setMetalweight(Metalweight ?? 0);
         setBaseGoldweight(goldWeight ?? 0);
         setGoldweight(goldWeight ?? 0);
         const platinumWeight = jewelleryDetails?.Variants.filter(
@@ -348,21 +328,6 @@ function JewelleryDetailScreen() {
       //setSelectedQty(totalPcs ?? 0);
       setTotalPcs(totalPcs ?? 0);
 
-      // const Metalweight = jewelleryDetails?.Variants.filter(
-      //   (variant) => variant.Is_base_variant === 1
-      // ).reduce((acc, variant) => {
-      //   const matchingBom = jewelleryDetails?.Bom.filter(
-      //     (bomItem) =>
-      //       bomItem.Variant_id === variant.Variant_id &&
-      //       bomItem.Item_type === "METAL"
-      //   );
-      //   // Sum up Pcs from the matching Bom items (if Pcs is a number)
-      //   const total = matchingBom.reduce(
-      //     (sum, bomItem) => sum + (bomItem.Weight || 0),
-      //     0
-      //   );
-      //   return acc + total;
-      // }, 0);
       const goldWeight = jewelleryDetails?.Variants.filter(
         (variant) => variant.Is_base_variant === 1
       ).reduce((acc, variant) => {
@@ -462,29 +427,36 @@ function JewelleryDetailScreen() {
     }
   };
 
-  const FetchData = async (product_code: string) => {
-    //showLoader();
-    try {
-      const response = await getJewelleryProductList(product_code);
-      setJewelleryDetails(response.data.data);
-      if (metalColor === "") {
-        const defaultColor =
-          response.data.data.Metal_color.split(",")[0].trim();
-        setMetalColor(defaultColor);
-      }
-      if (metalPurity === "") {
-        const defaultPurity =
-          response.data.data.Metal_purity.split(",")[0].trim();
-        setMetalPurity(defaultPurity);
-      }
+  const FetchData = useCallback(
+    async (product_code: string) => {
+      // showLoader();
+      try {
+        const response = await getJewelleryProductList(product_code);
+        setJewelleryDetails(response.data.data);
 
-      hideLoader();
-    } catch (error) {
-      notifyErr("An error occurred while fetching data.");
-    } finally {
-      hideLoader();
-    }
-  };
+        // Set default metal color if not already set
+        if (metalColor === "") {
+          const defaultColor =
+            response.data.data.Metal_color.split(",")[0].trim();
+          setMetalColor(defaultColor);
+        }
+
+        // Set default metal purity if not already set
+        if (metalPurity === "") {
+          const defaultPurity =
+            response.data.data.Metal_purity.split(",")[0].trim();
+          setMetalPurity(defaultPurity);
+        }
+
+        hideLoader();
+      } catch (error) {
+        notifyErr("An error occurred while fetching data.");
+      } finally {
+        hideLoader();
+      }
+    },
+    [metalColor, metalPurity] // Dependencies
+  );
 
   const filterByColorAndFormat = (color: string) => {
     const filteredImages = jewelleryDetails?.Images?.filter(
