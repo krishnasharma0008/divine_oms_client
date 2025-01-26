@@ -191,7 +191,7 @@ const SolitaireCustomisationPopup: React.FC<
   }, [isOpen, customisedData, getPremiumSizeOptions]);
 
   useEffect(() => {
-    console.log("premiumSize after setting:", premiumSize);
+    //console.log("premiumSize after setting:", premiumSize);
   }, [premiumSize]);
 
   const handleApply = () => {

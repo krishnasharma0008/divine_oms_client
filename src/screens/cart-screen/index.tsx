@@ -338,14 +338,14 @@ function CartScreen() {
     if (!cartId) return;
 
     const updatedItem = cartData.find((item) => item.id === cartId);
-
+    const productCode = updatedItem ? updatedItem.product_code : null;
     if (updatedItem) {
       setCartDetail(updatedItem); // Ensure updatedItem is valid
     } else {
       console.error("Item not found for the given cartId:", cartId);
     }
     const queryParams = new URLSearchParams({
-      id: "",
+      id: productCode ?? "",
       ftype: "Edit",
     }).toString();
 
