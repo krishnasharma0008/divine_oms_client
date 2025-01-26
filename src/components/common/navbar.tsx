@@ -190,7 +190,8 @@ const Navbar: React.FC = () => {
             {isCartCount > 0 && (
               <span
                 className={`absolute -top-2 left-4 flex items-center justify-center text-xs font-light text-white bg-green-500 rounded-full min-w-[1rem] min-h-[1rem] ${
-                  isCartCount > 99 ? " p-1" : ""
+                  //isCartCount > 99 ? " p-1" : ""
+                  isCartCount > 99 ? "px-2" : isCartCount > 9 ? "px-1" : ""
                 }`}
               >
                 {isCartCount}

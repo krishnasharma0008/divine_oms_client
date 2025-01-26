@@ -14,28 +14,34 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   onPageChange,
 }) => {
   const totalPages = Math.ceil(totalRows / rowsPerPage);
+  const startRow = (selectedPage - 1) * rowsPerPage + 1;
+  const endRow = Math.min(selectedPage * rowsPerPage, totalRows);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return; // Prevent out-of-bound page changes
+    onPageChange(newPage);
+  };
 
   return (
-    <div className="flex items-center gap-8 justify-end py-2">
+    <div className="flex items-center gap-2 justify-end">
+      {/* Row range display */}
+      <p className="text-sm text-slate-600">
+        {totalRows > 0 ? (
+          <>
+            {startRow}–{endRow} of {totalRows}
+          </>
+        ) : (
+          "0 results"
+        )}
+      </p>
       {/* Previous button */}
       <button
-        onClick={() => onPageChange(selectedPage - 1)}
+        onClick={() => handlePageChange(selectedPage - 1)}
         disabled={selectedPage === 1}
-        className="rounded-md border border-slate-300 p-2.5 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+        className="rounded-md border border-slate-300 px-2 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
         type="button"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-4 h-4"
-        >
-          <path
-            fillRule="evenodd"
-            d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z"
-            clipRule="evenodd"
-          />
-        </svg>
+        <span className="text-lg font-bold">&lt;</span>
       </button>
 
       {/* Page information */}
@@ -46,23 +52,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
       {/* Next button */}
       <button
-        onClick={() => onPageChange(selectedPage + 1)}
+        onClick={() => handlePageChange(selectedPage + 1)}
         disabled={selectedPage === totalPages}
-        className="rounded-md border border-slate-300 p-2.5 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+        className="rounded-md border border-slate-300 px-2 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
         type="button"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-4 h-4"
-        >
-          <path
-            fillRule="evenodd"
-            d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z"
-            clipRule="evenodd"
-          />
-        </svg>
+        {/* Chevron Right Icon */}
+        <span className="text-lg font-bold">&gt;</span>
       </button>
     </div>
   );

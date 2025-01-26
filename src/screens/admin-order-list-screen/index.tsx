@@ -28,6 +28,7 @@ const MemoizedDataTable = memo(({ columns, data, customStyles }: any) => (
     data={data}
     customStyles={customStyles}
     fixedHeader
+    fixedHeaderScrollHeight="70vh"
     highlightOnHover
     noHeader
     pagination={false}
@@ -206,14 +207,21 @@ function AdminOrderListScreen() {
     <div className="">
       <div className="w-full bg-white shadow-md rounded-lg p-2 mt-2">
         {/* Header */}
-        <div className="flex justify-between items-center my-2 rounded-lg">
+        <div className="flex justify-between items-center rounded-lg mb-2 px-4 mb-0.5">
           <h1 className="text-2xl font-bold">Order List</h1>
           <button
             onClick={DownloadClick}
-            className="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 transition"
+            className="px-4 py-1 bg-black text-white rounded-md hover:bg-blue-600 transition"
           >
             Get Excel
           </button>
+          {/* Custom Pagination Controls */}
+          <CustomPagination
+            totalRows={totalRows}
+            rowsPerPage={10}
+            selectedPage={selectedPage}
+            onPageChange={handlePageChange}
+          />
         </div>
 
         {/* Table with Loader */}
@@ -225,13 +233,6 @@ function AdminOrderListScreen() {
                 columns={columns}
                 data={excelData}
                 customStyles={customStyles}
-              />
-              {/* Custom Pagination Controls */}
-              <CustomPagination
-                totalRows={totalRows}
-                rowsPerPage={10}
-                selectedPage={selectedPage}
-                onPageChange={handlePageChange}
               />
             </>
           ) : (
