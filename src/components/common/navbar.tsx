@@ -92,17 +92,15 @@ const Navbar: React.FC = () => {
         <div>
           <Breadcrumb />
         </div>
-        <div>
-          <Link href="/">
-            <div className="flex flex-row justify-center items-center">
-              <Image
-                src="/logo/new_logo.png"
-                alt="Company Logo"
-                layout="fill"
-                className="object-contain py-2"
-                loading="lazy"
-              />
-            </div>
+        <div className="flex flex-row justify-center items-center">
+          <Link href="/" className="cursor-pointer w-32 h-20 relative">
+            <Image
+              src="/logo/new_logo.png"
+              alt="Company Logo"
+              layout="fill"
+              className="object-contain py-2 "
+              loading="lazy"
+            />
           </Link>
         </div>
         <div className="flex items-center space-x-4 w-32">
