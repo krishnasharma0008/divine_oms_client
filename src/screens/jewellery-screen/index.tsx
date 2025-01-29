@@ -380,7 +380,7 @@ function JewelleyScreen() {
               className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
               onClick={handleBulkImport}
             >
-              Bulk Import
+              Bulk Order Upload
             </button>
             <button
               className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"

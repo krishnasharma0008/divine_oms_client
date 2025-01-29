@@ -312,7 +312,7 @@ const ChooseYourOrderScreen = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 min-h-[calc(100vh_-_85px)] rounded p-2 m-2 shadow-md space-y-2">
+    <div className="flex flex-col bg-gray-50 min-h-screen md:min-h-[calc(100vh_-_85px)] rounded p-2 m-2 shadow-md space-y-2">
       {/* Header */}
       {/* <header className="bg-blue-500 text-white py-4 px-6 shadow-md">
         <h1 className="text-2xl font-semibold">Choose Your Order</h1>
@@ -323,7 +323,7 @@ const ChooseYourOrderScreen = () => {
       {/* overflow-y-auto max-h-[48vh] */}
       <main className="flex-1 p-2 space-y-2 bg-white">
         <div>
-          <div className="flex w-full justify-between mt-2">
+          <div className="flex md:flex-row flex-col w-full justify-between mt-2">
             <div className="w-full px-4">
               {getCustType() === "Jeweller" ? (
                 <div className="relative">
@@ -446,7 +446,7 @@ const ChooseYourOrderScreen = () => {
           </div>
           {/* </div> */}
 
-          <div className="w-full flex justify-between pl-4">
+          <div className="w-full flex md:flex-row flex-col justify-between pl-4">
             <fieldset className="w-auto p-2 border border-black/10 rounded-md">
               <legend className="text-base font-semibold">
                 Select Item Type
@@ -484,7 +484,7 @@ const ChooseYourOrderScreen = () => {
           <div className="w-full pl-4 mt-6">
             <fieldset className="w-auto p-2 border border-black/10 rounded-md">
               <legend className="text-base font-semibold">Order Type</legend>
-              <div className="flex justify-around">
+              <div className="flex md:flex-row flex-col justify-around">
                 <SingleSelectCheckbox
                   title="Consignment"
                   options={Consignmentoptions}

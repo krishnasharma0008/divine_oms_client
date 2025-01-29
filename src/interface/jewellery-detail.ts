@@ -37,7 +37,7 @@ export interface JewelleryDetail {
   // weight: string;
   // bom_variant_name: string;
   // image_url: string;
-  Cts_size_slab: [];
+  Cts_size_slab: string[];
   Images: Image[];
   Variants: [
     {

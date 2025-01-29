@@ -26,7 +26,7 @@ import {
   clarities,
   claritiesRound,
   claritiesRoundCarat,
-  Metal_Color,
+  //Metal_Color,
   slab,
 } from "@/util/constants";
 //import dayjs from "dayjs";
@@ -88,6 +88,20 @@ const JewelleryBulkImportScreen: React.FC = () => {
     metal_color: "Metal Color",
     size: "Size",
     cart_remarks: "Cart Remarks",
+  };
+
+  // Function to export the Excel template
+  const exportTemplate = () => {
+    // Create a blank sheet with headers
+    const worksheetData = [expectedColumns];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Create a new workbook and append the sheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+
+    // Export the workbook as an Excel file
+    XLSX.writeFile(workbook, "Template.xlsx");
   };
 
   const getColorOptions = (slab: string, isRound: boolean) => {
@@ -326,7 +340,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           }
         }
       }
-
+      //console.log(jewellerydetail);
       // Validate "solitaire_slab" format and range
       if (caratRange) {
         const slabParts = caratRange.split("-");
@@ -340,7 +354,11 @@ const JewelleryBulkImportScreen: React.FC = () => {
           const minCarat = parseFloat(slabParts[0]);
           const maxCarat = parseFloat(slabParts[1]);
           if (minCarat <= 0 || maxCarat <= 0 || minCarat > maxCarat) {
-            errors.push(`Invalid carat range in solitaire_slab: ${slab}`);
+            errors.push(`Invalid carat range in solitaire_slab: ${caratRange}`);
+          } else if (!jewellerydetail?.Cts_size_slab.includes(caratRange)) {
+            errors.push(
+              `Invalid carat range in solitaire_slab for product: ${caratRange}`
+            );
           }
         }
       } else {
@@ -348,10 +366,16 @@ const JewelleryBulkImportScreen: React.FC = () => {
       }
 
       // Validate starting and ending colors
-      if (colorF && !checkColorAvailability(caratRange, isRound, colorF)) {
+      if (!colorF || !colorF.trim()) {
+        errors.push("Color From is required.");
+      } else if (!checkColorAvailability(caratRange, isRound, colorF)) {
         errors.push(`Invalid color From: ${colorF}`);
       }
-      if (colorT) {
+
+      // Ensure "colorT" is not blank
+      if (!colorT || !colorT.trim()) {
+        errors.push("Color To is required.");
+      } else {
         const validColorTOptions = getColorTOptions(
           caratRange,
           isRound,
@@ -363,13 +387,17 @@ const JewelleryBulkImportScreen: React.FC = () => {
       }
 
       // Validate starting and ending clarity
-      if (
-        clarityF &&
-        !checkClarityAvailability(caratRange, isRound, clarityF)
-      ) {
+      // Ensure "clarityF" is not blank
+      if (!clarityF || !clarityF.trim()) {
+        errors.push("Clarity From is required.");
+      } else if (!checkClarityAvailability(caratRange, isRound, clarityF)) {
         errors.push(`Invalid clarity From: ${clarityF}`);
       }
-      if (clarityT) {
+
+      // Ensure "clarityT" is not blank
+      if (!clarityT || !clarityT.trim()) {
+        errors.push("Clarity To is required.");
+      } else {
         const validClarityTOptions = getClarityTOptions(
           caratRange,
           isRound,
@@ -382,7 +410,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
 
       // Validate "metal_color"
       const metalColor = getTrimmedValue("metal_color");
-      if (metalColor && !Metal_Color.includes(metalColor)) {
+      if (
+        metalColor &&
+        !jewellerydetail?.Metal_color.split(",").includes(metalColor)
+      ) {
         errors.push(`Invalid Metal Color: ${metalColor}`);
       }
 
@@ -664,7 +695,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
                   strokeLinecap="round"
                 />
               </svg>
-              <span>Import</span>
+              <span>Upload</span>
             </button>
 
             <button
@@ -755,6 +786,33 @@ const JewelleryBulkImportScreen: React.FC = () => {
               className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black transition-colors flex items-center space-x-2"
             >
               <span>Close</span>
+            </button>
+
+            <button
+              onClick={exportTemplate}
+              className="px-4 py-2 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black transition-colors flex items-center space-x-2"
+            >
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 4L12 14M12 14L15 11M12 14L9 11"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 20C7.58172 20 4 16.4183 4 12M20 12C20 14.5264 18.8289 16.7792 17 18.2454"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>Export Template</span>
             </button>
           </div>
         </div>
