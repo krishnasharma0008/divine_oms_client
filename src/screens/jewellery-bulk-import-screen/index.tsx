@@ -27,7 +27,7 @@ import {
   claritiesRound,
   claritiesRoundCarat,
   //Metal_Color,
-  slab,
+  //slab,
 } from "@/util/constants";
 //import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -316,22 +316,26 @@ const JewelleryBulkImportScreen: React.FC = () => {
       let jewellerydetail: JewelleryDetail | undefined;
 
       // Validate "product_type"
+      //console.log("productType :", productType);
       if (!productType) {
         errors.push("Product Type is missing.");
-      } else if (productType !== "jewellery" && productType !== "solitaire") {
+      } else if (
+        productType.trim().toLowerCase() !== "jewellery" &&
+        productType.trim().toLowerCase() !== "solitaire"
+      ) {
         errors.push(
           `Invalid Product Type: ${productType}. Must be 'jewellery' or 'Solitaire'.`
         );
       }
 
       // Validate "product_code" and fetch details if applicable
-      if (productType === "jewellery") {
+      if (productType.trim().toLowerCase() === "jewellery") {
         if (!productCode) {
           errors.push("Product Code is missing.");
         } else {
           try {
             jewellerydetail = await FetchData(productCode.trim().toUpperCase());
-
+            //console.log("Available slabs in jewellerydetail:", jewellerydetail);
             if (!jewellerydetail) {
               errors.push(`Product Code: ${productCode} is not available.`);
             }
@@ -342,6 +346,8 @@ const JewelleryBulkImportScreen: React.FC = () => {
       }
       //console.log(jewellerydetail);
       // Validate "solitaire_slab" format and range
+
+      // Validate "solitaire_slab" format and range
       if (caratRange) {
         const slabParts = caratRange.split("-");
         if (
@@ -349,7 +355,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           isNaN(parseFloat(slabParts[0])) ||
           isNaN(parseFloat(slabParts[1]))
         ) {
-          errors.push(`Invalid solitaire_slab format: ${slab}`);
+          errors.push(`Invalid solitaire_slab format: ${caratRange}`);
         } else {
           const minCarat = parseFloat(slabParts[0]);
           const maxCarat = parseFloat(slabParts[1]);
@@ -409,33 +415,38 @@ const JewelleryBulkImportScreen: React.FC = () => {
       }
 
       // Validate "metal_color"
-      const metalColor = getTrimmedValue("metal_color");
-      if (
-        metalColor &&
-        !jewellerydetail?.Metal_color.split(",").includes(metalColor)
-      ) {
-        errors.push(`Invalid Metal Color: ${metalColor}`);
+      const metalColor = getTrimmedValue("metal_color")?.toUpperCase();
+      // Validate if the metal color is non-empty and exists in the list of valid colors
+      if (metalColor) {
+        const validColors = jewellerydetail?.Metal_color.split(",").map(
+          (color) => color.trim().toUpperCase()
+        ); // Trim and convert each color name to uppercase
+        if (!validColors?.includes(metalColor)) {
+          errors.push(`Invalid Metal Color: ${metalColor}`);
+        }
+      } else {
+        errors.push("Metal Color is required.");
       }
 
       // Validate "size_from"
-      const sizeFrom = getTrimmedValue("size");
-      if (productType === "jewellery") {
-        if (sizeFrom !== "-") {
-          const sizeFromNumber = Number(sizeFrom);
+      // const sizeFrom = getTrimmedValue("size");
+      // if (productType === "jewellery") {
+      //   if (sizeFrom !== "-") {
+      //     const sizeFromNumber = Number(sizeFrom);
 
-          if (isNaN(sizeFromNumber)) {
-            errors.push(
-              `Invalid size: ${sizeFrom}. It must be a valid number.`
-            );
-          } else if (sizeFromNumber < 4 || sizeFromNumber > 26) {
-            errors.push(
-              `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
-            );
-          }
-        } else {
-          console.log(`Skipping size validation for size: ${sizeFrom}`);
-        }
-      }
+      //     if (isNaN(sizeFromNumber)) {
+      //       errors.push(
+      //         `Invalid size: ${sizeFrom}. It must be a valid number.`
+      //       );
+      //     } else if (sizeFromNumber < 4 || sizeFromNumber > 26) {
+      //       errors.push(
+      //         `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
+      //       );
+      //     }
+      //   } else {
+      //     console.log(`Skipping size validation for size: ${sizeFrom}`);
+      //   }
+      // }
 
       const hasError = errors.length > 0;
 

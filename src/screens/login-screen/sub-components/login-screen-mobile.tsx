@@ -24,9 +24,18 @@ const LoginScreenMobileInput: React.FC = () => {
     showLoader();
     setIsLoading(true);
     try {
+      const mobileRegex = /^\d{10}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
       if (!loginType.trim()) {
         setLoginTypeError(true);
         notifyErr("Username cannot be empty");
+        setIsLoading(false);
+        hideLoader();
+        return;
+      } else if (!mobileRegex.test(loginType) && !emailRegex.test(loginType)) {
+        setLoginTypeError(true);
+        notifyErr("Enter a valid 10-digit mobile number or email");
         setIsLoading(false);
         hideLoader();
         return;
