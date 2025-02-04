@@ -465,7 +465,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           customer_code: customerOrder?.cust_code || "", //new additation
           customer_name: customerOrder?.cust_name || "",
           customer_branch: customerOrder?.store || "",
-          product_type: productType,
+          product_type: productType.trim().toLowerCase(), //productType.trim().toLowerCase() === "jewellery"
           order_type: customerOrder?.order_type || "",
           Product_category: jewellerydetail?.Product_category || "",
           product_sub_category: jewellerydetail?.Product_sub_category || "",
