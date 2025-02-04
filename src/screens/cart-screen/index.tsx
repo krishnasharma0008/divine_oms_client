@@ -112,7 +112,7 @@ function CartScreen() {
       //setcartData(updatedCartData); // Optionally, send the updated remark to the server
       // Find the updated item
       const updatedItem = updatedCartData.find((item) =>
-        item.product_type === "jewellery"
+        item.product_type.toLowerCase() === "jewellery"
           ? item.product_code === currentProductCode
           : item.id === currentId
       );
@@ -622,12 +622,12 @@ function CartScreen() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={
-                      item.product_type === "jewellery"
+                      item.product_type.toLowerCase() === "jewellery"
                         ? item.image_url ?? ""
-                        : item.product_type === "solitaire" &&
+                        : item.product_type.toLowerCase() === "solitaire" &&
                           item.solitaire_shape === "Round"
                         ? "/solitaire/image7.png"
-                        : item.product_type === "solitaire" &&
+                        : item.product_type.toLowerCase() === "solitaire" &&
                           item.solitaire_shape === "Princess"
                         ? "/solitaire/image8.png"
                         : item.solitaire_shape === "Oval"
