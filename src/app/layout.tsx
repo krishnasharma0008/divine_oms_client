@@ -6,6 +6,7 @@ export const metadata = {
   icons: {
     icon: "/favicon/favicon-32x32.png",
   },
+  robots: "noindex, nofollow", // Blocks search engine indexing
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
