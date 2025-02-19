@@ -154,7 +154,7 @@ function JewelleryDetailScreen() {
   };
 
   const getbaseSizeCarat = () => {
-    console.log("working");
+    //console.log("working");
     if (jewelleryDetails?.Product_size_from !== "-") {
       const baseVariantSizes = jewelleryDetails?.Variants.filter(
         (item) => item.Is_base_variant === 1
@@ -180,12 +180,12 @@ function JewelleryDetailScreen() {
   };
 
   const handleEditCart = async () => {
-    console.log("Edit cart data : ", cart?.product_code);
+    //console.log("Edit cart data : ", cart?.product_code);
     if (cart?.product_code) {
       getbaseSizeCarat();
 
       const totalPcs = GetPcs("SOLITAIRE", "STONE");
-      console.log("Total pcs : ", totalPcs);
+      //console.log("Total pcs : ", totalPcs);
       setTotalPcs(totalPcs ?? 0);
 
       const goldWeight = GetWeight("GOLD", "METAL");
@@ -281,7 +281,7 @@ function JewelleryDetailScreen() {
       getbaseSizeCarat();
 
       const totalPcs = GetPcs("SOLITAIRE", "STONE");
-      console.log("Total pcs : ", totalPcs);
+      //console.log("Total pcs : ", totalPcs);
       setTotalPcs(totalPcs ?? 0);
 
       const goldWeight = GetWeight("GOLD", "METAL");
@@ -371,9 +371,9 @@ function JewelleryDetailScreen() {
     size: number,
     qty: number
   ) => {
-    console.log("Calculating details for carat:", carat, "size:", size);
+    // console.log("Calculating details for carat:", carat, "size:", size);
 
-    console.log("Default Size : ", baseRingSize);
+    // console.log("Default Size : ", baseRingSize);
     const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
     let sizeDifference = 0;
 
@@ -383,7 +383,7 @@ function JewelleryDetailScreen() {
       return Number(variant.Size) === size; // Ensure numeric comparison
     });
 
-    console.log("filteredSize ", filteredSize);
+    //console.log("filteredSize ", filteredSize);
     // Handle case where size is not found
     if (!filteredSize?.length) {
       console.warn(
@@ -402,7 +402,7 @@ function JewelleryDetailScreen() {
         Number(variant.Size) === size // Numeric comparison for Size
     );
 
-    console.log("Filtered Variants: ", filteredVariants);
+    //console.log("Filtered Variants: ", filteredVariants);
 
     // Calculate Metal Weight
     const goldWeight = filteredVariants?.reduce((acc, variant) => {
@@ -419,7 +419,7 @@ function JewelleryDetailScreen() {
 
       return acc + (total || 0);
     }, 0);
-    console.log(`Gold Weight: ${goldWeight}`);
+    //console.log(`Gold Weight: ${goldWeight}`);
 
     const platinumWeight = filteredVariants?.reduce((acc, variant) => {
       const matchingBom = jewelleryDetails?.Bom?.filter(
@@ -436,7 +436,7 @@ function JewelleryDetailScreen() {
 
       return acc + (total || 0);
     }, 0);
-    console.log(`Platinum Weight: ${platinumWeight}`);
+    //console.log(`Platinum Weight: ${platinumWeight}`);
     //const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);
 
     // Adjust Metal Weight based on size difference
@@ -444,25 +444,25 @@ function JewelleryDetailScreen() {
     if (!filteredSize?.length && goldWeight) {
       const adjustment = goldWeight * adjustPercent * sizeDifference;
       adjustedGoldWeight += adjustment;
-      console.log(
-        `Adjusted Gold Weight: ${adjustedGoldWeight} (Size Difference: ${sizeDifference})`
-      );
+      // console.log(
+      //   `Adjusted Gold Weight: ${adjustedGoldWeight} (Size Difference: ${sizeDifference})`
+      // );
     }
 
     let adjustedPlatinumWeight = platinumWeight ?? 0;
     if (!filteredSize?.length && platinumWeight) {
       const adjustment = platinumWeight * adjustPercent * sizeDifference;
       adjustedPlatinumWeight += adjustment;
-      console.log(
-        `Adjusted Platinum Weight: ${adjustedPlatinumWeight} (Size Difference: ${sizeDifference})`
-      );
+      // console.log(
+      //   `Adjusted Platinum Weight: ${adjustedPlatinumWeight} (Size Difference: ${sizeDifference})`
+      // );
     }
     const adjustedMetalWeight =
       (adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight) +
       (adjustedPlatinumWeight === 0
         ? basePlatinumweight
         : adjustedPlatinumWeight);
-    console.log("Final Metal Weight:", adjustedMetalWeight);
+    //console.log("Final Metal Weight:", adjustedMetalWeight);
     setGoldweight(
       adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight
     );
@@ -490,7 +490,7 @@ function JewelleryDetailScreen() {
       return acc + (total || 0);
     }, 0);
 
-    console.log("Total Side Diamond Pcs: ", totalsidepcs);
+    //console.log("Total Side Diamond Pcs: ", totalsidepcs);
     setSideDiaTotPcs(
       totalsidepcs === 0 ? baseSideDiaTotPcs ?? 0 : totalsidepcs ?? 0
     );
@@ -522,10 +522,10 @@ function JewelleryDetailScreen() {
       sideDiaColorClarity,
       qty
     );
-    console.log("baseGoldweight : ", baseGoldweight);
-    console.log("basePlatinumweight : ", basePlatinumweight);
-    console.log("adjustedGoldWeight : ", adjustedGoldWeight);
-    console.log("adjustedPlatinumWeight : ", adjustedPlatinumWeight);
+    // console.log("baseGoldweight : ", baseGoldweight);
+    // console.log("basePlatinumweight : ", basePlatinumweight);
+    // console.log("adjustedGoldWeight : ", adjustedGoldWeight);
+    // console.log("adjustedPlatinumWeight : ", adjustedPlatinumWeight);
     CalculateMetalAmount(
       metalColor,
       metalPurity,
@@ -540,7 +540,7 @@ function JewelleryDetailScreen() {
 
   const handleMetalPurity = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
-    console.log("Metal Purity : ", selectedValue);
+    //console.log("Metal Purity : ", selectedValue);
     setMetalPurity(selectedValue);
 
     CalculateMetalAmount(
@@ -579,7 +579,7 @@ function JewelleryDetailScreen() {
   };
 
   const getMetalColor = (metal: string, color: string): string => {
-    console.log("Metal color:", color);
+    //console.log("Metal color:", color);
     // Normalize inputs
     const normalizedMetal = metal.trim().toLowerCase();
     const normalizedColor = color.trim().toLowerCase();
@@ -638,7 +638,7 @@ function JewelleryDetailScreen() {
           getValidPurity("gold", metalPurity)
         );
       }
-      console.log("goldPrice : ", goldPrice);
+      //console.log("goldPrice : ", goldPrice);
       if (platinumWeight > 0) {
         platinumPrice = await FetchPrice(
           "PLATINUM",
@@ -683,7 +683,7 @@ function JewelleryDetailScreen() {
 
       if (totalsideweight && !isNaN(diamondPrice)) {
         const sideDiamondPrice = diamondPrice * totalsideweight * selectedQty;
-        console.log("Total Side amt : ", sideDiamondPrice);
+        //console.log("Total Side amt : ", sideDiamondPrice);
         setSDiaAmt(sideDiamondPrice);
       } else {
         console.error("Invalid side diamond pieces or weight.");
@@ -848,7 +848,7 @@ function JewelleryDetailScreen() {
         : new Date().toISOString() // fallback to the current date
       : new Date().toISOString();
 
-    console.log("exp_dlv_date:", exp_dlv_date);
+    //console.log("exp_dlv_date:", exp_dlv_date);
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,
@@ -911,7 +911,7 @@ function JewelleryDetailScreen() {
       payload.id = cart.id as number;
     }
 
-    console.log("Prepared Payload:", payload);
+    //console.log("Prepared Payload:", payload);
 
     showLoader();
     try {

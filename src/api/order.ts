@@ -84,6 +84,7 @@ const DownloadOrderListExcel = async (): Promise<AxiosResponse<Blob>> => {
       Authorization: "Bearer " + getAdminToken(),
     },
     responseType: "blob",
+    timeout: 60000, // 60 seconds timeout
   });
 };
 

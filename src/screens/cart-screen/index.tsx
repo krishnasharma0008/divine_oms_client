@@ -518,7 +518,7 @@ function CartScreen() {
       showLoader();
       const result = await DownloadExcel();
       const href = window.URL.createObjectURL(new Blob([result.data]));
-      console.log(result);
+      //console.log(result);
 
       //const filename = result.headers['content-disposition']
       //console.log(filename)

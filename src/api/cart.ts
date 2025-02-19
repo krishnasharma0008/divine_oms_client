@@ -120,19 +120,20 @@ const CreateOrder = (
     },
   });
 
-  const DownloadExcel = async (): Promise<AxiosResponse<Blob>> => {
-    //status: string, id: number
-    //const apiUrl = `excel?policy_status=${status}&id=${id}`
-    //console.log(apiUrl)
-    //return callWebService(GetCartExcelEndpoint.url + apiUrl, {
-      return callWebService(GetCartExcelEndpoint.url, {
-      method: GetCartExcelEndpoint.method,
-      headers: {
-        Authorization: 'Bearer ' + getToken(),
-      },
-      responseType: 'blob',
-    })
-  }
+const DownloadExcel = async (): Promise<AxiosResponse<Blob>> => {
+  //status: string, id: number
+  //const apiUrl = `excel?policy_status=${status}&id=${id}`
+  //console.log(apiUrl)
+  //return callWebService(GetCartExcelEndpoint.url + apiUrl, {
+  return callWebService(GetCartExcelEndpoint.url, {
+    method: GetCartExcelEndpoint.method,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+    responseType: "blob",
+    timeout: 60000, // 60 seconds timeout
+  });
+};
 
 export {
   getCartDetailList,
@@ -141,5 +142,5 @@ export {
   DeleteCart,
   UpdateCartOrderRemark,
   CreateOrder,
-  DownloadExcel
+  DownloadExcel,
 };
