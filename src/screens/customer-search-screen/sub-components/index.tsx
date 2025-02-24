@@ -123,35 +123,35 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
       validationErrors.name = "Name is required";
     }
 
-    if (!state.address) {
-      validationErrors.address = "Address is required";
-    }
+    // if (!state.address) {
+    //   validationErrors.address = "Address is required";
+    // }
 
     if (!state.contactno) {
       validationErrors.contactno = "Mobile number is required";
     }
 
-    if (!state.pan) {
-      validationErrors.pan = "Pan no is required";
-    }
+    // if (!state.pan) {
+    //   validationErrors.pan = "Pan no is required";
+    // }
 
-    if (!state.gender) {
-      validationErrors.gender = "Gender is required";
-    }
+    // if (!state.gender) {
+    //   validationErrors.gender = "Gender is required";
+    // }
 
-    if (!state.dob) {
-      validationErrors.dob = "Date of Birth is required";
-    }
+    // if (!state.dob) {
+    //   validationErrors.dob = "Date of Birth is required";
+    // }
 
-    if (!state.pincode) {
-      validationErrors.pincode = "Pin code is required";
-    }
+    // if (!state.pincode) {
+    //   validationErrors.pincode = "Pin code is required";
+    // }
 
-    if (!state.email) {
-      validationErrors.email = "Email is ";
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(state.email)) {
-      validationErrors.phemail = "Invalid email";
-    }
+    // if (!state.email) {
+    //   validationErrors.email = "Email is ";
+    // } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(state.email)) {
+    //   validationErrors.phemail = "Invalid email";
+    // }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
