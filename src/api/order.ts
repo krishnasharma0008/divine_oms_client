@@ -7,6 +7,7 @@ import {
   OrderDetailEndpoint,
   UpdateOrderStatusEndpoint,
   GetAdminOrderListExcelEndpoint,
+  GetAdminOrderExcelEndpoint,
 } from "./endpoints";
 import callWebService from "./web-service";
 import { OrderList } from "@/interface/order-list";
@@ -88,9 +89,23 @@ const DownloadOrderListExcel = async (): Promise<AxiosResponse<Blob>> => {
   });
 };
 
+const DownloadAdminOrderExcel = async (
+  orderno: number
+): Promise<AxiosResponse<Blob>> => {
+  return callWebService(GetAdminOrderExcelEndpoint.url + orderno, {
+    method: GetAdminOrderExcelEndpoint.method,
+    headers: {
+      Authorization: "Bearer " + getAdminToken(),
+    },
+    responseType: "blob",
+    timeout: 60000, // 60 seconds timeout
+  });
+};
+
 export {
   getOrderList,
   getOrderDetail,
   updateOrderStatus,
   DownloadOrderListExcel,
+  DownloadAdminOrderExcel,
 };

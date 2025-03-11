@@ -8,6 +8,7 @@ interface SingleSelectCheckboxProps {
   //onChange: (value: string | null) => void;
   onChange: (value: string) => void;
   classes?: string;
+  disabled?: boolean;
 }
 
 const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
@@ -16,6 +17,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
   selectedValue,
   onChange,
   classes,
+  disabled = false, // Default to false if not provided
 }) => {
   //const [selected, setSelected] = useState<string | null>(selectedValue);
 
@@ -35,6 +37,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
               id={option.value}
               checked={selectedValue === option.value}
               onChange={() => onChange(option.value)}
+              disabled={disabled} // Pass disabled prop to Checkbox
             />
             <span className={`${classes} text-black w-32`}>{option.label}</span>
           </label>

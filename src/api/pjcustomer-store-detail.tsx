@@ -9,8 +9,17 @@ import {
 import callWebService from "./web-service";
 import { PJCustomerStoreDetail } from "@/interface/pj-custome-store";
 
+// export interface GetJewellerypjCustResponse {
+//   data: Array<string>;
+// }
+
+export interface Customer {
+  code: string;
+  name: string;
+}
+
 export interface GetJewellerypjCustResponse {
-  data: Array<string>;
+  data: Customer[];
 }
 
 export interface GetJewellerypjCustStoreResponse {
@@ -31,7 +40,8 @@ const getpjCustomer = (
   });
 
 const getpjStore = (
-  custName?: string
+  code?: string
+  //,code?:string
 ): Promise<AxiosResponse<GetJewellerypjCustStoreResponse>> =>
   callWebService(getJewelleryPjStoreEndpoint.url, {
     method: getJewelleryPjStoreEndpoint.method,
@@ -39,7 +49,8 @@ const getpjStore = (
       Authorization: "Bearer " + getToken(),
     },
     data: {
-      name: custName,
+      code: code,
+      //code:code,
     },
   });
 
