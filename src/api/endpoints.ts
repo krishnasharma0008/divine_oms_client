@@ -129,3 +129,8 @@ export const GetAdminOrderListExcelEndpoint: Endpoint = {
   method: HTTPS_METHOD.GET,
   url: "/order/getxl/0",
 };
+
+export const GetAdminOrderExcelEndpoint: Endpoint = {
+  method: HTTPS_METHOD.GET,
+  url: "/order/getorderxl/",
+};

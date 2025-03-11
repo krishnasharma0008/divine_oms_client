@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
-import { getOrderDetail, updateOrderStatus } from "@/api/order";
+import {
+  DownloadAdminOrderExcel,
+  getOrderDetail,
+  updateOrderStatus,
+} from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderDetail } from "@/interface/order-detail";
@@ -87,6 +91,30 @@ function AdminOrderDetailSolitaireScreen() {
     }
   };
 
+  const ExcelDownload = async () => {
+    try {
+      showLoader();
+      const result = await DownloadAdminOrderExcel(Number(id));
+      const href = window.URL.createObjectURL(new Blob([result.data]));
+      const anchorElement = document.createElement("a");
+      anchorElement.href = href;
+      anchorElement.download = `Order_${Number(id)}_${new Date()}.xlsx`;
+      document.body.appendChild(anchorElement);
+      anchorElement.click();
+      document.body.removeChild(anchorElement);
+      window.URL.revokeObjectURL(href);
+      hideLoader();
+    } catch (error) {
+      hideLoader();
+      console.log(error);
+    }
+  };
+
+  const DownloadClick = () => {
+    ExcelDownload();
+    console.log("Download Excel");
+  };
+
   return (
     <div className="space-y-4 m-4">
       {/* Main Content Section */}
@@ -127,9 +155,16 @@ function AdminOrderDetailSolitaireScreen() {
           {/* <div className="flex justify-end mb-4"> */}
           <button
             onClick={handleBackButtonClick}
-            className="bg-black text-white py-2 px-4 rounded-md shadow-md hover:text-black hover:bg-white focus:outline-none"
+            className="bg-black text-white py-1 px-4 rounded-md shadow-md hover:text-black hover:bg-white focus:outline-none"
           >
             Back
+          </button>
+
+          <button
+            onClick={DownloadClick}
+            className="px-4 py-1 bg-black text-white rounded-md hover:bg-blue-600 transition"
+          >
+            Get Excel
           </button>
           {/* </div> */}
         </div>

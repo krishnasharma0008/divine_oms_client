@@ -33,7 +33,8 @@ const getJewelleryDetailID = (
   collection: string,
   metal_purity: string,
   portfolio_type: string,
-  pageno: number
+  pageno: number,
+  newlaunch: boolean
 ): Promise<AxiosResponse<GetJewelleryDetailResponse>> =>
   callWebService(getJewelleryProdctListEndpoint.url, {
     method: getJewelleryProdctListEndpoint.method,
@@ -49,6 +50,7 @@ const getJewelleryDetailID = (
       metal_purity: metal_purity === "" ? null : metal_purity,
       portfolio_type: portfolio_type === "" ? null : portfolio_type,
       pageno: pageno,
+      is_new_launch: newlaunch,
     },
   });
 

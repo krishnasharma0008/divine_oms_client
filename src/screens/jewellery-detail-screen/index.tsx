@@ -1056,7 +1056,11 @@ function JewelleryDetailScreen() {
         </div>
         <div className="w-full p-4 mb-4 bg-[#F9F6ED] rounded-lg">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold">Divine Solitaire</h2>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold">Divine Solitaire</h2>
+              {/* comparing with total pcs to show This is a multi solitaire product */}
+              {totalPcs > 1 && <h3>This is a multi solitaire product</h3>}
+            </div>
             <div className="text-lg">
               <span className="font-semibold">
                 {formatByCurrencyINR(soliAmtFrom ?? 0)} apx -{" "}

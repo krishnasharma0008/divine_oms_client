@@ -44,7 +44,7 @@ const AdminSidebar: React.FC = () => {
             src="/logo/new_logo.png"
             alt="Company Logo"
             layout="fill"
-            className="object-contain pb-0.5 h-auto w-auto max-h-[60px]"
+            className="object-contain py-[6px] h-auto w-auto max-h-[60px]"
             loading="lazy"
           />
         </Link>

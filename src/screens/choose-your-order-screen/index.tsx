@@ -21,8 +21,10 @@ import utcPlugin from "dayjs/plugin/utc";
 dayjs.extend(utcPlugin);
 
 interface OptionType {
-  value: string;
-  label: string;
+  // value: string;
+  // label: string;
+  code: string;
+  name: string;
 }
 
 const ChooseYourOrderScreen = () => {
@@ -91,9 +93,30 @@ const ChooseYourOrderScreen = () => {
     try {
       //showLoader();
       const result = await getpjCustomer(value);
-      const pjCustOptions = result.data.data.map((item: string) => ({
-        label: item,
-        value: item,
+      //code:,name
+      // const pjCustOptions = result.data.data.map((item: string) => ({
+      //   label: item,
+      //   value: item,
+      // }));
+      // const result = {
+      //   data: [
+      //     {
+      //       code: "PJ002",
+      //       name: "RANKA JEWELLERS (CW)",
+      //     },
+      //     {
+      //       code: "PJ003",
+      //       name: "RANKA JEWELLERS (KR)",
+      //     },
+      //     {
+      //       code: "PJ001",
+      //       name: "RANKA JEWELLERS (RP)",
+      //     },
+      //   ],
+      // };
+      const pjCustOptions = result.data.data.map((item: OptionType) => ({
+        code: item.code,
+        name: item.name,
       }));
       setCustomerDetail(pjCustOptions);
       setShowSuggestions(true);
@@ -106,21 +129,22 @@ const ChooseYourOrderScreen = () => {
     }
   };
 
-  const handleSuggestionClick = (id: string) => {
-    console.log("Selected customer", id);
+  const handleSuggestionClick = (id: string, name: string) => {
+    console.log("Selected customer Code ", id);
+    console.log("Selected customer Name ", name);
     setIsCustomerName(id);
     getpjstoredata(id); //fetch store data
     setShowSuggestions(false);
-    setSearchQuery(id); // Optionally clear the search query
+    setSearchQuery(name); // Optionally clear the search query
     setStores([]);
     setSelectedAdd("");
     setSelectedContact("");
   };
 
-  const getpjstoredata = async (custName?: string) => {
+  const getpjstoredata = async (code?: string) => {
     try {
       //console.log("Jeweller Name :", custName);
-      const response = await getpjStore(custName);
+      const response = await getpjStore(code);
       //console.log(response.data.data ?? []);
       setStores(response.data.data ?? []);
       //setSelectedSValue(stores[0].CustomerID.toString());
@@ -177,7 +201,29 @@ const ChooseYourOrderScreen = () => {
   const handleOrderForChange = (value: string) => {
     console.log("selected Order For", value);
     setSelectedOrderFor(value);
+    if (value === "Customer") {
+      console.log("Setting Order Type to RCO for Customer");
+      setOrderType("RCO");
+      setSelectedCustOrder("RCO"); // Ensure Customer Order is also set
+      setSelectedConsignment("");
+      setSelectedSOR("");
+      setSelectedOutrightPur("");
+    } else {
+      setOrderType(""); // Reset Order Type if not Customer
+      setSelectedCustOrder("");
+      setSelectedConsignment("");
+      setSelectedSOR("");
+      setSelectedOutrightPur("");
+    }
   };
+
+  useEffect(() => {
+    if (selectedOrderFor === "Customer") {
+      setSelectedConsignment("");
+      setSelectedSOR("");
+      setSelectedOutrightPur("");
+    }
+  }, [selectedOrderFor]);
 
   const handleOrderTypeChange = (value: string) => {
     console.log("selected Order Type", value);
@@ -234,10 +280,19 @@ const ChooseYourOrderScreen = () => {
   ];
   const SORoptions = [{ label: "SOR", value: "SOR" }];
   const Outpurchaseoptions = [{ label: "OP", value: "OP" }];
-  const CustomerOrderoptions = [
-    { label: "RCO", value: "RCO" },
-    { label: "SCO", value: "SCO" },
-  ];
+  // const CustomerOrderoptions = [
+  //   { label: "RCO", value: "RCO" },
+  //   { label: "SCO", value: "SCO" },
+  // ];
+  const CustomerOrderoptions = [];
+  if (selectedOrderFor === "Customer") {
+    CustomerOrderoptions.push({ label: "RCO", value: "RCO" });
+  } else {
+    CustomerOrderoptions.push(
+      { label: "RCO", value: "RCO" },
+      { label: "SCO", value: "SCO" }
+    );
+  }
 
   const handleProceed = () => {
     // Reset customer order before proceeding
@@ -267,7 +322,8 @@ const ChooseYourOrderScreen = () => {
       notifyErr("Order Type is required. Please select a valid Order.");
       return;
     }
-
+    //   selectedOrderFor === "Customer" &&
+    //   selectedCustOrder !== "RCO"
     // Prepare payload based on the customer type
     const payload: CustomerOrderDetail = {
       order_for: selectedOrderFor, // getCustType() ?? "",
@@ -384,13 +440,16 @@ const ChooseYourOrderScreen = () => {
                     <ul className="absolute left-0 top-full  w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
                       {customerData.map((customer) => (
                         <li
-                          key={customer.value}
+                          key={customer.code}
                           onClick={() =>
-                            handleSuggestionClick(String(customer.value))
+                            handleSuggestionClick(
+                              String(customer.code),
+                              customer.name
+                            )
                           }
                           className="cursor-pointer px-4 py-2 hover:bg-gray-100"
                         >
-                          {customer.value} {/*({customer.email}) */}
+                          {customer.name} {/*({customer.email}) */}
                         </li>
                       ))}
                     </ul>
@@ -485,27 +544,35 @@ const ChooseYourOrderScreen = () => {
             <fieldset className="w-auto p-2 border border-black/10 rounded-md">
               <legend className="text-base font-semibold">Order Type</legend>
               <div className="flex md:flex-row flex-col justify-around">
-                <SingleSelectCheckbox
-                  title="Consignment"
-                  options={Consignmentoptions}
-                  //onSelect={handleConsignment}
-                  selectedValue={selectedconsignmen}
-                  onChange={handleOrderTypeChange}
-                />
-                <SingleSelectCheckbox
-                  title="Sales or Return" /*Sales or Return(SOR)*/
-                  options={SORoptions}
-                  selectedValue={selectedsor}
-                  onChange={handleOrderTypeChange}
-                  //classes="font-semibold"
-                />
-                <SingleSelectCheckbox
-                  title="Outright Purchase" /*"Outright Purchase"*/
-                  options={Outpurchaseoptions}
-                  selectedValue={selectedoutrightpur}
-                  onChange={handleOrderTypeChange}
-                  //classes="font-semibold"
-                />
+                {selectedOrderFor !== "Customer" && (
+                  <>
+                    <SingleSelectCheckbox
+                      title="Consignment"
+                      options={Consignmentoptions}
+                      //onSelect={handleConsignment}
+                      selectedValue={selectedconsignmen}
+                      onChange={handleOrderTypeChange}
+                      //disabled={selectedOrderFor === "Customer" ? true : false}
+                    />
+                    <SingleSelectCheckbox
+                      title="Sales or Return" /*Sales or Return(SOR)*/
+                      options={SORoptions}
+                      selectedValue={selectedsor}
+                      onChange={handleOrderTypeChange}
+                      //disabled={selectedOrderFor === "Customer" ? true : false}
+                      //classes="font-semibold"
+                    />
+                    <SingleSelectCheckbox
+                      title="Outright Purchase" /*"Outright Purchase"*/
+                      options={Outpurchaseoptions}
+                      selectedValue={selectedoutrightpur}
+                      onChange={handleOrderTypeChange}
+                      //disabled={selectedOrderFor === "Customer" ? true : false}
+                      //classes="font-semibold"
+                    />
+                  </>
+                )}
+
                 <SingleSelectCheckbox
                   title="Customer Order"
                   options={CustomerOrderoptions}

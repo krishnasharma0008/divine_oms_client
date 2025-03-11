@@ -1,5 +1,6 @@
 "use client";
 
+import { Switch } from "@material-tailwind/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
@@ -49,6 +50,8 @@ function JewelleyScreen() {
   const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
 
+  const [isSwitchOn, setIsSwitchOn] = React.useState(false);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -74,7 +77,7 @@ function JewelleyScreen() {
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
     setSelectedJewelleryItem([]); // Clear previous items
-    FetchListdata("", "", "", "", "", "", 1); // Load first page of new search results
+    FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Load first page of new search results
   }, [searchParams]);
 
   // Fetch data when the page number increments
@@ -88,7 +91,8 @@ function JewelleyScreen() {
         selectedcollection,
         selectedMetal,
         selectedPortfolio,
-        currentPage
+        currentPage,
+        isSwitchOn
       );
     }
     FetchProductCategory();
@@ -112,7 +116,7 @@ function JewelleyScreen() {
     setSelectedMetal([]);
     setSelectedPortfolio([]);
     setSearchText(""); // Clear the search text input
-    FetchListdata("", "", "", "", "", "", 1); // Reload data with no filters
+    FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Reload data with no filters
   };
 
   const handleSearch = () => {
@@ -130,7 +134,8 @@ function JewelleyScreen() {
       selectedcollection,
       selectedMetal,
       selectedPortfolio,
-      1
+      1,
+      isSwitchOn
     );
 
     // Simulate search delay
@@ -138,7 +143,7 @@ function JewelleyScreen() {
       setLoading(false); // Hide spinner once search is done
     }, 2000);
   };
-
+  //customerOrder?.order_for === "Stock"
   const FetchListdata = async (
     item_number: string,
     product_category: string[] | string,
@@ -146,7 +151,8 @@ function JewelleyScreen() {
     product_collection: string[] | string,
     metal_purity: string[] | string,
     portfolio_type: string[] | string,
-    pageno: number
+    pageno: number,
+    newlaunch: boolean
   ) => {
     try {
       setIsLoadingMore(true);
@@ -177,7 +183,8 @@ function JewelleyScreen() {
         metalpurityParam,
         portfolioTypeParam,
         //shape,
-        pageno
+        pageno,
+        newlaunch
       );
       const newItems = response.data.data ?? [];
       if (pageno === 1) {
@@ -277,6 +284,23 @@ function JewelleyScreen() {
     //console.log("Proceeding to checkout with selected items:");
   };
 
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSwitchOn(event.target.checked); // MUI Switch sends `event` with `checked` value
+    console.log("Switch State:", event.target.checked);
+    // Add any logic you want to trigger here
+
+    FetchListdata(
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      1,
+      event.target.checked
+    );
+  };
+
   return (
     <div className="flex max-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
       {/* Left Div with 20% width */}
@@ -374,8 +398,15 @@ function JewelleyScreen() {
       {/* Right Div with the remaining width (80%) */}
       <div className="w-4/5 flex flex-col bg-white text-white shadow-md border my-0.5">
         {/* Fixed Header */}
-        <div className="bg-white p-1 sticky top-0">
-          <div className="flex justify-end space-x-2 ">
+        <div className="flex items-center  bg-white justify-between p-1 sticky top-0">
+          <div className="flex items-center pl-5">
+            <Switch
+              checked={isSwitchOn}
+              onChange={handleSwitchChange}
+              label="New Launch"
+            />
+          </div>
+          <div className="justify-end space-x-2 ">
             <button
               className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
               onClick={handleBulkImport}
