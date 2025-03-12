@@ -400,11 +400,13 @@ function JewelleyScreen() {
         {/* Fixed Header */}
         <div className="flex items-center  bg-white justify-between p-1 sticky top-0">
           <div className="flex items-center pl-5">
-            <Switch
-              checked={isSwitchOn}
-              onChange={handleSwitchChange}
-              label="New Launch"
-            />
+            <div className="border rounded-md py-2 px-4">
+              <Switch
+                checked={isSwitchOn}
+                onChange={handleSwitchChange}
+                label="New Launch"
+              />
+            </div>
           </div>
           <div className="justify-end space-x-2 ">
             <button
@@ -457,22 +459,26 @@ function JewelleyScreen() {
 
         {/* Fixed Footer */}
         {/* <div className="h-16 bg-green-700 p-4"></div> */}
-        <div className="flex justify-center my-1">
-          <button
-            onClick={handleLoadMore}
-            className={`w-22 px-4 py-1 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
-              isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoadingMore}
-          >
-            {isLoadingMore ? (
-              // Spinner inside the button
-              <div className="w-5 h-5 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
-            ) : (
-              "Load More"
-            )}
-          </button>
-        </div>
+        {loading ? (
+          <div className="flex justify-center my-1"></div>
+        ) : (
+          <div className="flex justify-center my-1">
+            <button
+              onClick={handleLoadMore}
+              className={`w-22 px-4 py-1 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
+                isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                // Spinner inside the button
+                <div className="w-5 h-5 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
+              ) : (
+                "Load More"
+              )}
+            </button>
+          </div>
+        )}
       </div>
       {/* Modal */}
       {isModalOpen && (
