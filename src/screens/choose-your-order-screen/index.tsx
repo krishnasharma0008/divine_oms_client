@@ -132,7 +132,8 @@ const ChooseYourOrderScreen = () => {
   const handleSuggestionClick = (id: string, name: string) => {
     console.log("Selected customer Code ", id);
     console.log("Selected customer Name ", name);
-    setIsCustomerName(id);
+    // setIsCustomerName(id); old
+    setIsCustomerName(name);
     getpjstoredata(id); //fetch store data
     setShowSuggestions(false);
     setSearchQuery(name); // Optionally clear the search query
@@ -325,6 +326,7 @@ const ChooseYourOrderScreen = () => {
     //   selectedOrderFor === "Customer" &&
     //   selectedCustOrder !== "RCO"
     // Prepare payload based on the customer type
+    console.log("isCustomerName :", isCustomerName);
     const payload: CustomerOrderDetail = {
       order_for: selectedOrderFor, // getCustType() ?? "",
       customer_id:
