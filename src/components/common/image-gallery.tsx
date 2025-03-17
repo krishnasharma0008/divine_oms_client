@@ -7,7 +7,10 @@ interface Image {
   uid: string;
 }
 
-const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
+const ImageGallery: React.FC<{ msg: string; images: Image[] }> = ({
+  msg,
+  images,
+}) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(0);
   const [availableVideos, setAvailableVideos] = useState<Set<number>>(
     new Set()
@@ -68,7 +71,7 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
             onClick={() => handleImageClick(index)}
             className={`cursor-pointer p-1 ${
               selectedImage === index
-                ? "border border-gray-400"
+                ? "border border-[#FFDF91E5]"
                 : "border border-gray-200"
             } rounded-lg`}
           >
@@ -128,7 +131,8 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
                   height: "70%", // Ensure the image takes up the full height of the container
                   width: "100%",
                   objectFit: "contain", // Maintain aspect ratio while filling the container
-                  borderTop: "1px solid rgb(0 0 0 / 0.1)", // Add a top border to the main image container
+                  //borderTop: "1px solid rgb(0 0 0 / 0.1)", // Add a top border to the main image container
+                  border: "1px solid #FFDF91E5",
                 }}
                 onError={(e) => {
                   const imgElement = e.target as HTMLImageElement;
@@ -150,6 +154,18 @@ const ImageGallery: React.FC<{ images: Image[] }> = ({ images }) => {
                   onCanPlayThrough={handleVideoLoaded}
                   onError={handleVideoError}
                 />
+              </div>
+            )}
+            {msg !== "" && (
+              <div
+                className="absolute border-[0.5px] border-[#CFAD61] top-0 -left-1 text-black px-6 py-1 rounded-bl-lg shadow-md"
+                style={{
+                  background:
+                    "linear-gradient(160.69deg, #ECD18F -26.56%, rgba(255, 214, 116, 0.99) 100%)",
+                }}
+              >
+                {msg}
+                {/* Multi Solitaire */}
               </div>
             )}
             {filteredImages[selectedImage].url === "/vtdia/carousel_3.png" && (

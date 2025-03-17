@@ -20,6 +20,7 @@ import LoginContext from "@/context/login-context";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import MessageModal from "@/components/common/message-modal";
+import AutoClosePopup from "@/components/common/auto-close-popup";
 
 dayjs.extend(customParseFormat);
 
@@ -79,6 +80,8 @@ function JewelleryDetailScreen() {
     sideDiaColorClarityOption[0]
   );
 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); //auto close popup
+
   const router = useRouter();
 
   const [selectedQty, setSelectedQty] = useState<number>(1);
@@ -90,6 +93,12 @@ function JewelleryDetailScreen() {
   const generateRingSizes = (min: number, max: number) => {
     return Array.from({ length: max - min + 1 }, (_, i) => i + min);
   };
+
+  useEffect(() => {
+    if (GetMsg() !== "") {
+      setIsModalOpen(true); // Open modal on page load
+    }
+  }, []);
 
   const FetchData = async (product_code: string) => {
     showLoader();
@@ -114,6 +123,31 @@ function JewelleryDetailScreen() {
     //console.log("ID has changed:", id);
     FetchData(String(id));
   }, []); // Dependency on `id`
+
+  const GetMsg = () => {
+    // Count the number of matching rows
+    const RowCount = jewelleryDetails?.Variants.filter(
+      (variant) => variant.Is_base_variant === 1
+    ).reduce((acc, variant) => {
+      const matchingBom = jewelleryDetails?.Bom.filter(
+        (bomItem) =>
+          bomItem.Variant_id === variant.Variant_id &&
+          bomItem.Item_group === "SOLITAIRE" &&
+          bomItem.Item_type === "STONE"
+      );
+      return acc + matchingBom.length; // Count rows
+    }, 0);
+
+    const totPcs = GetPcs("SOLITAIRE", "STONE");
+    console.log("RowCount :", RowCount);
+    if (Number(RowCount) > 1) {
+      return "This is a multi Size product";
+    } else if (Number(totPcs) > 1) {
+      return "This is a multi solitaire product";
+    } else {
+      return "";
+    }
+  };
 
   const GetWeight = (Item_group: string, Item_type: string) => {
     return jewelleryDetails?.Variants.filter(
@@ -1003,7 +1037,10 @@ function JewelleryDetailScreen() {
     <div className="flex bg-white">
       {/* Image Gallery Section */}
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
-        <ImageGallery images={filterByColorAndFormat(metalColor)} />
+        <ImageGallery
+          images={filterByColorAndFormat(metalColor)}
+          msg={GetMsg()}
+        />
       </div>
 
       {/* Details Section */}
@@ -1059,7 +1096,7 @@ function JewelleryDetailScreen() {
             <div className="flex flex-col">
               <h2 className="text-lg font-semibold">Divine Solitaire</h2>
               {/* comparing with total pcs to show This is a multi solitaire product */}
-              {totalPcs > 1 && <h3>This is a multi solitaire product</h3>}
+              {/* {totalPcs > 1 && <h3>This is a multi solitaire product</h3>} */}
             </div>
             <div className="text-lg">
               <span className="font-semibold">
@@ -1303,6 +1340,9 @@ function JewelleryDetailScreen() {
           <p>{isMessage}</p>
         </MessageModal>
       )}
+
+      {/* auto popup message msg={GetMsg()} */}
+      {isModalOpen && <AutoClosePopup message={GetMsg()} />}
     </div>
   );
 }

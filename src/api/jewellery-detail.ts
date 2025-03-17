@@ -12,6 +12,7 @@ import callWebService from "./web-service";
 
 export interface GetJewelleryDetailResponse {
   data: Array<Jewellery>;
+  total_found: number;
   message: "Success" | "Failed";
 }
 
