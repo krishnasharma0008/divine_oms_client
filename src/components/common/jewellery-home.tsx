@@ -19,7 +19,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   imgurl,
   isnew,
   onImgClick,
-  onStkClick,
+  //onStkClick,
 }) => {
   return (
     <div className="w-full border rounded-md group relative jewellery-item hover:shadow-lg transition-shadow">
@@ -74,7 +74,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             </p>
           </div>
 
-          {onStkClick && (
+          {/* {onStkClick && (
             <div className="flex justify-end">
               <p
                 className="text-right text-sky-600 font-montserrat font-normal text-sm underline-offset-1 cursor-pointer"
@@ -84,7 +84,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
                 In Stock
               </p>
             </div>
-          )}
+          )} */}
 
           <div className="flex justify-between">
             <div className="flex">
