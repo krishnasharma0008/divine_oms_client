@@ -158,14 +158,18 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
             )}
             {msg !== "" && (
               <div
-                className="absolute border-[0.5px] border-[#CFAD61] top-0 -left-1 text-black px-6 py-1 rounded-bl-lg shadow-md"
+                className="absolute border-[0.5px] border-[#CFAD61] top-0 -left-1 font-medium text-[15px] text-black px-[23px] py-[7px] rounded-bl-lg shadow-md"
                 style={{
                   background:
                     "linear-gradient(160.69deg, #ECD18F -26.56%, rgba(255, 214, 116, 0.99) 100%)",
                 }}
               >
-                {msg}
-                {/* Multi Solitaire */}
+                {/* {msg} */}
+                {msg === "This is multi size - solitaire product"
+                  ? " MULTI SIZE SOLITAIRE "
+                  : msg === "This is multi - solitaire product"
+                  ? " MULTI SOLITAIRE "
+                  : msg}
               </div>
             )}
             {filteredImages[selectedImage].url === "/vtdia/carousel_3.png" && (

@@ -44,7 +44,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
         </>
       )}
 
-      <div className="flex justify-center items-center relative p-1">
+      <div className="flex justify-center items-center relative p-1 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imgurl}
@@ -86,7 +86,7 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
             </div>
           )} */}
 
-          <div className="flex justify-between">
+          <div className="flex justify-between mt-[2px]">
             <div className="flex">
               <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
                 G.WT :&nbsp;

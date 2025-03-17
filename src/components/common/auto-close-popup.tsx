@@ -24,7 +24,7 @@ const AutoClosePopup: React.FC<{ message: string; duration?: number }> = ({
       {message !== "" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div
-            className="relative border-[#CFAD61] border-[3px] bg-[#FFD674FC] rounded-lg w-1/3 p-6 flex flex-col items-center"
+            className="relative border-[#CFAD61] border-[3px] bg-[#FFD674FC] rounded-lg w-1/2 p-6 flex flex-col items-center"
             style={{
               background: "linear-gradient(90deg, #FFFAEE 0%, #FFFCF4 100%)",
             }}
@@ -37,7 +37,7 @@ const AutoClosePopup: React.FC<{ message: string; duration?: number }> = ({
                 <MessageCloseIcon className="w-[20px] h-[20px]" />
               </button>
             </div>
-            <div className="w-full flex justify-center py-[49px]">
+            <div className="w-full flex justify-center py-[59px]">
               {/* Centered Message */}
               <p className="text-lg font-semibold text-center">{message}</p>
             </div>
