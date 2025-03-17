@@ -141,9 +141,9 @@ function JewelleryDetailScreen() {
     const totPcs = GetPcs("SOLITAIRE", "STONE");
     console.log("RowCount :", RowCount);
     if (Number(RowCount) > 1) {
-      return "This is a multi Size product";
+      return "This is multi size - solitaire product";
     } else if (Number(totPcs) > 1) {
-      return "This is a multi solitaire product";
+      return "This is multi - solitaire product";
     } else {
       return "";
     }
