@@ -7,8 +7,8 @@ interface Image {
   uid: string;
 }
 
-const ImageGallery: React.FC<{ msg: string; images: Image[] }> = ({
-  msg,
+const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
+  msg = "",
   images,
 }) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(0);

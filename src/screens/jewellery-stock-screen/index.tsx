@@ -130,7 +130,7 @@ function JewelleryStockScreen() {
     <div className="flex bg-white">
       {/* Image Gallery Section */}
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
-        <ImageGallery images={imageGalleryImages} />
+        <ImageGallery msg="" images={imageGalleryImages} />
         <div className="mt-8 mb-2 border-gray border-y-2">
           <div className="flex-1 text-left mx-1 rounded-lg">
             <h3 className="text-lg font-semibold underline text-blue-600">
