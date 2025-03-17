@@ -7,4 +7,5 @@ export interface Jewellery {
   weight: string;
   bom_variant_name: string;
   image_url: string;
+  isnew: boolean;
 }

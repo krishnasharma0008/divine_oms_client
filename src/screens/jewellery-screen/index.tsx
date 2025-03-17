@@ -1,6 +1,6 @@
 "use client";
 
-import { Switch } from "@material-tailwind/react";
+//import { Switch } from "@material-tailwind/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
@@ -52,6 +52,8 @@ function JewelleyScreen() {
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
+  const [totRecords, setTotRecords] = useState<number>(1); // Track current page
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -79,6 +81,10 @@ function JewelleyScreen() {
     setSelectedJewelleryItem([]); // Clear previous items
     FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Load first page of new search results
   }, [searchParams]);
+
+  useEffect(() => {
+    handleSearch();
+  }, [isSwitchOn]);
 
   // Fetch data when the page number increments
   useEffect(() => {
@@ -122,10 +128,10 @@ function JewelleyScreen() {
   const handleSearch = () => {
     setCurrentPage(1);
     setLoading(true); // Show spinner
-    console.log("Searching with filters:", {
-      selectedcategory,
-      searchText,
-    });
+    // console.log("Searching with filters:", {
+    //   selectedcategory,
+    //   searchText,
+    // });
 
     FetchListdata(
       searchText,
@@ -141,7 +147,7 @@ function JewelleyScreen() {
     // Simulate search delay
     setTimeout(() => {
       setLoading(false); // Hide spinner once search is done
-    }, 2000);
+    });
   };
   //customerOrder?.order_for === "Stock"
   const FetchListdata = async (
@@ -186,6 +192,7 @@ function JewelleyScreen() {
         pageno,
         newlaunch
       );
+      setTotRecords(response.data.total_found);
       const newItems = response.data.data ?? [];
       if (pageno === 1) {
         setSelectedJewelleryItem(newItems);
@@ -284,21 +291,14 @@ function JewelleyScreen() {
     //console.log("Proceeding to checkout with selected items:");
   };
 
-  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSwitchOn(event.target.checked); // MUI Switch sends `event` with `checked` value
-    console.log("Switch State:", event.target.checked);
-    // Add any logic you want to trigger here
+  const handleAll = () => {
+    setIsSwitchOn(false); // MUI Switch sends `event` with `checked` value
+    console.log("Switch State:", false);
+  };
 
-    FetchListdata(
-      searchText,
-      selectedcategory,
-      selectedSubcategory,
-      selectedcollection,
-      selectedMetal,
-      selectedPortfolio,
-      1,
-      event.target.checked
-    );
+  const handleIsNew = () => {
+    setIsSwitchOn(true); // MUI Switch sends `event` with `checked` value
+    console.log("Switch State:", true);
   };
 
   return (
@@ -399,15 +399,25 @@ function JewelleyScreen() {
       <div className="w-4/5 flex flex-col bg-white text-white shadow-md border my-0.5">
         {/* Fixed Header */}
         <div className="flex items-center  bg-white justify-between p-1 sticky top-0">
-          <div className="flex items-center pl-5">
-            <div className="border rounded-md py-2 px-4">
-              <Switch
-                checked={isSwitchOn}
-                onChange={handleSwitchChange}
-                label="New Launch"
-              />
-            </div>
+          <div className="flex items-center space-x-2">
+            <button
+              className={`px-4 py-1 rounded-md border transition ${
+                !isSwitchOn ? "bg-[#A9C5C6] text-black" : "bg-white text-black"
+              }`}
+              onClick={handleAll}
+            >
+              All {!isSwitchOn && `(${totRecords})`}
+            </button>
+            <button
+              className={`px-4 py-1 rounded-md border transition ${
+                isSwitchOn ? "bg-[#A9C5C6] text-black" : "bg-white text-black"
+              }`}
+              onClick={handleIsNew}
+            >
+              New Launch {isSwitchOn && `(${totRecords})`}
+            </button>
           </div>
+
           <div className="justify-end space-x-2 ">
             <button
               className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
@@ -449,6 +459,7 @@ function JewelleyScreen() {
                   g_wt={item.weight}
                   d_size={item.solitaire_slab}
                   imgurl={item.image_url}
+                  isnew={item.isnew}
                   onImgClick={() => handleImageClick(item.item_number)}
                   onStkClick={() => handleStockClick(item.item_number)}
                 />
