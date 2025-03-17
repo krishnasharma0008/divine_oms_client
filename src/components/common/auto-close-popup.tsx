@@ -20,34 +20,40 @@ const AutoClosePopup: React.FC<{ message: string; duration?: number }> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div
-        className="relative border-[#CFAD61] border-[3px] bg-[#FFD674FC] rounded-lg w-1/3 p-6 flex flex-col items-center"
-        style={{
-          background: "linear-gradient(90deg, #FFFAEE 0%, #FFFCF4 100%)",
-        }}
-      >
-        <div className="w-full flex justify-end">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-lg"
+    <>
+      {message !== "" && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div
+            className="relative border-[#CFAD61] border-[3px] bg-[#FFD674FC] rounded-lg w-1/3 p-6 flex flex-col items-center"
+            style={{
+              background: "linear-gradient(90deg, #FFFAEE 0%, #FFFCF4 100%)",
+            }}
           >
-            <MessageCloseIcon className="w-[20px] h-[20px]" />
-          </button>
-        </div>
-        <div className="w-full flex justify-center py-[49px]">
-          {/* Centered Message */}
-          <p className="text-lg font-semibold text-center">{message}</p>
-        </div>
+            <div className="w-full flex justify-end">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-lg"
+              >
+                <MessageCloseIcon className="w-[20px] h-[20px]" />
+              </button>
+            </div>
+            <div className="w-full flex justify-center py-[49px]">
+              {/* Centered Message */}
+              <p className="text-lg font-semibold text-center">{message}</p>
+            </div>
 
-        {/* Countdown Timer (Below the message and aligned to the right) */}
-        <div className="w-full flex justify-end">
-          <div className="absolute w-[39px] h-[39px] bottom-2 right-2 flex items-center justify-center border-4 bg-[#FFDF91E5] border-[#FFDF91E5] rounded-full">
-            <p className="text-black bg-[#FFDF91E5] font-bold">{timeLeft}</p>
+            {/* Countdown Timer (Below the message and aligned to the right) */}
+            <div className="w-full flex justify-end">
+              <div className="absolute w-[39px] h-[39px] bottom-2 right-2 flex items-center justify-center border-4 bg-[#FFDF91E5] border-[#FFDF91E5] rounded-full">
+                <p className="text-black bg-[#FFDF91E5] font-bold">
+                  {timeLeft}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

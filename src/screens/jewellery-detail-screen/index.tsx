@@ -95,9 +95,9 @@ function JewelleryDetailScreen() {
   };
 
   useEffect(() => {
-    if (GetMsg() !== "") {
-      setIsModalOpen(true); // Open modal on page load
-    }
+    // if (GetMsg() !== "") {
+    setIsModalOpen(true); // Open modal on page load
+    //}
   }, []);
 
   const FetchData = async (product_code: string) => {
