@@ -10,7 +10,7 @@ const AutoClosePopup: React.FC<{ message: string; duration?: number }> = ({
 
   useEffect(() => {
     if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 10000);
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     } else {
       setIsOpen(false);
