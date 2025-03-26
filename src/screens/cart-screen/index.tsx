@@ -93,12 +93,14 @@ function CartScreen() {
   };
 
   const handleSaveRemark = async (newRemark: string) => {
-    console.log(rtype);
+    console.log(rtype, "checking");
+    console.log(currentProductCode, "currentProductCode");
+    console.log(currentId, "currentId");
     if (rtype === "cart") {
       // Update the cart data to reflect the new remark
       const updatedCartData = cartData.map((item) => {
         if (item.product_type === "jewellery") {
-          return item.product_code === currentProductCode
+          return item.product_code === currentProductCode && item.id === currentId
             ? { ...item, cart_remarks: newRemark } // Update jewellery item
             : item;
         } else {
@@ -112,7 +114,7 @@ function CartScreen() {
       //setcartData(updatedCartData); // Optionally, send the updated remark to the server
       // Find the updated item
       const updatedItem = updatedCartData.find((item) =>
-        item.product_type.toLowerCase() === "jewellery"
+        item.product_type.toLowerCase() === "jewellery" && item.id === currentId
           ? item.product_code === currentProductCode
           : item.id === currentId
       );

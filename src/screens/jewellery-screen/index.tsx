@@ -53,6 +53,7 @@ function JewelleyScreen() {
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
   const [totRecords, setTotRecords] = useState<number>(1); // Track current page
+  const [newLaunch, setNewLaunch] = useState<number>(1); // Track current page
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -82,9 +83,9 @@ function JewelleyScreen() {
     FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Load first page of new search results
   }, [searchParams]);
 
-  useEffect(() => {
-    handleSearch();
-  }, [isSwitchOn]);
+  // useEffect(() => {
+  //   handleSearch();
+  // }, [isSwitchOn]);
 
   // Fetch data when the page number increments
   useEffect(() => {
@@ -192,7 +193,15 @@ function JewelleyScreen() {
         pageno,
         newlaunch
       );
-      setTotRecords(response.data.total_found);
+
+      if (newlaunch === false) {
+        setTotRecords(response.data.total_found);
+        //setNewLaunch(0);
+      } else if (newlaunch === true) {
+        //setTotRecords(0);
+        setNewLaunch(response.data.total_found);
+      }
+
       const newItems = response.data.data ?? [];
       if (pageno === 1) {
         setSelectedJewelleryItem(newItems);
@@ -294,11 +303,31 @@ function JewelleyScreen() {
   const handleAll = () => {
     setIsSwitchOn(false); // MUI Switch sends `event` with `checked` value
     console.log("Switch State:", false);
+    FetchListdata(
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      1,
+      false
+    );
   };
 
   const handleIsNew = () => {
     setIsSwitchOn(true); // MUI Switch sends `event` with `checked` value
     console.log("Switch State:", true);
+    FetchListdata(
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      1,
+      true
+    );
   };
 
   return (
@@ -414,7 +443,7 @@ function JewelleyScreen() {
               }`}
               onClick={handleIsNew}
             >
-              New Launch {isSwitchOn && `(${totRecords})`}
+              New Launch {isSwitchOn && `(${newLaunch})`}
             </button>
           </div>
 
