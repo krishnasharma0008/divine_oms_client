@@ -99,25 +99,15 @@ function CartScreen() {
     if (rtype === "cart") {
       // Update the cart data to reflect the new remark
       const updatedCartData = cartData.map((item) => {
-        if (item.product_type === "jewellery") {
-          return item.product_code === currentProductCode && item.id === currentId
-            ? { ...item, cart_remarks: newRemark } // Update jewellery item
-            : item;
-        } else {
-          return item.id === currentId
-            ? { ...item, cart_remarks: newRemark } // Update other items
-            : item;
-        }
+        return item.id === currentId
+          ? { ...item, cart_remarks: newRemark }
+          : item;
       });
 
-      setCartData(updatedCartData); // Set the new cart data with updated remarks
-      //setcartData(updatedCartData); // Optionally, send the updated remark to the server
-      // Find the updated item
-      const updatedItem = updatedCartData.find((item) =>
-        item.product_type.toLowerCase() === "jewellery" && item.id === currentId
-          ? item.product_code === currentProductCode
-          : item.id === currentId
-      );
+      setCartData(updatedCartData);
+
+      // Find the updated item correctly
+      const updatedItem = updatedCartData.find((item) => item.id === currentId);
 
       if (updatedItem) {
         const payload: CartDetail = { ...updatedItem, cart_remarks: newRemark };
