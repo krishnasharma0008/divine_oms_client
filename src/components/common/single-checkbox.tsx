@@ -28,9 +28,9 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
   //   };
 
   return (
-    <fieldset className="w-auto p-2 border border-black/10 rounded-md shadow-md">
+    <fieldset className="w-auto bg-white p-2 border border-black/10 rounded-md shadow-md">
       {title && <legend className="text-base font-semibold">{title}</legend>}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 bg-white">
         {options.map((option) => (
           <label key={option.value} className="flex items-center gap-2">
             <Checkbox
@@ -39,7 +39,7 @@ const SingleSelectCheckbox: React.FC<SingleSelectCheckboxProps> = ({
               onChange={() => onChange(option.value)}
               disabled={disabled} // Pass disabled prop to Checkbox
             />
-            <span className={`${classes} text-black w-32`}>{option.label}</span>
+            <span className={`${classes} text-black`}>{option.label}</span>
           </label>
         ))}
       </div>
