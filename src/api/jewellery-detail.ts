@@ -35,7 +35,11 @@ const getJewelleryDetailID = (
   metal_purity: string,
   portfolio_type: string,
   pageno: number,
-  newlaunch: boolean
+  newlaunch: boolean,
+  discarded: boolean,
+  gender: string,
+  price_from: string,
+  price_to: string
 ): Promise<AxiosResponse<GetJewelleryDetailResponse>> =>
   callWebService(getJewelleryProdctListEndpoint.url, {
     method: getJewelleryProdctListEndpoint.method,
@@ -52,6 +56,10 @@ const getJewelleryDetailID = (
       portfolio_type: portfolio_type === "" ? null : portfolio_type,
       pageno: pageno,
       is_new_launch: newlaunch,
+      discarded: discarded,
+      gender: gender === "" ? null : gender,
+      price_from: price_from === "" ? null : price_from,
+      price_to: price_to === "" ? null : price_to,
     },
   });
 

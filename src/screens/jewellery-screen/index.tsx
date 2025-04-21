@@ -15,6 +15,9 @@ import { useCustomerOrderStore } from "@/store/customerorderStore";
 import MessageModal from "@/components/common/message-modal";
 import { ProductFilters } from "@/api/jewellery-filters";
 import Loader from "@/components/common/loader";
+import { SingleSelectCheckbox } from "@/components";
+import { useUserFromToken } from "@/hook/useUserFromToken";
+import { getToken } from "@/local-storage";
 
 interface OptionType {
   value: string;
@@ -32,6 +35,9 @@ function JewelleyScreen() {
   const [selectedcollection, setSelectedCollection] = useState<string[]>([]);
   const [selectedMetal, setSelectedMetal] = useState<string[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<string[]>([]);
+
+  const [selectedGender, setSelectedGender] = useState<string[]>([]); //gender
+  const [selectedPrice, setSelectedPrice] = useState<string>(""); // price
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false); //to show pjdetails
@@ -52,11 +58,16 @@ function JewelleyScreen() {
 
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
+  const [isDiscarded, setIsDiscarded] = React.useState(false);
+
   const [totRecords, setTotRecords] = useState<number>(1); // Track current page
   const [newLaunch, setNewLaunch] = useState<number>(1); // Track current page
 
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const token = getToken();
+  const { user } = useUserFromToken(token);
 
   const metaloptions = [
     { label: "18KT", value: "18KT" },
@@ -68,19 +79,37 @@ function JewelleyScreen() {
     { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" },
   ];
 
-  // if (customerOrder?.order_for === "Stock") {
-  //   portfoliooptions.push({ label: "Divine (DSJ)", value: "Divine (DSJ)" });
-  // } else {
-  //   portfoliooptions.push(
-  //     { label: "Divine (DSJ)", value: "Divine (DSJ)" },
-  //     { label: "Non-Divine (NDSJ)", value: "Non-Divine (NDSJ)" }
-  //   );
-  // }
+  const Genderoptions = [
+    { label: "Male", value: "Male" },
+    { label: "Female", value: "Female" },
+  ];
+
+  const Priceoptions = [
+    { label: "Below 100000", value: "100,000" },
+    { label: "100,000 - 200,000", value: "100,000 - 200,000" },
+    { label: "200,000 - 300,000", value: "200,000 - 300,000" },
+    { label: "400,000 - 500,000", value: "400,000 - 500,000" },
+    { label: "500,000 and above", value: "500,000" },
+  ];
 
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
     setSelectedJewelleryItem([]); // Clear previous items
-    FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Load first page of new search results
+    //const { fromPrice, toPrice } = getPriceRange(selectedPrice);
+    FetchListdata(
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      1,
+      isSwitchOn,
+      isDiscarded,
+      "",
+      "",
+      ""
+    ); // Load first page of new search results
   }, [searchParams]);
 
   // useEffect(() => {
@@ -91,6 +120,7 @@ function JewelleyScreen() {
   useEffect(() => {
     if (currentPage > 1) {
       //FetchListdata("", "", "", currentPage);
+      const { fromPrice, toPrice } = getPriceRange(selectedPrice);
       FetchListdata(
         searchText,
         selectedcategory,
@@ -99,7 +129,11 @@ function JewelleyScreen() {
         selectedMetal,
         selectedPortfolio,
         currentPage,
-        isSwitchOn
+        isSwitchOn,
+        isDiscarded,
+        selectedGender,
+        fromPrice?.toString() || "",
+        toPrice?.toString() || ""
       );
     }
     FetchProductCategory();
@@ -123,7 +157,23 @@ function JewelleyScreen() {
     setSelectedMetal([]);
     setSelectedPortfolio([]);
     setSearchText(""); // Clear the search text input
-    FetchListdata("", "", "", "", "", "", 1, isSwitchOn); // Reload data with no filters
+    setIsDiscarded(false); // Reset the discrad state
+    setSelectedGender([]);
+    setSelectedPrice(""); // Reset the price filter
+    FetchListdata(
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      1,
+      isSwitchOn,
+      isDiscarded,
+      "",
+      "",
+      ""
+    ); // Reload data with no filters
   };
 
   const handleSearch = () => {
@@ -133,7 +183,8 @@ function JewelleyScreen() {
     //   selectedcategory,
     //   searchText,
     // });
-
+    //selectedGender,
+    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
     FetchListdata(
       searchText,
       selectedcategory,
@@ -142,7 +193,11 @@ function JewelleyScreen() {
       selectedMetal,
       selectedPortfolio,
       1,
-      isSwitchOn
+      isSwitchOn,
+      isDiscarded,
+      selectedGender,
+      fromPrice?.toString() || "",
+      toPrice?.toString() || ""
     );
 
     // Simulate search delay
@@ -159,7 +214,11 @@ function JewelleyScreen() {
     metal_purity: string[] | string,
     portfolio_type: string[] | string,
     pageno: number,
-    newlaunch: boolean
+    newlaunch: boolean,
+    discarded: boolean,
+    gender: string[] | string,
+    price_from: string,
+    price_to: string
   ) => {
     try {
       setIsLoadingMore(true);
@@ -182,6 +241,10 @@ function JewelleyScreen() {
       const portfolioTypeParam = Array.isArray(portfolio_type)
         ? portfolio_type.join(",") // Convert to string for API
         : portfolio_type;
+
+      const genderParam = Array.isArray(gender)
+        ? gender.join(",") // Convert to string for API
+        : gender;
       const response = await getJewelleryDetailID(
         item_number,
         categoryParam,
@@ -191,7 +254,11 @@ function JewelleyScreen() {
         portfolioTypeParam,
         //shape,
         pageno,
-        newlaunch
+        newlaunch,
+        discarded,
+        genderParam,
+        price_from,
+        price_to
       );
 
       if (newlaunch === false) {
@@ -311,13 +378,18 @@ function JewelleyScreen() {
       selectedMetal,
       selectedPortfolio,
       1,
-      false
+      false,
+      isDiscarded,
+      selectedGender,
+      "",
+      ""
     );
   };
 
   const handleIsNew = () => {
     setIsSwitchOn(true); // MUI Switch sends `event` with `checked` value
     console.log("Switch State:", true);
+    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
     FetchListdata(
       searchText,
       selectedcategory,
@@ -326,9 +398,52 @@ function JewelleyScreen() {
       selectedMetal,
       selectedPortfolio,
       1,
-      true
+      true,
+      isDiscarded,
+      selectedGender,
+      fromPrice?.toString() || "",
+      toPrice?.toString() || ""
     );
   };
+
+  const handleIsDiscarded = () => {
+    setIsDiscarded(true); // MUI Switch sends `event` with `checked` value
+    console.log("Discarded State:", true);
+    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
+    FetchListdata(
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      1,
+      isSwitchOn,
+      isDiscarded,
+      selectedGender,
+      fromPrice?.toString() || "",
+      toPrice?.toString() || ""
+    );
+  };
+
+  function getPriceRange(value: string) {
+    if (value === "100,000") {
+      return { fromPrice: 0, toPrice: 100000 };
+    }
+
+    if (value === "500,000") {
+      return { fromPrice: 500000, toPrice: null }; // null means no upper limit
+    }
+
+    const match = value.match(/([\d,]+)\s*-\s*([\d,]+)/);
+    if (match) {
+      const fromPrice = parseInt(match[1].replace(/,/g, ""));
+      const toPrice = parseInt(match[2].replace(/,/g, ""));
+      return { fromPrice, toPrice };
+    }
+
+    return { fromPrice: null, toPrice: null }; // fallback
+  }
 
   return (
     <div className="flex max-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
@@ -356,7 +471,6 @@ function JewelleyScreen() {
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-auto p-2 space-y-4 max-h-[70vh] sm:max-h-[80vh] lg:max-h-[90vh]">
-          {/* Search Input with Spinner */}
           {/* Search Input with Spinner */}
           <div className="relative mb-4">
             <input
@@ -417,6 +531,29 @@ function JewelleyScreen() {
             selectedValues={selectedPortfolio}
             onChange={setSelectedPortfolio}
           />
+
+          {/* Gender Filter */}
+          <CheckboxGroup
+            title="Gender"
+            options={Genderoptions}
+            selectedValues={selectedGender}
+            onChange={setSelectedGender}
+          />
+
+          {/* Price Filter */}
+          {/* <CheckboxGroup
+            title="Price"
+            options={Priceoptions}
+            selectedValues={selectedPrice}
+            onChange={setSelectedPrice}
+          /> */}
+          <SingleSelectCheckbox
+            title="Price"
+            options={Priceoptions}
+            selectedValue={selectedPrice}
+            onChange={setSelectedPrice}
+            classes="bg-white"
+          />
         </div>
 
         {/* Fixed Footer */}
@@ -445,6 +582,16 @@ function JewelleyScreen() {
             >
               New Launch {isSwitchOn && `(${newLaunch})`}
             </button>
+            {user?.designation === "Admin" && (
+              <button
+                className={`px-4 py-1 rounded-md border transition ${
+                  isDiscarded ? "bg-gray-100 text-black" : "bg-white text-black"
+                }`}
+                onClick={handleIsDiscarded}
+              >
+                Discarded
+              </button>
+            )}
           </div>
 
           <div className="justify-end space-x-2 ">
