@@ -15,7 +15,7 @@ import { useCustomerOrderStore } from "@/store/customerorderStore";
 import MessageModal from "@/components/common/message-modal";
 import { ProductFilters } from "@/api/jewellery-filters";
 import Loader from "@/components/common/loader";
-import { SingleSelectCheckbox } from "@/components";
+//import { SingleSelectCheckbox } from "@/components";
 import { useUserFromToken } from "@/hook/useUserFromToken";
 import { getToken } from "@/local-storage";
 
@@ -85,12 +85,14 @@ function JewelleyScreen() {
   ];
 
   const Priceoptions = [
-    { label: "Below 100000", value: "100,000" },
+    { label: "Below 100,000", value: "100,000" },
     { label: "100,000 - 200,000", value: "100,000 - 200,000" },
     { label: "200,000 - 300,000", value: "200,000 - 300,000" },
     { label: "400,000 - 500,000", value: "400,000 - 500,000" },
     { label: "500,000 and above", value: "500,000" },
   ];
+
+  const Discardoptions = [{ label: "Discarded", value: "Discarded" }];
 
   useEffect(() => {
     setCurrentPage(1); // Reset page to 1 on search param change
@@ -406,24 +408,14 @@ function JewelleyScreen() {
     );
   };
 
-  const handleIsDiscarded = () => {
-    setIsDiscarded(true); // MUI Switch sends `event` with `checked` value
-    console.log("Discarded State:", true);
-    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
-    FetchListdata(
-      searchText,
-      selectedcategory,
-      selectedSubcategory,
-      selectedcollection,
-      selectedMetal,
-      selectedPortfolio,
-      1,
-      isSwitchOn,
-      isDiscarded,
-      selectedGender,
-      fromPrice?.toString() || "",
-      toPrice?.toString() || ""
-    );
+  // const handlePrice = (value: string) => {
+  //   console.log("Price :", value);
+  //   setSelectedPrice(value); // MUI Switch sends `event` with `checked` value
+  // };
+
+  const handleIsDiscarded = (values: string[]): void => {
+    console.log("Discarded State:", values.includes("Discarded"));
+    setIsDiscarded(values.includes("Discarded"));
   };
 
   function getPriceRange(value: string) {
@@ -450,7 +442,7 @@ function JewelleyScreen() {
       {/* Left Div with 20% width */}
       <div className="w-full sm:w-1/3 lg:w-1/5 flex flex-col bg-gray-100 text-black my-0.5 ml-0.5">
         {/* Fixed Header */}
-        <div className="h-20 bg-gray-100 p-2 sticky top-0">
+        <div className="bg-gray-100 p-2 sticky top-0 z-10">
           <h1 className="text-xl font-bold text-black">Filter By</h1>
 
           <div className="flex space-x-2 mb-2 overflow-y-auto">
@@ -467,12 +459,8 @@ function JewelleyScreen() {
               Search
             </button>
           </div>
-        </div>
-
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-auto p-2 space-y-4 max-h-[70vh] sm:max-h-[80vh] lg:max-h-[90vh]">
           {/* Search Input with Spinner */}
-          <div className="relative mb-4">
+          <div className="relative mb-2">
             <input
               type="text"
               placeholder="Search by product code"
@@ -491,7 +479,10 @@ function JewelleyScreen() {
               </div>
             )} */}
           </div>
+        </div>
 
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-auto p-2 space-y-4 ">
           {/* Category Filter */}
           <CheckboxGroup
             title="Category"
@@ -541,19 +532,37 @@ function JewelleyScreen() {
           />
 
           {/* Price Filter */}
-          {/* <CheckboxGroup
-            title="Price"
-            options={Priceoptions}
-            selectedValues={selectedPrice}
-            onChange={setSelectedPrice}
-          /> */}
-          <SingleSelectCheckbox
-            title="Price"
-            options={Priceoptions}
-            selectedValue={selectedPrice}
-            onChange={setSelectedPrice}
-            classes="bg-white"
-          />
+
+          <div className="hidden">
+            <CheckboxGroup
+              title="Price"
+              options={Priceoptions}
+              selectedValues={selectedPrice ? [selectedPrice] : []}
+              onChange={(val: string[]) => {
+                const latestSelected = val[val.length - 1] || "";
+                //console.log("Price:", latestSelected);
+                setSelectedPrice(latestSelected);
+              }}
+            />
+          </div>
+          {user?.designation === "Admin" && (
+            <CheckboxGroup
+              title=""
+              options={Discardoptions} // should be like: ["Discarded"]
+              selectedValues={isDiscarded ? ["Discarded"] : []}
+              onChange={handleIsDiscarded}
+            />
+          )}
+          {/* {user?.designation === "Admin" && (
+            <button
+              className={`w-full px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black ${
+                isDiscarded ? "bg-gray-100 text-black" : ""
+              }`}
+              onClick={handleIsDiscarded}
+            >
+              Discarded
+            </button>
+          )} */}
         </div>
 
         {/* Fixed Footer */}
@@ -582,16 +591,6 @@ function JewelleyScreen() {
             >
               New Launch {isSwitchOn && `(${newLaunch})`}
             </button>
-            {user?.designation === "Admin" && (
-              <button
-                className={`px-4 py-1 rounded-md border transition ${
-                  isDiscarded ? "bg-gray-100 text-black" : "bg-white text-black"
-                }`}
-                onClick={handleIsDiscarded}
-              >
-                Discarded
-              </button>
-            )}
           </div>
 
           <div className="justify-end space-x-2 ">
