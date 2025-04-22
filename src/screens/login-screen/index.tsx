@@ -16,7 +16,7 @@ const LoginScreen: React.FC = () => {
       </div>
       <div className="flex flex-col items-center justify-center w-full bg-[#B3C7C5] h-screen basis-1/2">
         <Image
-          src="/logo/login_page.png"
+          src="/logo/Divine logo (B).png"
           alt="Image Description"
           height={520}
           width={612}

@@ -93,27 +93,6 @@ const ChooseYourOrderScreen = () => {
     try {
       //showLoader();
       const result = await getpjCustomer(value);
-      //code:,name
-      // const pjCustOptions = result.data.data.map((item: string) => ({
-      //   label: item,
-      //   value: item,
-      // }));
-      // const result = {
-      //   data: [
-      //     {
-      //       code: "PJ002",
-      //       name: "RANKA JEWELLERS (CW)",
-      //     },
-      //     {
-      //       code: "PJ003",
-      //       name: "RANKA JEWELLERS (KR)",
-      //     },
-      //     {
-      //       code: "PJ001",
-      //       name: "RANKA JEWELLERS (RP)",
-      //     },
-      //   ],
-      // };
       const pjCustOptions = result.data.data.map((item: OptionType) => ({
         code: item.code,
         name: item.name,
