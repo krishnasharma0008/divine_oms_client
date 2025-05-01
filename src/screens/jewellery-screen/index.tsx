@@ -278,6 +278,7 @@ function JewelleyScreen() {
         setSelectedJewelleryItem((prevItems) => [...prevItems, ...newItems]); // Append new data
       }
     } catch (error) {
+      console.log("Error fetching data:", error);
       notifyErr("An error occurred while fetching data.");
     } finally {
       setIsLoadingMore(false); // Ensure reset after fetching
@@ -533,7 +534,7 @@ function JewelleyScreen() {
 
           {/* Price Filter */}
 
-          <div className="hidden">
+          <div className="">
             <CheckboxGroup
               title="Price"
               options={Priceoptions}
