@@ -534,7 +534,7 @@ function JewelleyScreen() {
 
           {/* Price Filter */}
 
-          <div className="">
+          <div>
             <CheckboxGroup
               title="Price"
               options={Priceoptions}

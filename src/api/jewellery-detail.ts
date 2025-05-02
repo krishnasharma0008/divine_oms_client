@@ -58,8 +58,8 @@ const getJewelleryDetailID = (
       is_new_launch: newlaunch,
       discarded: discarded,
       gender: gender === "" ? null : gender,
-      price_from: price_from === "" ? null : Number(price_from),
-      price_to: price_to === "" ? null : Number(price_to),
+      price_from: price_from === "" ? null : Number(price_from) ,
+      price_to: price_to === "" ? null : Number(price_to) ,
     },
   });
 
