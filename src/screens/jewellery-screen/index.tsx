@@ -85,11 +85,11 @@ function JewelleyScreen() {
   ];
 
   const Priceoptions = [
-    { label: "Below 100,000", value: "100,000" },
+    { label: "Below 100,000", value: "0 - 100,000" },
     { label: "100,000 - 200,000", value: "100,000 - 200,000" },
     { label: "200,000 - 300,000", value: "200,000 - 300,000" },
     { label: "400,000 - 500,000", value: "400,000 - 500,000" },
-    { label: "500,000 and above", value: "500,000" },
+    { label: "500,000 and above", value: "500,000 -10,00,00,000" },
   ];
 
   const Discardoptions = [{ label: "Discarded", value: "Discarded" }];
