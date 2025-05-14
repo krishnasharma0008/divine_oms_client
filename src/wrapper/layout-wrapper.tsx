@@ -30,7 +30,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({
       ) : (
         <>
           {/* Navbar: Sticky at the top */}
-          <div className="sticky top-0 z-10 bg-white w-full h-20">
+          <div className="sticky top-0 z-10 bg-white w-full sm:h-20">
             <Navbar />
           </div>
 

@@ -29,11 +29,34 @@ interface SolitaireCustomisationPopupProps {
   cts_slab: string[];
   customisedData?: CustomisationOptions;
   collection: string;
+  Dshape?: string;
+  ismultiSize: boolean;
+  multiSize_slab?: string[];
 }
+
+const shapeMap: Record<string, string> = {
+  RND: "Round",
+  PRN: "Princess",
+  OVL: "Oval",
+  PER: "Pear",
+  RADQ: "Radiant",
+  CUSQ: "Cushion",
+  HRT: "Heart",
+};
 
 const SolitaireCustomisationPopup: React.FC<
   SolitaireCustomisationPopupProps
-> = ({ isOpen, onClose, onApply, cts_slab, customisedData, collection }) => {
+> = ({
+  isOpen,
+  onClose,
+  onApply,
+  cts_slab,
+  customisedData,
+  collection,
+  Dshape,
+  ismultiSize,
+  multiSize_slab,
+}) => {
   const [shape, setShape] = useState<string>("");
   const [colorF, setColorF] = useState<string>("");
   const [colorT, setColorT] = useState<string>("");
@@ -42,7 +65,7 @@ const SolitaireCustomisationPopup: React.FC<
   const [clarityT, setClarityT] = useState<string>("");
   const [premiumSize, setPremiumSize] = useState<string>("");
   const [premiumPercentage, setPremiumPercentage] = useState<string>("");
-
+  const [multiSize, setMultiSize] = useState<string>("");
   const [premiumSizeOptions, setPremiumSizeOptions] = useState<string[]>([]);
   //const [error, setError] = useState<string>("");
 
@@ -168,27 +191,46 @@ const SolitaireCustomisationPopup: React.FC<
 
   useEffect(() => {
     if (isOpen) {
-      // Reset fields with either customised data or default values
-      console.log(customisedData);
-      setShape(customisedData?.shape || "");
-      setCarat(customisedData?.carat || "");
-      setColorF(customisedData?.color?.split("-")[0] || "");
-      setColorT(customisedData?.color?.split("-")[1] || "");
-      setClarityF(customisedData?.clarity?.split("-")[0] || "");
-      setClarityT(customisedData?.clarity?.split("-")[1] || "");
-      setPremiumSize(customisedData?.premiumSize || "");
-      console.log("customisedData?.premiumSize:", customisedData?.premiumSize);
-      setPremiumPercentage(customisedData?.premiumPercentage || "");
-
-      // Fetch and update premium size options
-      if (customisedData?.carat) {
-        const premiumSizes = getPremiumSizeOptions(customisedData.carat);
-        setPremiumSizeOptions(premiumSizes || []);
+      if (ismultiSize && multiSize) {
+        const parts = multiSize.split("-"); // Example: SOL-RND-0.39-0.44----
+        const shapeCode = parts[1]; // Extract shape code (e.g., "RND")
+        setShape(shapeMap[shapeCode] || ""); // Map to full shape name using shapeMap
+        setCarat(parts[2] + "-" + parts[3]); // Set carat range
+        console.log("Carat:", parts[4]);
+        if (parts[4]) {
+          setColorF(parts[4]); // Extract color
+        }
+        if (parts[5]) {
+          setClarityF(parts[5]); // Extract clarity
+        }
+        setColorT(""); // Reset colorT, since it's dependent on colorF
+        setClarityT(""); // Reset clarityT, since it's dependent on clarityF
       } else {
-        setPremiumSizeOptions([]);
+        // Reset fields with either customised data or default values
+        console.log(customisedData);
+        setShape(customisedData?.shape || Dshape || "");
+        setCarat(customisedData?.carat || "");
+        setColorF(customisedData?.color?.split("-")[0] || "");
+        setColorT(customisedData?.color?.split("-")[1] || "");
+        setClarityF(customisedData?.clarity?.split("-")[0] || "");
+        setClarityT(customisedData?.clarity?.split("-")[1] || "");
+        setPremiumSize(customisedData?.premiumSize || "");
+        console.log(
+          "customisedData?.premiumSize:",
+          customisedData?.premiumSize
+        );
+        setPremiumPercentage(customisedData?.premiumPercentage || "");
+
+        // Fetch and update premium size options
+        if (customisedData?.carat) {
+          const premiumSizes = getPremiumSizeOptions(customisedData.carat);
+          setPremiumSizeOptions(premiumSizes || []);
+        } else {
+          setPremiumSizeOptions([]);
+        }
       }
     }
-  }, [isOpen, customisedData, getPremiumSizeOptions]);
+  }, [isOpen, customisedData, getPremiumSizeOptions, ismultiSize, multiSize]);
 
   useEffect(() => {
     //console.log("premiumSize after setting:", premiumSize);
@@ -227,6 +269,7 @@ const SolitaireCustomisationPopup: React.FC<
     setClarityT("");
     setPremiumSize("");
     setPremiumPercentage("");
+    setMultiSize("");
     //setError("");
   };
 
@@ -250,37 +293,58 @@ const SolitaireCustomisationPopup: React.FC<
         {/* Form Layout */}
         {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
         <div className="w-full flex space-y-4 space-x-2 md:space-y-0 justify-between">
-          <div className="w-1/6">
-            <label className="block text-gray-700 font-medium text-center mb-7">
-              Shape
-            </label>
-            <DropdownCust
-              label=""
-              options={collection === "SOLUS" ? Solus_shape : Solitaire_shape}
-              value={shape}
-              onChange={setShape}
-              error={fieldErrors.shape}
-              classes="w-full"
-            />
-          </div>
-          <div className="w-1/5">
-            <label className="block text-gray-700 font-medium text-center mb-7">
-              Carat
-            </label>
-            <DropdownCust
-              label=""
-              options={cts_slab}
-              value={carat}
-              onChange={setCarat}
-              error={fieldErrors.carat}
-              classes="w-full"
-            />
-            {/* {mcolor.split(",").map((item: string, index) => (
+          {!ismultiSize ? (
+            <>
+              <div className="w-1/6">
+                <label className="block text-gray-700 font-medium text-center mb-7">
+                  Shape
+                </label>
+                <DropdownCust
+                  label=""
+                  options={
+                    collection === "SOLUS" ? Solus_shape : Solitaire_shape
+                  }
+                  value={shape}
+                  onChange={setShape}
+                  error={fieldErrors.shape}
+                  classes="w-full"
+                />
+              </div>
+              <div className="w-1/5">
+                <label className="block text-gray-700 font-medium text-center mb-7">
+                  Carat
+                </label>
+                <DropdownCust
+                  label=""
+                  options={cts_slab}
+                  value={carat}
+                  onChange={setCarat}
+                  error={fieldErrors.carat}
+                  classes="w-full"
+                />
+                {/* {mcolor.split(",").map((item: string, index) => (
               <option key={index} value={item}>
                 <span>{item.trim()}</span>
               </option>
             ))} */}
-          </div>
+              </div>
+            </>
+          ) : (
+            <div className="w-1/4">
+              <label className="block text-gray-700 font-medium text-center mb-7">
+                Multi Size
+              </label>
+              <DropdownCust
+                label=""
+                options={multiSize_slab || []}
+                value={multiSize}
+                onChange={setMultiSize}
+                error={fieldErrors.carat}
+                classes="w-full"
+              />
+            </div>
+          )}
+
           <div className="w-1/4">
             <label className="block text-gray-700 font-medium text-center">
               Color

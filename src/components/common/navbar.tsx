@@ -10,36 +10,19 @@ import React, { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-//import { useCart } from "@/context/cart-context";
-//import { useEffect, useState } from "react";
 
 import Breadcrumb from "./breadcrumb";
-//import { deleteToken, getToken } from "@/local-storage";
-//import { getUser, getUserRole } from "@/local-storage";
 import { UserIcon } from "../icons";
 import LoginContext from "@/context/login-context";
 import ShoppingCartIcon from "../icons/shopping-cart-icon";
 import { getUser } from "@/local-storage";
-// import { CartDetail } from "@/interface";
-// import { getCartDetailList } from "@/api/cart";
-// import { getUser } from "@/local-storage";
-//import LoaderContext from "@/context/loader-context";
 
 const Navbar: React.FC = () => {
-  //const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { toggleLogin, isCartCount } = useContext(LoginContext);
-  //const [cartData, setCartData] = useState<CartDetail[]>([]);
-  //const { showLoader, hideLoader } = useContext(LoaderContext);
-  //const { cartData } = useCart();
 
   const { push } = useRouter();
 
   const logout = () => {
-    // deleteToken();
-    // //setIsLoggedIn(false);
-    // push("/");
-    // // Force a page refresh
-    // window.location.reload();
     toggleLogin();
     push("/");
     window.location.reload();
@@ -59,32 +42,6 @@ const Navbar: React.FC = () => {
     //deleteToken();
     push("/order");
   };
-
-  // useEffect(() => {
-  //   const fetchCartData = async () => {
-  //     showLoader();
-  //     try {
-  //       const res = await getCartDetailList(getUser() ?? "");
-  //       setCartData(res.data.data); // Initialize directly from API
-  //       console.log(res.data.data);
-  //       //setcartData(cartData);
-  //     } catch (error) {
-  //       console.error("Error fetching cart details:", error);
-  //     } finally {
-  //       hideLoader();
-  //     }
-  //   };
-
-  //   fetchCartData();
-  // }, [showLoader, hideLoader]);
-
-  // useEffect(() => {
-  //   if (getToken()) {
-  //     setIsLoggedIn(true);
-  //   } else {
-  //     setIsLoggedIn(false);
-  //   }
-  // }, []);
 
   return (
     <header className="relative flex flex-col items-center bg-white px-4 py-2 shadow sm:flex-row md:h-20">

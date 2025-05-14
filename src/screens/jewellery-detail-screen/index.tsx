@@ -91,7 +91,12 @@ function JewelleryDetailScreen() {
   const [isMessage, setIsMessage] = useState<string>("");
 
   const generateRingSizes = (min: number, max: number) => {
-    return Array.from({ length: max - min + 1 }, (_, i) => i + min);
+    const step = 0.5;
+    const count = Math.floor((max - min) / step) + 1;
+    return Array.from(
+      { length: count },
+      (_, i) => +(min + i * step).toFixed(1)
+    );
   };
 
   useEffect(() => {
@@ -124,6 +129,68 @@ function JewelleryDetailScreen() {
     FetchData(String(id));
   }, []); // Dependency on `id`
 
+  const GetDefaultShape = (): string => {
+    const DefaultShape: string[] =
+      jewelleryDetails?.Variants.filter(
+        (variant) => variant.Is_base_variant === 1
+      ).reduce((acc: string[], variant) => {
+        const matchingBom = jewelleryDetails?.Bom.filter(
+          (bomItem) =>
+            bomItem.Variant_id === variant.Variant_id &&
+            bomItem.Item_group === "SOLITAIRE" &&
+            bomItem.Item_type === "STONE"
+        );
+
+        const names = matchingBom.map((bomItem) => bomItem.Bom_variant_name);
+        return acc.concat(names);
+      }, []) || [];
+
+    const distinctShapes: string[] = [
+      ...new Set(
+        DefaultShape.map((name) => name?.split("-")[1]).filter(Boolean)
+      ),
+    ];
+
+    // Pick the first distinct shape if any
+    const shapeCode = distinctShapes[0];
+
+    const shapeMap: Record<string, string> = {
+      RND: "Round",
+      PRN: "Princess",
+      OVL: "Oval",
+      PER: "Pear",
+      RADQ: "Radiant",
+      CUSQ: "Cushion",
+      HRT: "Heart",
+    };
+
+    const shape = shapeMap[shapeCode] || "";
+
+    return shape;
+  };
+
+  const GetBomNamesforMultiSize = (): { names: string[] } => {
+    if (!jewelleryDetails?.Bom) return { names: [] };
+
+    // Filter BOM based on Item_group, Item_type, and clean matching conditions
+    const filteredBom = jewelleryDetails.Bom.filter(
+      (bom) =>
+        bom.Item_group?.trim().toUpperCase() === "SOLITAIRE" && // Ensure case-insensitive matching
+        bom.Item_type?.trim().toUpperCase() === "STONE" // Same for Item_type
+    );
+
+    //console.log("filteredBom : ", filteredBom);
+
+    // Extract Bom_variant_name, remove null/undefined, and ensure uniqueness
+    const names = [
+      ...new Set(
+        filteredBom.map((bomItem) => bomItem.Bom_variant_name).filter(Boolean)
+      ),
+    ];
+
+    return { names };
+  };
+
   const GetMsg = () => {
     // Count the number of matching rows
     const RowCount = jewelleryDetails?.Variants.filter(
@@ -138,8 +205,12 @@ function JewelleryDetailScreen() {
       return acc + matchingBom.length; // Count rows
     }, 0);
 
-    const totPcs = GetPcs("SOLITAIRE", "STONE");
-    console.log("RowCount :", RowCount);
+    return RowCount;
+  };
+  const ChkMsg = () => {
+    const RowCount = GetMsg();
+    const totPcs = totalPcs; //GetPcs("SOLITAIRE", "STONE");
+    //console.log("RowCount :", RowCount);
     if (Number(RowCount) > 1) {
       return "This is multi size - solitaire product";
     } else if (Number(totPcs) > 1) {
@@ -574,7 +645,7 @@ function JewelleryDetailScreen() {
 
   const handleMetalPurity = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
-    //console.log("Metal Purity : ", selectedValue);
+    console.log("Metal Purity : ", selectedValue);
     setMetalPurity(selectedValue);
 
     CalculateMetalAmount(
@@ -591,7 +662,7 @@ function JewelleryDetailScreen() {
     const selectedValue = e.target.value;
     setMetalColor(selectedValue);
     // alert("Called from metal color ");
-    // console.log("Called from metal color ");
+    console.log("Called from metal color ", selectedValue);
     CalculateMetalAmount(
       selectedValue,
       metalPurity,
@@ -657,6 +728,10 @@ function JewelleryDetailScreen() {
   ) => {
     try {
       console.log(from);
+      console.log("Metal color : ", metalColor);
+      console.log("Metal purity : ", metalPurity);
+      console.log("Gold weight : ", goldWeight);
+      console.log("Platinum weight : ", platinumWeight);
       // Fetch prices for GOLD and PLATINUM if they exist
       let goldPrice = 0;
       let platinumPrice = 0;
@@ -1039,7 +1114,8 @@ function JewelleryDetailScreen() {
       <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
         <ImageGallery
           images={filterByColorAndFormat(metalColor)}
-          msg={GetMsg()}
+          msg={ChkMsg()}
+          //msg={GetMsg()}
         />
       </div>
 
@@ -1328,6 +1404,9 @@ function JewelleryDetailScreen() {
         cts_slab={jewelleryDetails?.Cts_size_slab ?? []}
         customisedData={customisedData}
         collection={jewelleryDetails?.Collection ?? ""}
+        Dshape={GetDefaultShape()}
+        ismultiSize={Number(GetMsg()) > 1}
+        multiSize_slab={GetBomNamesforMultiSize().names}
       />
 
       {/* alert message */}
@@ -1342,7 +1421,7 @@ function JewelleryDetailScreen() {
       )}
 
       {/* auto popup message msg={GetMsg()} */}
-      {isModalOpen && <AutoClosePopup message={GetMsg()} />}
+      {isModalOpen && <AutoClosePopup message={ChkMsg()} />}
     </div>
   );
 }
