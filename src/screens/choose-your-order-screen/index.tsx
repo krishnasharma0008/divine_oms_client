@@ -5,7 +5,8 @@ import RadioButton from "@/components/common/input-radio";
 //import CheckboxGroup from "@/components/common/checkbox";
 import Dropdown from "@/components/common/dropdown";
 import InputText from "@/components/common/input-text";
-import { Button, SingleSelectCheckbox } from "@/components/common";
+//import { Button, SingleSelectCheckbox } from "@/components/common";
+import { Button } from "@/components/common";
 import { useRouter } from "next/navigation";
 import { useCustomerStore } from "@/store/customerStore";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
@@ -43,10 +44,10 @@ const ChooseYourOrderScreen = () => {
   const [selectedCustCode, setSelectedCustCode] = useState("");
   const [selectedContact, setSelectedContact] = useState("");
   const [selectedAdd, setSelectedAdd] = useState("");
-  const [selectedconsignmen, setSelectedConsignment] = useState(""); // Single checkbox
-  const [selectedsor, setSelectedSOR] = useState(""); // Single checkbox
-  const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
-  const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
+  // const [selectedconsignmen, setSelectedConsignment] = useState(""); // Single checkbox
+  // const [selectedsor, setSelectedSOR] = useState(""); // Single checkbox
+  // const [selectedoutrightpur, setSelectedOutrightPur] = useState(""); // Single checkbox
+  // const [selectedCustOrder, setSelectedCustOrder] = useState(""); // Single checkbox
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState(""); // Delivery Date
   const [selectedOrderFor, setSelectedOrderFor] = useState(
     getCustType() === "Retail Customer" ? "Retail Customer" : "Stock"
@@ -184,54 +185,54 @@ const ChooseYourOrderScreen = () => {
     if (value === "Customer") {
       console.log("Setting Order Type to RCO for Customer");
       setOrderType("RCO");
-      setSelectedCustOrder("RCO"); // Ensure Customer Order is also set
-      setSelectedConsignment("");
-      setSelectedSOR("");
-      setSelectedOutrightPur("");
+      // setSelectedCustOrder("RCO"); // Ensure Customer Order is also set
+      // setSelectedConsignment("");
+      // setSelectedSOR("");
+      // setSelectedOutrightPur("");
     } else {
       setOrderType(""); // Reset Order Type if not Customer
-      setSelectedCustOrder("");
-      setSelectedConsignment("");
-      setSelectedSOR("");
-      setSelectedOutrightPur("");
+      // setSelectedCustOrder("");
+      // setSelectedConsignment("");
+      // setSelectedSOR("");
+      // setSelectedOutrightPur("");
     }
   };
 
-  useEffect(() => {
-    if (selectedOrderFor === "Customer") {
-      setSelectedConsignment("");
-      setSelectedSOR("");
-      setSelectedOutrightPur("");
-    }
-  }, [selectedOrderFor]);
+  // useEffect(() => {
+  //   if (selectedOrderFor === "Customer") {
+  //     setSelectedConsignment("");
+  //     setSelectedSOR("");
+  //     setSelectedOutrightPur("");
+  //   }
+  // }, [selectedOrderFor]);
 
   const handleOrderTypeChange = (value: string) => {
     console.log("selected Order Type", value);
-    if (value === "TCS" || value === "RRO / Exhibition") {
-      console.log("selected Consignment", value);
-      setSelectedConsignment(value);
-      setSelectedSOR("");
-      setSelectedOutrightPur("");
-      setSelectedCustOrder("");
-    } else if (value === "SOR") {
-      console.log("selected Sale Of Order", value);
-      setSelectedConsignment("");
-      setSelectedSOR(value);
-      setSelectedOutrightPur("");
-      setSelectedCustOrder("");
-    } else if (value === "OP") {
-      console.log("selected Out Purchase", value);
-      setSelectedConsignment("");
-      setSelectedSOR("");
-      setSelectedOutrightPur(value);
-      setSelectedCustOrder("");
-    } else if (value === "RCO" || value === "SCO") {
-      console.log("selected Customer Order", value);
-      setSelectedConsignment("");
-      setSelectedSOR("");
-      setSelectedOutrightPur("");
-      setSelectedCustOrder(value);
-    }
+    // if (value === "TCS" || value === "RRO / Exhibition") {
+    //   console.log("selected Consignment", value);
+    //   setSelectedConsignment(value);
+    //   setSelectedSOR("");
+    //   setSelectedOutrightPur("");
+    //   setSelectedCustOrder("");
+    // } else if (value === "SOR") {
+    //   console.log("selected Sale Of Order", value);
+    //   setSelectedConsignment("");
+    //   setSelectedSOR(value);
+    //   setSelectedOutrightPur("");
+    //   setSelectedCustOrder("");
+    // } else if (value === "OP") {
+    //   console.log("selected Out Purchase", value);
+    //   setSelectedConsignment("");
+    //   setSelectedSOR("");
+    //   setSelectedOutrightPur(value);
+    //   setSelectedCustOrder("");
+    // } else if (value === "RCO" || value === "SCO") {
+    //   console.log("selected Customer Order", value);
+    //   setSelectedConsignment("");
+    //   setSelectedSOR("");
+    //   setSelectedOutrightPur("");
+    //   setSelectedCustOrder(value);
+    // }
     setOrderType(value);
   };
 
@@ -254,23 +255,23 @@ const ChooseYourOrderScreen = () => {
     );
   }
 
-  const Consignmentoptions = [
-    { label: "TCS", value: "TCS" },
-    { label: "RRO / Exhibition", value: "RRO / Exhibition" },
-  ];
-  const SORoptions = [{ label: "SOR", value: "SOR" }];
-  const Outpurchaseoptions = [{ label: "OP", value: "OP" }];
-  // const CustomerOrderoptions = [
-  //   { label: "RCO", value: "RCO" },
-  //   { label: "SCO", value: "SCO" },
+  // const Consignmentoptions = [
+  //   { label: "TCS", value: "TCS" },
+  //   { label: "RRO / Exhibition", value: "RRO / Exhibition" },
   // ];
-  const CustomerOrderoptions = [];
+  // const SORoptions = [{ label: "SOR", value: "SOR" }];
+  // const Outpurchaseoptions = [{ label: "OP", value: "OP" }];
+  const CVoptions = [];
   if (selectedOrderFor === "Customer") {
-    CustomerOrderoptions.push({ label: "RCO", value: "RCO" });
+    CVoptions.push({ label: "RCO", value: "RCO" });
   } else {
-    CustomerOrderoptions.push(
-      { label: "RCO", value: "RCO" },
-      { label: "SCO", value: "SCO" }
+    CVoptions.push(
+      { label: "Outright", value: "Outright" },
+      { label: "SOR", value: "SOR" },
+      { label: "DPSC", value: "DPSC" },
+      { label: "ZBH", value: "ZBH" },
+      { label: "Exhibition", value: "Exhibition" },
+      { label: "SD Replenishment", value: "SD Replenishment" }
     );
   }
 
@@ -521,11 +522,11 @@ const ChooseYourOrderScreen = () => {
               />
             </div>
           </div>
-          <div className="w-full pl-4 mt-6">
-            <fieldset className="w-auto p-2 border border-black/10 rounded-md">
+          <div className="w-full flex md:flex-row flex-col justify-between pl-4 mt-6 px-6">
+            <fieldset className="p-2 border border-black/10 rounded-md px-6">
               <legend className="text-base font-semibold">Order Type</legend>
-              <div className="flex md:flex-row flex-col justify-around">
-                {selectedOrderFor !== "Customer" && (
+              <div className="flex md:flex-row flex-col justify-between">
+                {/* {selectedOrderFor !== "Customer" && (
                   <>
                     <SingleSelectCheckbox
                       title="Consignment"
@@ -536,7 +537,7 @@ const ChooseYourOrderScreen = () => {
                       //disabled={selectedOrderFor === "Customer" ? true : false}
                     />
                     <SingleSelectCheckbox
-                      title="Sales or Return" /*Sales or Return(SOR)*/
+                      title="Sales or Return" 
                       options={SORoptions}
                       selectedValue={selectedsor}
                       onChange={handleOrderTypeChange}
@@ -544,7 +545,7 @@ const ChooseYourOrderScreen = () => {
                       //classes="font-semibold"
                     />
                     <SingleSelectCheckbox
-                      title="Outright Purchase" /*"Outright Purchase"*/
+                      title="Outright Purchase" 
                       options={Outpurchaseoptions}
                       selectedValue={selectedoutrightpur}
                       onChange={handleOrderTypeChange}
@@ -559,6 +560,12 @@ const ChooseYourOrderScreen = () => {
                   options={CustomerOrderoptions}
                   //onSelect={handleConsignment}
                   selectedValue={selectedCustOrder}
+                  onChange={handleOrderTypeChange}
+                /> */}
+                <RadioButton
+                  name=""
+                  options={CVoptions}
+                  selectedValue={orderType}
                   onChange={handleOrderTypeChange}
                 />
               </div>
