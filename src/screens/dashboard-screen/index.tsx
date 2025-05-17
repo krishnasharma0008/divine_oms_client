@@ -1,9 +1,15 @@
 "use client";
 
 import LoaderContext from "@/context/loader-context";
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { useRouter } from "next/navigation";
-import { setCustType } from "@/local-storage";
+import { setCustType, getUserRole } from "@/local-storage";
 
 const DashboardScreen = () => {
   const [selectedOrderType, setSelectedOrderType] = useState<string | null>(
@@ -18,6 +24,14 @@ const DashboardScreen = () => {
     localStorage.removeItem("customer-storage");
     localStorage.removeItem("custtype");
   }, []);
+
+  const role = getUserRole()?.trim(); // E.g., 'Marketing', 'CSE', etc.
+  console.log("User Role: ", role);
+  const allowedTypes = useMemo(() => {
+    if (role === "Marketing") return ["Retail Customer"];
+    if (role === "CSE") return ["Jeweller"];
+    return ["Jeweller", "Retail Customer"]; // Default case
+  }, [role]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -49,39 +63,45 @@ const DashboardScreen = () => {
         <div className="bg-[#F4F4F47A] w-auto rounded-3xl p-10 text-center border-[#888786] border-solid border-2">
           <p className="text-2xl font-black mb-10 underline">Place Order for</p>
           <div className="flex flex-wrap gap-x-12 gap-y-8 justify-center">
-            <div
-              className={`flex h-56 w-80 rounded-xl p-10 text-center items-center justify-center border-solid border-2 cursor-pointer transition-colors ${
-                selectedOrderType === "Jeweller"
-                  ? "border-[#000000] bg-gray-100"
-                  : "border-[#B0B0B0] bg-white"
-              } ${
-                selectedOrderType && selectedOrderType !== "Jeweller"
-                  ? "cursor-not-allowed opacity-50"
-                  : ""
-              }`}
-              onClick={() =>
-                selectedOrderType !== "Jeweller" && orderfor("Jeweller")
-              }
-            >
-              <p className="font-medium text-xl font-black">Jeweller</p>
-            </div>
-            <div
-              className={`flex h-56 w-80 rounded-xl p-10 text-center items-center justify-center border-solid border-2 cursor-pointer transition-colors ${
-                selectedOrderType === "Retail Customer"
-                  ? "border-[#000000] bg-gray-100"
-                  : "border-[#B0B0B0] bg-white"
-              } ${
-                selectedOrderType && selectedOrderType !== "Retail Customer"
-                  ? "cursor-not-allowed opacity-50"
-                  : ""
-              }`}
-              onClick={() =>
-                selectedOrderType !== "Retail Customer" &&
-                orderfor("Retail Customer")
-              }
-            >
-              <p className="font-medium text-xl font-black">Retail Customer</p>
-            </div>
+            {allowedTypes.includes("Jeweller") && (
+              <div
+                className={`flex h-56 w-80 rounded-xl p-10 text-center items-center justify-center border-solid border-2 cursor-pointer transition-colors ${
+                  selectedOrderType === "Jeweller"
+                    ? "border-[#000000] bg-gray-100"
+                    : "border-[#B0B0B0] bg-white"
+                } ${
+                  selectedOrderType && selectedOrderType !== "Jeweller"
+                    ? "cursor-not-allowed opacity-50"
+                    : ""
+                }`}
+                onClick={() =>
+                  selectedOrderType !== "Jeweller" && orderfor("Jeweller")
+                }
+              >
+                <p className="font-medium text-xl font-black">Jeweller</p>
+              </div>
+            )}
+            {allowedTypes.includes("Retail Customer") && (
+              <div
+                className={`flex h-56 w-80 rounded-xl p-10 text-center items-center justify-center border-solid border-2 cursor-pointer transition-colors ${
+                  selectedOrderType === "Retail Customer"
+                    ? "border-[#000000] bg-gray-100"
+                    : "border-[#B0B0B0] bg-white"
+                } ${
+                  selectedOrderType && selectedOrderType !== "Retail Customer"
+                    ? "cursor-not-allowed opacity-50"
+                    : ""
+                }`}
+                onClick={() =>
+                  selectedOrderType !== "Retail Customer" &&
+                  orderfor("Retail Customer")
+                }
+              >
+                <p className="font-medium text-xl font-black">
+                  Retail Customer
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
