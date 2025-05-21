@@ -308,6 +308,7 @@ const SolitaireCustomisationPopup: React.FC<
                   onChange={setShape}
                   error={fieldErrors.shape}
                   classes="w-full"
+                  disabled={!!Dshape} // disable if Dshape exists
                 />
               </div>
               <div className="w-1/5">
