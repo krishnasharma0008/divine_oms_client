@@ -8,6 +8,7 @@ interface DropdownProps {
   error?: string;
   classes?: string;
   Labelclasses?: string;
+  disabled?: boolean; // ✅ Add this line
 }
 
 const DropdownCust: React.FC<DropdownProps> = ({
@@ -18,6 +19,7 @@ const DropdownCust: React.FC<DropdownProps> = ({
   error,
   classes,
   Labelclasses,
+  disabled = false, // ✅ Default to false
 }) => (
   <div className={`${classes} mb-4`}>
     <label
@@ -28,6 +30,7 @@ const DropdownCust: React.FC<DropdownProps> = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      disabled={disabled} // ✅ Apply the disabled prop
       className={`w-full p-2 border rounded focus:outline-none focus:ring-2 ${
         error
           ? "border-red-500 focus:ring-red-400"
