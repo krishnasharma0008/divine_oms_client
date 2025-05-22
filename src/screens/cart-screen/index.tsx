@@ -650,9 +650,14 @@ function CartScreen() {
                         : item.customer_name || "-"}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Order For : {item.order_for || "-"}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600">
+                      Order For : {item.order_for || "-"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Type : {item.order_type || "-"}
+                    </p>
+                  </div>
                   <p className="text-sm text-gray-600">
                     Store : {item.customer_branch || "-"}
                   </p>
