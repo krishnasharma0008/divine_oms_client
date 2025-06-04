@@ -338,6 +338,15 @@ const JewelleryBulkImportScreen: React.FC = () => {
             //console.log("Available slabs in jewellerydetail:", jewellerydetail);
             if (!jewellerydetail) {
               errors.push(`Product Code: ${productCode} is not available.`);
+            } else if (jewellerydetail.Current_status === "Discarded") {
+              errors.push(`Product Code: ${productCode} has been discarded.`);
+            } else if (
+              jewellerydetail.Current_status === "In-Active" &&
+              customerOrder?.order_for === "Stock"
+            ) {
+              errors.push(
+                `Product Code: ${productCode} is inactive and cannot be used for 'Stock' orders.`
+              );
             }
           } catch (error) {
             errors.push("Failed to fetch product details for Product Code.");
