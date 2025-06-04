@@ -88,7 +88,8 @@ function JewelleryDetailScreen() {
 
   //const ringSizes = Array.from({ length: 23 }, (_, i) => i + 4); // Generate sizes 4 to 26
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
-  const [isMessage, setIsMessage] = useState<string>("");
+  const [isMessageTitle, setIsMessageTitle] = useState<string>("");
+  const [isMessage, setIsMessage] = useState<string>(""); //
 
   const generateRingSizes = (min: number, max: number) => {
     const step = 0.5;
@@ -929,6 +930,26 @@ function JewelleryDetailScreen() {
   };
 
   const handleCart = async () => {
+    if (jewelleryDetails?.Current_status === "Discarded") {
+      setIsMessageTitle("");
+      setIsMessage("");
+      setIsMessageTitle("Restriction Message");
+      setIsMessage("Product Code is Discarded");
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+    if (
+      jewelleryDetails?.Current_status === "In-Active" &&
+      customerOrder?.order_for === "Stock"
+    ) {
+      setIsMessageTitle("");
+      setIsMessage("");
+      setIsMessageTitle("Restriction Message");
+      setIsMessage("Product Code is In-Active");
+      setIsCheckoutModalVisible(true);
+      return;
+    }
+
     if (
       !(
         customisedData?.shape?.trim() &&
@@ -937,14 +958,18 @@ function JewelleryDetailScreen() {
         customisedData?.clarity?.trim()
       )
     ) {
+      setIsMessageTitle("");
       setIsMessage("");
+      setIsMessageTitle("Error Message");
       setIsMessage("Customise solitaire to add in cart.");
       setIsCheckoutModalVisible(true);
       return;
     }
 
     if (metalPrice == null || metalPrice <= 0) {
+      setIsMessageTitle("");
       setIsMessage("");
+      setIsMessageTitle("Error Message");
       setIsMessage("Metal price must be greater than 0 to proceed.");
       setIsCheckoutModalVisible(true);
       return;
@@ -1412,7 +1437,7 @@ function JewelleryDetailScreen() {
       {/* alert message */}
       {isCheckoutModalVisible && (
         <MessageModal
-          title="Error Meaasge"
+          title={isMessageTitle} //"Error Meaasge"
           //onClose={() => setIsCheckoutModalVisible(false)}
           onConfirm={closeCheckoutModal}
         >

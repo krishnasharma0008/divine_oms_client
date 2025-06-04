@@ -484,6 +484,20 @@ function JewelleyScreen() {
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-auto p-2 space-y-4 ">
+          {/* Price Filter */}
+          <div>
+            <CheckboxGroup
+              title="Price"
+              options={Priceoptions}
+              selectedValues={selectedPrice ? [selectedPrice] : []}
+              onChange={(val: string[]) => {
+                const latestSelected = val[val.length - 1] || "";
+                //console.log("Price:", latestSelected);
+                setSelectedPrice(latestSelected);
+              }}
+            />
+          </div>
+
           {/* Category Filter */}
           <CheckboxGroup
             title="Category"
@@ -500,12 +514,12 @@ function JewelleyScreen() {
             onChange={setSelectedSubCategory}
           />
 
-          {/* Collection Filter */}
+          {/* Gender Filter */}
           <CheckboxGroup
-            title="Collection"
-            options={productCollection}
-            selectedValues={selectedcollection}
-            onChange={setSelectedCollection}
+            title="Gender"
+            options={Genderoptions}
+            selectedValues={selectedGender}
+            onChange={setSelectedGender}
           />
 
           {/* Metal Filter */}
@@ -516,6 +530,14 @@ function JewelleyScreen() {
             onChange={setSelectedMetal}
           />
 
+          {/* Collection Filter */}
+          <CheckboxGroup
+            title="Collection"
+            options={productCollection}
+            selectedValues={selectedcollection}
+            onChange={setSelectedCollection}
+          />
+
           {/* Portfolio Filter */}
           <CheckboxGroup
             title="Portfolio"
@@ -524,28 +546,8 @@ function JewelleyScreen() {
             onChange={setSelectedPortfolio}
           />
 
-          {/* Gender Filter */}
-          <CheckboxGroup
-            title="Gender"
-            options={Genderoptions}
-            selectedValues={selectedGender}
-            onChange={setSelectedGender}
-          />
-
           {/* Price Filter */}
 
-          <div>
-            <CheckboxGroup
-              title="Price"
-              options={Priceoptions}
-              selectedValues={selectedPrice ? [selectedPrice] : []}
-              onChange={(val: string[]) => {
-                const latestSelected = val[val.length - 1] || "";
-                //console.log("Price:", latestSelected);
-                setSelectedPrice(latestSelected);
-              }}
-            />
-          </div>
           {user?.designation === "Admin" && (
             <CheckboxGroup
               title=""
