@@ -126,7 +126,8 @@ function JewelleryDetailScreen() {
   };
 
   useEffect(() => {
-    //console.log("ID has changed:", id);
+    console.log("Fetching data for ID:", id);
+    console.log("ID has changed:", id);
     FetchData(String(id));
   }, []); // Dependency on `id`
 
@@ -151,7 +152,7 @@ function JewelleryDetailScreen() {
         DefaultShape.map((name) => name?.split("-")[1]).filter(Boolean)
       ),
     ];
-
+    //console.log("distinctShapes : ", distinctShapes);
     // Pick the first distinct shape if any
     const shapeCode = distinctShapes[0];
 
@@ -163,6 +164,7 @@ function JewelleryDetailScreen() {
       RADQ: "Radiant",
       CUSQ: "Cushion",
       HRT: "Heart",
+      MAQ: "Marquise",
     };
 
     const shape = shapeMap[shapeCode] || "";
@@ -737,7 +739,7 @@ function JewelleryDetailScreen() {
       let goldPrice = 0;
       let platinumPrice = 0;
 
-      if (goldWeight > 0) {
+      if (goldWeight > 0 && goldWeight > 1) {
         goldPrice = await FetchPrice(
           "GOLD",
           "",
@@ -747,6 +749,9 @@ function JewelleryDetailScreen() {
             : metalColor,
           getValidPurity("gold", metalPurity)
         );
+      } else if (goldWeight > 0) {
+        // && goldWeight <= 1) {
+        goldPrice = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
       }
       //console.log("goldPrice : ", goldPrice);
       if (platinumWeight > 0) {
@@ -952,18 +957,23 @@ function JewelleryDetailScreen() {
 
     if (
       !(
-        customisedData?.shape?.trim() &&
-        customisedData?.carat?.trim() &&
-        customisedData?.color?.trim() &&
-        customisedData?.clarity?.trim()
+        jewelleryDetails?.Product_sub_category === "Solitaire Coin" ||
+        jewelleryDetails?.Product_sub_category === "Locket"
       )
     ) {
-      setIsMessageTitle("");
-      setIsMessage("");
-      setIsMessageTitle("Error Message");
-      setIsMessage("Customise solitaire to add in cart.");
-      setIsCheckoutModalVisible(true);
-      return;
+      if (
+        !(
+          customisedData?.shape?.trim() &&
+          customisedData?.carat?.trim() &&
+          customisedData?.color?.trim() &&
+          customisedData?.clarity?.trim()
+        )
+      ) {
+        setIsMessageTitle("Error Message");
+        setIsMessage("Customise solitaire to add in cart.");
+        setIsCheckoutModalVisible(true);
+        return;
+      }
     }
 
     if (metalPrice == null || metalPrice <= 0) {
@@ -1290,13 +1300,19 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={handleMetalColor}
               >
-                {jewelleryDetails?.Metal_color.split(",").map(
-                  (item: string, index) => (
+                {jewelleryDetails?.Metal_color.split(",")
+                  .filter((item: string) => {
+                    if (metalPurity.trim().toUpperCase() === "950PT") {
+                      return item.trim().toLowerCase() === "white";
+                    }
+                    return true;
+                  })
+
+                  .map((item: string, index) => (
                     <option key={index} value={item}>
                       <span>{item.trim()}</span>
                     </option>
-                  )
-                )}
+                  ))}
               </select>
             </div>
 

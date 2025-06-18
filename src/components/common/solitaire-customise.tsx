@@ -42,6 +42,7 @@ const shapeMap: Record<string, string> = {
   RADQ: "Radiant",
   CUSQ: "Cushion",
   HRT: "Heart",
+  MAQ: "Marquise",
 };
 
 const SolitaireCustomisationPopup: React.FC<
