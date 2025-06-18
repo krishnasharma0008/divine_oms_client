@@ -1,4 +1,10 @@
-export const Solitaire_shape = ["Round", "Princess", "Oval", "Pear"];
+export const Solitaire_shape = [
+  "Round",
+  "Princess",
+  "Oval",
+  "Pear",
+  "Marquise",
+];
 export const Solus_shape = ["Radiant", "Cushion", "Heart"];
 
 // Color and clarity related constants
