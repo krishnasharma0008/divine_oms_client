@@ -749,8 +749,7 @@ function JewelleryDetailScreen() {
             : metalColor,
           getValidPurity("gold", metalPurity)
         );
-      } else if (goldWeight > 0) {
-        // && goldWeight <= 1) {
+      } else if (goldWeight > 0 && goldWeight <= 1) {
         goldPrice = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
       }
       //console.log("goldPrice : ", goldPrice);
@@ -767,10 +766,15 @@ function JewelleryDetailScreen() {
       //const qty = selectedQty || 1;
       const selectedQty = qty || 1;
       // Calculate amounts for available metals
-      const goldAmount =
+      let goldAmount =
         goldWeight > 0 ? goldWeight * goldPrice * selectedQty : 0;
       const platinumAmount =
         platinumWeight > 0 ? platinumWeight * platinumPrice * selectedQty : 0;
+
+      // Apply minimum gold amount condition
+      if (goldWeight <= 1 && goldAmount < 7800) {
+        goldAmount = 7800;
+      }
 
       const totalMetalAmount = goldAmount + platinumAmount;
       const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);

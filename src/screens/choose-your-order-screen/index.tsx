@@ -18,6 +18,7 @@ import { getpjCustomer, getpjStore } from "@/api/pjcustomer-store-detail";
 import { CustomerOrderDetail } from "@/interface";
 import dayjs from "dayjs";
 import utcPlugin from "dayjs/plugin/utc";
+import SearchableSelect from "@/components/common/searchDropdown";
 
 dayjs.extend(utcPlugin);
 
@@ -30,13 +31,17 @@ interface OptionType {
 
 const ChooseYourOrderScreen = () => {
   const { setCustomerOrder, resetCustomerOrder } = useCustomerOrderStore(); // Use the customer store
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  //const [searchQuery, setSearchQuery] = useState<string>("");
   const [isCustomerName, setIsCustomerName] = useState<string | null>(null);
+  // const [isSelectedCustomer, setIsSelectedCustomer] = useState<string | null>(
+  //   null
+  // );
+
   const { notifyErr } = useContext(NotificationContext);
   //const { showLoader, hideLoader } = useContext(LoaderContext);
   const [customerData, setCustomerDetail] = useState<OptionType[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
+  //const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  //const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
 
   const [stores, setStores] = useState<PJCustomerStoreDetail[]>([]); // Store details
   const [selectedSValue, setSelectedSValue] = useState<string>(""); // Selected store state
@@ -74,52 +79,75 @@ const ChooseYourOrderScreen = () => {
       dayjs(expDeliveryDate).format("DD-MM-YYYY");
 
     setExpectedDeliveryDate(formattedExpDeliveryDate);
+
+    getpjCustomerdata();
   }, [selectedValue]);
 
-  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    setLoading(true);
-    if (value.trim() === "") {
-      // Clear suggestions when input is empty
-      setShowSuggestions(false);
-      setLoading(false);
-      setCustomerDetail([]);
-      setStores([]);
-      setSelectedAdd("");
-      setSelectedContact("");
-      return;
-    }
+  // const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   setSearchQuery(value);
+  //   setLoading(true);
+  //   if (value.trim() === "") {
+  //     // Clear suggestions when input is empty
+  //     setShowSuggestions(false);
+  //     setLoading(false);
+  //     setCustomerDetail([]);
+  //     setStores([]);
+  //     setSelectedAdd("");
+  //     setSelectedContact("");
+  //     return;
+  //   }
 
-    try {
-      //showLoader();
-      const result = await getpjCustomer(value);
-      const pjCustOptions = result.data.data.map((item: OptionType) => ({
-        code: item.code,
-        name: item.name,
-      }));
-      setCustomerDetail(pjCustOptions);
-      setShowSuggestions(true);
-    } catch (error) {
-      notifyErr("An error occurred while fetching customer details.");
-      console.error(error);
-    } finally {
-      //hideLoader();
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     //showLoader();
+  //     const result = await getpjCustomer(value);
+  //     const pjCustOptions = result.data.data.map((item: OptionType) => ({
+  //       code: item.code,
+  //       name: item.name,
+  //     }));
+  //     setCustomerDetail(pjCustOptions);
+  //     setShowSuggestions(true);
+  //   } catch (error) {
+  //     notifyErr("An error occurred while fetching customer details.");
+  //     console.error(error);
+  //   } finally {
+  //     //hideLoader();
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleSuggestionClick = (id: string, name: string) => {
     console.log("Selected customer Code ", id);
     console.log("Selected customer Name ", name);
     // setIsCustomerName(id); old
+    //setIsSelectedCustomer(id); // Store the selected customer name
     setIsCustomerName(name);
     getpjstoredata(id); //fetch store data
-    setShowSuggestions(false);
-    setSearchQuery(name); // Optionally clear the search query
+    //setShowSuggestions(false);
+    //setSearchQuery(name); // Optionally clear the search query
     setStores([]);
     setSelectedAdd("");
     setSelectedContact("");
+  };
+
+  const getpjCustomerdata = async () => {
+    //showLoader();
+    try {
+      //showLoader();
+      const result = await getpjCustomer();
+      const pjCustOptions = result.data.data.map((item: OptionType) => ({
+        code: item.code,
+        name: item.name,
+      }));
+      setCustomerDetail(pjCustOptions);
+      //setShowSuggestions(true);
+    } catch (error) {
+      notifyErr("An error occurred while fetching customer details.");
+      console.error(error);
+    } finally {
+      //hideLoader();
+      //setLoading(false);
+    }
   };
 
   const getpjstoredata = async (code?: string) => {
@@ -365,8 +393,7 @@ const ChooseYourOrderScreen = () => {
             <div className="w-full px-4">
               {getCustType() === "Jeweller" ? (
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    {/* Magnifying glass SVG */}
+                  {/* <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                     <svg
                       width="24"
                       height="24"
@@ -403,11 +430,10 @@ const ChooseYourOrderScreen = () => {
                         />
                       </defs>
                     </svg>
-                  </div>
-                  <input
+                  </div> */}
+                  {/* <input
                     type="text"
                     placeholder="Search partner jeweller"
-                    //value={isCustomerID?.toString()}
                     value={searchQuery}
                     onChange={handleSearch}
                     className="w-full p-2 pl-14 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
@@ -416,9 +442,9 @@ const ChooseYourOrderScreen = () => {
                     <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
                       <div className="loader"></div>
                     </div>
-                  )}
+                  )} */}
                   {/* Dropdown suggestion box */}
-                  {showSuggestions && customerData.length > 0 && (
+                  {/* {showSuggestions && customerData.length > 0 && (
                     <ul className="absolute left-0 top-full  w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
                       {customerData.map((customer) => (
                         <li
@@ -431,11 +457,26 @@ const ChooseYourOrderScreen = () => {
                           }
                           className="cursor-pointer px-4 py-2 hover:bg-gray-100"
                         >
-                          {customer.name} {/*({customer.email}) */}
+                          {customer.name}
                         </li>
                       ))}
                     </ul>
-                  )}
+                  )} */}
+                  <SearchableSelect
+                    options={customerData.map((store) => ({
+                      label: store.name,
+                      value: store.code,
+                    }))}
+                    onChange={(val) => {
+                      console.log("User cleared the selection", val);
+                      console.log("User cleared the selection");
+                      if (val) {
+                        handleSuggestionClick(val.value, val.label);
+                      }
+                    }}
+                    //isClearable
+                    placeholder="Search partner jeweller..."
+                  />
                 </div>
               ) : (
                 <div className="w-full">
