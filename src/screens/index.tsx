@@ -21,3 +21,5 @@ export { default as AdminDashboardScreen } from "./admin-dashboard-screen";
 export { default as AdminOrderListScreen } from "./admin-order-list-screen";
 export { default as AdminOrderDetailJewelleryScreen } from "./admin-order-detail-jewellery-screen";
 export { default as AdminOrderDetailSolitaireScreen } from "./admin-order-detail-solitaire-screen";
+
+export { default as CheckScreen } from "./check-screen";
