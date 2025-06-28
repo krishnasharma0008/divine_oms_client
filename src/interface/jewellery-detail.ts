@@ -33,7 +33,8 @@ export interface JewelleryDetail {
   Collection: string;
   Gender: string;
   Variant_approved_date: string; //null
-  Metal_price_lessonegms:string;// new
+  Metal_price_lessonegms: string; // new
+  Product_price: string; // new
   // solitaire_slab: string;
   // weight: string;
   // bom_variant_name: string;

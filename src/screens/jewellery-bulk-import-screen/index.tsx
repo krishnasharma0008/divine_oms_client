@@ -484,8 +484,16 @@ const JewelleryBulkImportScreen: React.FC = () => {
           product_code: jewellerydetail?.Item_number || "",
           solitaire_pcs: 0,
           product_qty: Number(Qty),
-          product_amt_min: 0,
-          product_amt_max: 0,
+          product_amt_min:
+            jewellerydetail?.Product_price == null ||
+            Number(jewellerydetail?.Product_price) === 0
+              ? 0
+              : Number(jewellerydetail?.Product_price),
+          product_amt_max:
+            jewellerydetail?.Product_price == null ||
+            Number(jewellerydetail?.Product_price) === 0
+              ? 0
+              : Number(jewellerydetail?.Product_price),
           solitaire_shape: shape,
           solitaire_slab: caratRange,
           solitaire_color: colorF + "-" + colorT,
