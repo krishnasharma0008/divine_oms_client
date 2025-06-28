@@ -979,14 +979,18 @@ function JewelleryDetailScreen() {
         return;
       }
     }
-
-    if (metalPrice == null || metalPrice <= 0) {
-      setIsMessageTitle("");
-      setIsMessage("");
-      setIsMessageTitle("Error Message");
-      setIsMessage("Metal price must be greater than 0 to proceed.");
-      setIsCheckoutModalVisible(true);
-      return;
+    if (
+      jewelleryDetails?.Product_price == null ||
+      Number(jewelleryDetails?.Product_price) === 0
+    ) {
+      if (metalPrice == null || metalPrice <= 0) {
+        setIsMessageTitle("");
+        setIsMessage("");
+        setIsMessageTitle("Error Message");
+        setIsMessage("Metal price must be greater than 0 to proceed.");
+        setIsCheckoutModalVisible(true);
+        return;
+      }
     }
     const exp_dlv_date = customerOrder?.exp_dlv_date
       ? dayjs(customerOrder.exp_dlv_date, "DD-MM-YYYY").isValid()
@@ -1014,8 +1018,16 @@ function JewelleryDetailScreen() {
       product_code: jewelleryDetails?.Item_number || "",
       solitaire_pcs: totalPcs, //new additation
       product_qty: selectedQty,
-      product_amt_min: soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
-      product_amt_max: soliAmtTo + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
+      product_amt_min:
+        jewelleryDetails?.Product_price == null ||
+        Number(jewelleryDetails?.Product_price) === 0
+          ? soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+          : Number(jewelleryDetails?.Product_price),
+      product_amt_max:
+        jewelleryDetails?.Product_price == null ||
+        Number(jewelleryDetails?.Product_price) === 0
+          ? soliAmtTo + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+          : Number(jewelleryDetails?.Product_price),
       solitaire_shape: customisedData?.shape || "",
       solitaire_slab: customisedData?.carat || "",
       solitaire_color: customisedData?.color || "",
@@ -1213,14 +1225,17 @@ function JewelleryDetailScreen() {
               {/* comparing with total pcs to show This is a multi solitaire product */}
               {/* {totalPcs > 1 && <h3>This is a multi solitaire product</h3>} */}
             </div>
-            <div className="text-lg">
-              <span className="font-semibold">
-                {formatByCurrencyINR(soliAmtFrom ?? 0)} apx -{" "}
-              </span>
-              <span className="font-semibold">
-                {formatByCurrencyINR(soliAmtTo ?? 0)} apx
-              </span>
-            </div>
+            {(jewelleryDetails?.Product_price == null ||
+              Number(jewelleryDetails?.Product_price) === 0) && (
+              <div className="text-lg">
+                <span className="font-semibold">
+                  {formatByCurrencyINR(soliAmtFrom ?? 0)} apx -{" "}
+                </span>
+                <span className="font-semibold">
+                  {formatByCurrencyINR(soliAmtTo ?? 0)} apx
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="w-full p-4 bg-[#F9F6ED] border border-gray-300 rounded-lg">
@@ -1257,12 +1272,16 @@ function JewelleryDetailScreen() {
             {`Solitaire price from ${soliPriceFrom} - ${soliPriceTo}`}
           </p>
           <div className="flex justify-between items-center mb-2">
-            <h2
-              className="text-lg text-blue-600 cursor-pointer"
-              onClick={() => setIsPopupOpen(true)}
-            >
-              Customise your Divine Solitaire
-            </h2>
+            {(jewelleryDetails?.Product_price == null ||
+              Number(jewelleryDetails?.Product_price) === 0) && (
+              <h2
+                className="text-lg text-blue-600 cursor-pointer"
+                onClick={() => setIsPopupOpen(true)}
+              >
+                Customise your Divine Solitaire
+              </h2>
+            )}
+
             <div className="text-lg underline text-blue-600"></div>
           </div>
         </div>
@@ -1270,16 +1289,23 @@ function JewelleryDetailScreen() {
         <div className="w-full p-4 bg-[#F9F6ED] rounded-lg">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold">Divine Mount</h2>
-            <div className="text-lg">
-              <span className="font-semibold">
-                {formatByCurrencyINR((metalAmtFrom ?? 0) + (sDiaAmt ?? 0))} apx
-              </span>{" "}
-              -
-              <span className="font-semibold">
-                {" "}
-                {formatByCurrencyINR((metalAmtFrom ?? 0) + (sDiaAmt ?? 0))} apx
-              </span>
-            </div>
+            {(jewelleryDetails?.Product_price == null ||
+              Number(jewelleryDetails?.Product_price) === 0) && (
+              <div className="text-lg">
+                <span className="font-semibold">
+                  {formatByCurrencyINR((metalAmtFrom ?? 0) + (sDiaAmt ?? 0))}{" "}
+                  apx
+                </span>{" "}
+                -
+                <span className="font-semibold">
+                  {" "}
+                  {formatByCurrencyINR(
+                    (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+                  )}{" "}
+                  apx
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex justify-between">
             <div className="flex items-center space-x-2">
@@ -1412,16 +1438,32 @@ function JewelleryDetailScreen() {
               <div className="flex justify-between items-center">
                 <div className="text-lg">
                   <span className="font-semibold">
-                    {formatByCurrencyINR(
+                    {/* {formatByCurrencyINR(
                       soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+                    )} */}
+                    {formatByCurrencyINR(
+                      jewelleryDetails?.Product_price == null ||
+                        Number(jewelleryDetails?.Product_price) === 0
+                        ? (soliAmtFrom ?? 0) +
+                            (metalAmtFrom ?? 0) +
+                            (sDiaAmt ?? 0)
+                        : Number(jewelleryDetails.Product_price)
                     )}{" "}
                     apx
                   </span>
                 </div>
                 <div className="text-lg">
                   <span className="font-semibold">
-                    {formatByCurrencyINR(
+                    {/* {formatByCurrencyINR(
                       soliAmtTo + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+                    )}{" "} */}
+                    {formatByCurrencyINR(
+                      jewelleryDetails?.Product_price == null ||
+                        Number(jewelleryDetails?.Product_price) === 0
+                        ? (soliAmtTo ?? 0) +
+                            (metalAmtFrom ?? 0) +
+                            (sDiaAmt ?? 0)
+                        : Number(jewelleryDetails.Product_price)
                     )}{" "}
                     apx
                   </span>
