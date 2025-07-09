@@ -437,26 +437,6 @@ const JewelleryBulkImportScreen: React.FC = () => {
         errors.push("Metal Color is required.");
       }
 
-      // Validate "size_from"
-      // const sizeFrom = getTrimmedValue("size");
-      // if (productType === "jewellery") {
-      //   if (sizeFrom !== "-") {
-      //     const sizeFromNumber = Number(sizeFrom);
-
-      //     if (isNaN(sizeFromNumber)) {
-      //       errors.push(
-      //         `Invalid size: ${sizeFrom}. It must be a valid number.`
-      //       );
-      //     } else if (sizeFromNumber < 4 || sizeFromNumber > 26) {
-      //       errors.push(
-      //         `Invalid size: ${sizeFrom}. It must be between 4 and 26.`
-      //       );
-      //     }
-      //   } else {
-      //     console.log(`Skipping size validation for size: ${sizeFrom}`);
-      //   }
-      // }
-
       const hasError = errors.length > 0;
 
       if (!hasError) {

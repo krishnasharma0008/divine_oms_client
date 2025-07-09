@@ -172,40 +172,40 @@ function JewelleryDetailScreen() {
     return shape;
   };
 
-  const GetBomNamesforMultiSize = (): { names: string[] } => {
-    if (!jewelleryDetails?.Bom) return { names: [] };
+  // const GetBomNamesforMultiSize = (): { names: string[] } => {
+  //   if (!jewelleryDetails?.Bom) return { names: [] };
 
-    // Filter BOM based on Item_group, Item_type, and clean matching conditions
-    // const filteredBom = jewelleryDetails.Bom.filter(
-    //   (bom) =>
-    //     bom.Item_group?.trim().toUpperCase() === "SOLITAIRE" && // Ensure case-insensitive matching
-    //     bom.Item_type?.trim().toUpperCase() === "STONE" // Same for Item_type
-    // );
+  //   // Filter BOM based on Item_group, Item_type, and clean matching conditions
+  //   // const filteredBom = jewelleryDetails.Bom.filter(
+  //   //   (bom) =>
+  //   //     bom.Item_group?.trim().toUpperCase() === "SOLITAIRE" && // Ensure case-insensitive matching
+  //   //     bom.Item_type?.trim().toUpperCase() === "STONE" // Same for Item_type
+  //   // );
 
-    //console.log("filteredBom : ", filteredBom);
+  //   //console.log("filteredBom : ", filteredBom);
 
-    // Extract Bom_variant_name, remove null/undefined, and ensure uniqueness
+  //   // Extract Bom_variant_name, remove null/undefined, and ensure uniqueness
 
-    // const names = [
-    //   ...new Set(
-    //     filteredBom.map((bomItem) => bomItem.Bom_variant_name).filter(Boolean)
-    //   ),
-    // ];
+  //   // const names = [
+  //   //   ...new Set(
+  //   //     filteredBom.map((bomItem) => bomItem.Bom_variant_name).filter(Boolean)
+  //   //   ),
+  //   // ];
 
-    const filteredvariantName = jewelleryDetails?.Variants.filter(
-      (variant) => variant.Variant_name
-    );
+  //   const filteredvariantName = jewelleryDetails?.Variants.filter(
+  //     (variant) => variant.Variant_name
+  //   );
 
-    // Extract Bom_variant_name, remove null/undefined, and ensure uniqueness
+  //   // Extract Bom_variant_name, remove null/undefined, and ensure uniqueness
 
-    const names = [
-      ...new Set(
-        filteredvariantName.map((Item) => Item.Variant_name).filter(Boolean)
-      ),
-    ];
+  //   const names = [
+  //     ...new Set(
+  //       filteredvariantName.map((Item) => Item.Variant_name).filter(Boolean)
+  //     ),
+  //   ];
 
-    return { names };
-  };
+  //   return { names };
+  // };
 
   const GetMsg = () => {
     // Count the number of matching rows
@@ -1506,7 +1506,9 @@ function JewelleryDetailScreen() {
         collection={jewelleryDetails?.Collection ?? ""}
         Dshape={GetDefaultShape()}
         ismultiSize={Number(GetMsg()) > 1}
-        multiSize_slab={GetBomNamesforMultiSize().names}
+        //multiSize_slab={GetBomNamesforMultiSize().names}
+        jewelleryData={ jewelleryDetails ? [jewelleryDetails] : undefined }
+        
       />
 
       {/* alert message */}

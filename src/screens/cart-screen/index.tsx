@@ -594,9 +594,12 @@ function CartScreen() {
                     //onChange={() => handleSelectItem(item.id ?? 0)}
                     onChange={() => {
                       const isValidSelection =
-                        (item.solitaire_amt_min || 0) +
-                          (item.solitaire_amt_max || 0) >
+                        (item.product_amt_min || 0) +
+                          (item.product_amt_max || 0) >
                         0;
+                      // (item.solitaire_amt_min || 0) +
+                      //   (item.solitaire_amt_max || 0) >
+                      // 0;
 
                       if (isValidSelection) {
                         handleSelectItem(item.id ?? 0);
@@ -641,7 +644,7 @@ function CartScreen() {
                 {/* Data Section */}
                 <div className="w-2/3 flex flex-col justify-between">
                   <div className="flex items-center justify-left">
-                    <h2 className="text-lg font-semibold text-gray-800">
+                    <h2 className="text-base font-semibold text-gray-800">
                       Partner Jewellers :&nbsp;
                     </h2>
                     <p className="text-sm text-gray-600">
@@ -651,7 +654,7 @@ function CartScreen() {
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 mt-2">
                       Order For : {item.order_for || "-"}
                     </p>
                     <p className="text-sm text-gray-600">
@@ -670,7 +673,7 @@ function CartScreen() {
                   {item.product_type === "jewellery" && (
                     <>
                       <div className="flex items-center justify-left space-x-8">
-                        <p className="text-xl font-semibold text-gray-600">
+                        <p className="text-base font-semibold text-gray-600">
                           {item.product_code}
                         </p>
                         <p className="text-sm font-sm text-gray-600">

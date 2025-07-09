@@ -12,6 +12,8 @@ import {
   claritiesRound,
   claritiesRoundCarat,
 } from "@/util/constants";
+import { JewelleryDetail } from "@/interface";
+import Dropdown from "./dropdown";
 
 interface CustomisationOptions {
   shape: string;
@@ -31,7 +33,7 @@ interface SolitaireCustomisationPopupProps {
   collection: string;
   Dshape?: string;
   ismultiSize: boolean;
-  multiSize_slab?: string[];
+  jewelleryData?: JewelleryDetail[];
 }
 
 const shapeMap: Record<string, string> = {
@@ -56,7 +58,8 @@ const SolitaireCustomisationPopup: React.FC<
   collection,
   Dshape,
   ismultiSize,
-  multiSize_slab,
+  //multiSize_slab,
+  jewelleryData,
 }) => {
   const [shape, setShape] = useState<string>("");
   const [colorF, setColorF] = useState<string>("");
@@ -67,6 +70,7 @@ const SolitaireCustomisationPopup: React.FC<
   const [premiumSize, setPremiumSize] = useState<string>("");
   const [premiumPercentage, setPremiumPercentage] = useState<string>("");
   const [multiSize, setMultiSize] = useState<string>("");
+  const [multiSizeDisplay, setMultiSizeDisplay] = useState<string>("");
   const [premiumSizeOptions, setPremiumSizeOptions] = useState<string[]>([]);
   //const [error, setError] = useState<string>("");
 
@@ -238,6 +242,7 @@ const SolitaireCustomisationPopup: React.FC<
   }, [premiumSize]);
 
   const handleApply = () => {
+    console.log("Applying customisation...");
     const errors: Record<string, string> = {};
     if (!shape) errors.shape = "Shape is required.";
     if (!colorF) errors.colorF = "Color (From) is required.";
@@ -246,11 +251,16 @@ const SolitaireCustomisationPopup: React.FC<
     if (!clarityF) errors.clarityF = "Clarity (From) is required.";
     if (!clarityT) errors.clarityT = "Clarity (To) is required.";
     setFieldErrors(errors);
-
+    console.log("Field Errors:", errors);
     if (Object.keys(errors).length) return;
+    console.log("Selected Shape:", shape);
+    console.log("Selected Carat:", carat);
 
     const selectedColor = `${colorF}-${colorT}`;
     const selectedClarity = `${clarityF}-${clarityT}`;
+    console.log("Selected Color:", selectedColor);
+    console.log("Selected Clarity:", selectedClarity);
+
     onApply({
       shape,
       color: selectedColor,
@@ -275,6 +285,24 @@ const SolitaireCustomisationPopup: React.FC<
   };
 
   if (!isOpen) return null;
+
+  const handleMultiSizeChange = (variantId: string) => {
+    setMultiSizeDisplay(variantId);
+
+    const bomList = jewelleryData?.[0]?.Bom?.filter(
+      (b) =>
+        String(b.Variant_id) === variantId &&
+        b.Item_group?.trim().toUpperCase() === "SOLITAIRE" &&
+        b.Item_type?.trim().toUpperCase() === "STONE"
+    );
+
+    if (bomList && bomList.length > 0) {
+      const lowestBom = bomList.reduce((min, curr) =>
+        Number(curr.Pcs) < Number(min.Pcs) ? curr : min
+      );
+      setMultiSize(lowestBom.Bom_variant_name);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -336,12 +364,20 @@ const SolitaireCustomisationPopup: React.FC<
               <label className="block text-gray-700 font-medium text-center mb-7">
                 Multi Size
               </label>
-              <DropdownCust
+              <Dropdown
                 label=""
-                options={multiSize_slab || []}
-                value={multiSize}
-                onChange={setMultiSize}
-                error={fieldErrors.carat}
+                //options={multiSize_slab || []}
+                options={
+                  jewelleryData?.[0]?.Variants?.filter(
+                    (v) => v.Variant_name
+                  )?.map((variant) => ({
+                    label: variant.Variant_name,
+                    value: String(variant.Variant_id),
+                  })) || []
+                }
+                value={multiSizeDisplay}
+                onChange={handleMultiSizeChange}
+                //error={fieldErrors.carat}
                 classes="w-full"
               />
             </div>
