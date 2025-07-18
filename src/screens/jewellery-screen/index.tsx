@@ -1,7 +1,13 @@
 "use client";
 
 //import { Switch } from "@material-tailwind/react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -25,47 +31,37 @@ interface OptionType {
 }
 
 function JewelleyScreen() {
-  //const [category, setCategory] = useState<string>("");
   const dataContainer = useRef<HTMLDivElement>(null);
-
   const { customerOrder } = useCustomerOrderStore();
-  //const [date, setDate] = useState<string>("");
   const [selectedcategory, setSelectedCategory] = useState<string[]>([]);
   const [selectedSubcategory, setSelectedSubCategory] = useState<string[]>([]);
   const [selectedcollection, setSelectedCollection] = useState<string[]>([]);
   const [selectedMetal, setSelectedMetal] = useState<string[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<string[]>([]);
-
-  const [selectedGender, setSelectedGender] = useState<string[]>([]); //gender
-  const [selectedPrice, setSelectedPrice] = useState<string>(""); // price
+  const [selectedGender, setSelectedGender] = useState<string[]>([]);
+  const [selectedPrice, setSelectedPrice] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); //to show pjdetails
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
     Array<Jewellery>
   >([]);
-
   const [productCategory, setProductCategory] = useState<OptionType[]>([]);
   const [productSubCategory, setProductSubCategory] = useState<OptionType[]>(
     []
   );
   const [productCollection, setProductCollection] = useState<OptionType[]>([]);
   const { notifyErr } = useContext(NotificationContext);
-
-  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
-  const [isLoadingMore, setIsLoadingMore] = useState(false); //load more button
-  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false); //message popup
-
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState(false);
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
-
   const [isDiscarded, setIsDiscarded] = React.useState(false);
-
-  const [totRecords, setTotRecords] = useState<number>(1); // Track current page
-  const [newLaunch, setNewLaunch] = useState<number>(1); // Track current page
+  const [totRecords, setTotRecords] = useState<number>(1);
+  const [newLaunch, setNewLaunch] = useState<number>(1);
 
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const token = getToken();
   const { user } = useUserFromToken(token);
 
@@ -89,39 +85,155 @@ function JewelleyScreen() {
     { label: "100,000 - 200,000", value: "100,000 - 200,000" },
     { label: "200,000 - 300,000", value: "200,000 - 300,000" },
     { label: "400,000 - 500,000", value: "400,000 - 500,000" },
-    { label: "500,000 and above", value: "500,000 -10,00,00,000" },
+    { label: "500,000 and above", value: "500,000 -10,00,00,000" },
   ];
 
   const Discardoptions = [{ label: "Discarded", value: "Discarded" }];
 
+  // Memoized fetch function
+  const FetchListdata = useCallback(
+    async (
+      item_number: string,
+      product_category: string[] | string,
+      product_sub_category: string[] | string,
+      product_collection: string[] | string,
+      metal_purity: string[] | string,
+      portfolio_type: string[] | string,
+      pageno: number,
+      newlaunch: boolean,
+      discarded: boolean,
+      gender: string[] | string,
+      price_from: string,
+      price_to: string
+    ) => {
+      try {
+        setIsLoadingMore(true);
+        const categoryParam = Array.isArray(product_category)
+          ? product_category.join(",")
+          : product_category;
+
+        const subcategoryParam = Array.isArray(product_sub_category)
+          ? product_sub_category.join(",")
+          : product_sub_category;
+
+        const collectionParam = Array.isArray(product_collection)
+          ? product_collection.join(",")
+          : product_collection;
+
+        const metalpurityParam = Array.isArray(metal_purity)
+          ? metal_purity.join(",")
+          : metal_purity;
+
+        const portfolioTypeParam = Array.isArray(portfolio_type)
+          ? portfolio_type.join(",")
+          : portfolio_type;
+
+        const genderParam = Array.isArray(gender) ? gender.join(",") : gender;
+
+        const response = await getJewelleryDetailID(
+          item_number,
+          categoryParam,
+          subcategoryParam,
+          collectionParam,
+          metalpurityParam,
+          portfolioTypeParam,
+          pageno,
+          newlaunch,
+          discarded,
+          genderParam,
+          price_from,
+          price_to
+        );
+
+        if (newlaunch === false) {
+          setTotRecords(response.data.total_found);
+        } else if (newlaunch === true) {
+          setNewLaunch(response.data.total_found);
+        }
+
+        const newItems = response.data.data ?? [];
+        if (pageno === 1) {
+          setSelectedJewelleryItem(newItems);
+        } else {
+          setSelectedJewelleryItem((prevItems) => [...prevItems, ...newItems]);
+        }
+      } catch (error) {
+        console.log("Error fetching data:", error);
+        notifyErr("An error occurred while fetching data.");
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [notifyErr]
+  );
+
+  const FetchProductCategory = useCallback(async () => {
+    try {
+      setIsLoadingMore(true);
+      const response = await ProductFilters();
+
+      const CategotyOptions = response.data.category.map((item: string) => ({
+        label: item,
+        value: item,
+      }));
+      setProductCategory(CategotyOptions);
+
+      const SubCategotyOptions = response.data.sub_category.map(
+        (item: string) => ({
+          label: item,
+          value: item,
+        })
+      );
+      setProductSubCategory(SubCategotyOptions);
+
+      const CollectionOptions = response.data.collection.map(
+        (item: string) => ({
+          label: item,
+          value: item,
+        })
+      );
+      setProductCollection(CollectionOptions);
+    } catch (error) {
+      notifyErr("An error occurred while fetching data.");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [notifyErr]);
+
+  // Initial load effect
   useEffect(() => {
-    setCurrentPage(1); // Reset page to 1 on search param change
-    setSelectedJewelleryItem([]); // Clear previous items
-    //const { fromPrice, toPrice } = getPriceRange(selectedPrice);
-    FetchListdata(
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      1,
-      isSwitchOn,
-      isDiscarded,
-      "",
-      "",
-      ""
-    ); // Load first page of new search results
-  }, [searchParams]);
+    const initialLoad = async () => {
+      setCurrentPage(1);
+      setSelectedJewelleryItem([]);
+      await FetchListdata(
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        1,
+        isSwitchOn,
+        isDiscarded,
+        "",
+        "",
+        ""
+      );
+      await FetchProductCategory();
+    };
 
-  // useEffect(() => {
-  //   handleSearch();
-  // }, [isSwitchOn]);
+    initialLoad();
+  }, [
+    searchParams,
+    FetchListdata,
+    FetchProductCategory,
+    isSwitchOn,
+    isDiscarded,
+  ]);
 
-  // Fetch data when the page number increments
+  // Pagination effect
   useEffect(() => {
     if (currentPage > 1) {
-      //FetchListdata("", "", "", currentPage);
       const { fromPrice, toPrice } = getPriceRange(selectedPrice);
       FetchListdata(
         searchText,
@@ -138,54 +250,48 @@ function JewelleyScreen() {
         toPrice?.toString() || ""
       );
     }
-    FetchProductCategory();
-  }, [currentPage]);
+  }, [
+    currentPage,
+    FetchListdata,
+    searchText,
+    selectedcategory,
+    selectedSubcategory,
+    selectedcollection,
+    selectedMetal,
+    selectedPortfolio,
+    isSwitchOn,
+    isDiscarded,
+    selectedGender,
+    selectedPrice,
+  ]);
 
+  // Scroll effect
   useEffect(() => {
     if (selectedJewelleryItem.length > 0) {
       const objDiv = dataContainer.current;
       if (objDiv) {
-        objDiv.scrollTop = objDiv.scrollHeight; // Scroll to the bottom
+        objDiv.scrollTop = objDiv.scrollHeight;
       }
     }
   }, [selectedJewelleryItem]);
 
   const handleClearAll = () => {
     setCurrentPage(1);
-    //setDate(""); // Clear the date filter
-    setSelectedCategory([]); // Reset selected categories to an empty array
+    setSelectedCategory([]);
     setSelectedSubCategory([]);
     setSelectedCollection([]);
     setSelectedMetal([]);
     setSelectedPortfolio([]);
-    setSearchText(""); // Clear the search text input
-    setIsDiscarded(false); // Reset the discrad state
+    setSearchText("");
+    setIsDiscarded(false);
     setSelectedGender([]);
-    setSelectedPrice(""); // Reset the price filter
-    FetchListdata(
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      1,
-      isSwitchOn,
-      isDiscarded,
-      "",
-      "",
-      ""
-    ); // Reload data with no filters
+    setSelectedPrice("");
+    FetchListdata("", "", "", "", "", "", 1, isSwitchOn, false, "", "", "");
   };
 
   const handleSearch = () => {
     setCurrentPage(1);
-    setLoading(true); // Show spinner
-    // console.log("Searching with filters:", {
-    //   selectedcategory,
-    //   searchText,
-    // });
-    //selectedGender,
+    setLoading(true);
     const { fromPrice, toPrice } = getPriceRange(selectedPrice);
     FetchListdata(
       searchText,
@@ -202,118 +308,9 @@ function JewelleyScreen() {
       toPrice?.toString() || ""
     );
 
-    // Simulate search delay
     setTimeout(() => {
-      setLoading(false); // Hide spinner once search is done
+      setLoading(false);
     });
-  };
-  //customerOrder?.order_for === "Stock"
-  const FetchListdata = async (
-    item_number: string,
-    product_category: string[] | string,
-    product_sub_category: string[] | string,
-    product_collection: string[] | string,
-    metal_purity: string[] | string,
-    portfolio_type: string[] | string,
-    pageno: number,
-    newlaunch: boolean,
-    discarded: boolean,
-    gender: string[] | string,
-    price_from: string,
-    price_to: string
-  ) => {
-    try {
-      setIsLoadingMore(true);
-      const categoryParam = Array.isArray(product_category)
-        ? product_category.join(",") // Convert to string for API
-        : product_category;
-
-      const subcategoryParam = Array.isArray(product_sub_category)
-        ? product_sub_category.join(",") // Convert to string for API
-        : product_sub_category;
-
-      const collectionParam = Array.isArray(product_collection)
-        ? product_collection.join(",") // Convert to string for API
-        : product_collection;
-
-      const metalpurityParam = Array.isArray(metal_purity)
-        ? metal_purity.join(",") // Convert to string for API
-        : metal_purity;
-
-      const portfolioTypeParam = Array.isArray(portfolio_type)
-        ? portfolio_type.join(",") // Convert to string for API
-        : portfolio_type;
-
-      const genderParam = Array.isArray(gender)
-        ? gender.join(",") // Convert to string for API
-        : gender;
-      const response = await getJewelleryDetailID(
-        item_number,
-        categoryParam,
-        subcategoryParam,
-        collectionParam,
-        metalpurityParam,
-        portfolioTypeParam,
-        //shape,
-        pageno,
-        newlaunch,
-        discarded,
-        genderParam,
-        price_from,
-        price_to
-      );
-
-      if (newlaunch === false) {
-        setTotRecords(response.data.total_found);
-        //setNewLaunch(0);
-      } else if (newlaunch === true) {
-        //setTotRecords(0);
-        setNewLaunch(response.data.total_found);
-      }
-
-      const newItems = response.data.data ?? [];
-      if (pageno === 1) {
-        setSelectedJewelleryItem(newItems);
-      } else {
-        setSelectedJewelleryItem((prevItems) => [...prevItems, ...newItems]); // Append new data
-      }
-    } catch (error) {
-      console.log("Error fetching data:", error);
-      notifyErr("An error occurred while fetching data.");
-    } finally {
-      setIsLoadingMore(false); // Ensure reset after fetching
-    }
-  };
-
-  const FetchProductCategory = async () => {
-    try {
-      setIsLoadingMore(true);
-      const response = await ProductFilters();
-
-      const CategotyOptions = response.data.category.map((item: string) => ({
-        label: item,
-        value: item,
-      }));
-      setProductCategory(CategotyOptions);
-      const SubCategotyOptions = response.data.sub_category.map(
-        (item: string) => ({
-          label: item,
-          value: item,
-        })
-      );
-      setProductSubCategory(SubCategotyOptions);
-      const CollectionOptions = response.data.collection.map(
-        (item: string) => ({
-          label: item,
-          value: item,
-        })
-      );
-      setProductCollection(CollectionOptions);
-    } catch (error) {
-      notifyErr("An error occurred while fetching data.");
-    } finally {
-      setIsLoadingMore(false); // Ensure reset after fetching
-    }
   };
 
   const handleLoadMore = () => {
@@ -658,6 +655,8 @@ function JewelleyScreen() {
                 isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isLoadingMore}
+              aria-busy={isLoadingMore}
+              aria-disabled={isLoadingMore}
             >
               {isLoadingMore ? (
                 // Spinner inside the button
