@@ -130,6 +130,8 @@ function JewelleyScreen() {
 
         const genderParam = Array.isArray(gender) ? gender.join(",") : gender;
 
+        const Order_for = customerOrder?.order_for ?? "";
+
         const response = await getJewelleryDetailID(
           item_number,
           categoryParam,
@@ -142,7 +144,8 @@ function JewelleyScreen() {
           discarded,
           genderParam,
           price_from,
-          price_to
+          price_to,
+          Order_for
         );
 
         if (newlaunch === false) {
