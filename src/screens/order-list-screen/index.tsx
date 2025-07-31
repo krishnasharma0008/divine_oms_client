@@ -221,7 +221,7 @@ function OrderListScreen() {
           {/* Custom Pagination Controls */}
           <CustomPagination
             totalRows={totalRows}
-            rowsPerPage={10}
+            rowsPerPage={50} //{10}
             selectedPage={selectedPage}
             onPageChange={handlePageChange}
           />

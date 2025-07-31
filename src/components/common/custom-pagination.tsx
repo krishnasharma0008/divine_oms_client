@@ -17,9 +17,19 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const startRow = (selectedPage - 1) * rowsPerPage + 1;
   const endRow = Math.min(selectedPage * rowsPerPage, totalRows);
 
+  // const handlePageChange = (newPage: number) => {
+  //   if (newPage < 1 || newPage > totalPages) return; // Prevent out-of-bound page changes
+  //   onPageChange(newPage);
+  // };
+
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return; // Prevent out-of-bound page changes
-    onPageChange(newPage);
+    if (
+      newPage >= 1 &&
+      newPage <= Math.ceil(totalRows / rowsPerPage) &&
+      newPage !== selectedPage
+    ) {
+      onPageChange(newPage);
+    }
   };
 
   return (
