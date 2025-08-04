@@ -40,7 +40,11 @@ function JewelleryDetailScreen() {
 
   const { isCartCount, updateCartCount } = useContext(LoginContext); //
   const { customerOrder } = useCustomerOrderStore();
-  const { cart, resetCartDetail } = useCartDetailStore();
+  //  const { cart, resetCartDetail } = useCartDetailStore();
+  const cart = useCartDetailStore((state) => state.cart);
+
+  const resetCartDetail = useCartDetailStore((state) => state.resetCartDetail);
+
   const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetail>();
   const [metalPurity, setMetalPurity] = useState<string>("");
   const [metalColor, setMetalColor] = useState<string>("");
@@ -301,7 +305,8 @@ function JewelleryDetailScreen() {
   };
 
   const handleEditCart = async () => {
-    //console.log("Edit cart data : ", cart?.product_code);
+    console.log("Edit cart data : ", cart?.product_code);
+    console.log("Cart from store:", cart);
     if (cart?.product_code) {
       getbaseSizeCarat();
 
@@ -330,7 +335,9 @@ function JewelleryDetailScreen() {
       setSideDiaTotweight(totalsideweight ?? 0);
       //}
 
-      if (!metalColor) {
+      //if (!metalColor) {
+      console.log("Metal color from cart: ", cart.metal_color);
+      if (cart.metal_color !== "" && cart.metal_color !== null) {
         setMetalColor(cart.metal_color || ""); // Set from cart if available
       }
 
@@ -357,7 +364,7 @@ function JewelleryDetailScreen() {
 
       const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
       setSideDiaColorClarity(sideDiaColorClarity);
-      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
+      //      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
 
       calculateSideDiamondPrice(
         cart.side_stone_cts === 0
@@ -393,6 +400,8 @@ function JewelleryDetailScreen() {
         premiumSize: cart.solitaire_prem_size,
         premiumPercentage: cart.solitaire_prem_pct.toString(),
       });
+
+      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
     }
   };
 
@@ -445,9 +454,10 @@ function JewelleryDetailScreen() {
   };
 
   useEffect(() => {
+    console.log("Form Type :", formType);
     if (jewelleryDetails) {
       if (formType === "new") {
-        resetCartDetail();
+        //resetCartDetail();
         handleAddCart();
       } else if (formType === "Edit") {
         handleEditCart();
@@ -1092,6 +1102,7 @@ function JewelleryDetailScreen() {
       if (payload.id) {
         // Use EditCart to update the cart
         res = await EditCart(payload);
+        resetCartDetail();
         notify("Cart updated successfully");
         //console.log("Cart operation successful, Response ID:");
       } else {
@@ -1507,8 +1518,7 @@ function JewelleryDetailScreen() {
         Dshape={GetDefaultShape()}
         ismultiSize={Number(GetMsg()) > 1}
         //multiSize_slab={GetBomNamesforMultiSize().names}
-        jewelleryData={ jewelleryDetails ? [jewelleryDetails] : undefined }
-        
+        jewelleryData={jewelleryDetails ? [jewelleryDetails] : undefined}
       />
 
       {/* alert message */}
