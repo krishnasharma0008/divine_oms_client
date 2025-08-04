@@ -332,10 +332,15 @@ function CartScreen() {
     const updatedItem = cartData.find((item) => item.id === cartId);
     const productCode = updatedItem ? updatedItem.product_code : null;
     if (updatedItem) {
-      setCartDetail(updatedItem); // Ensure updatedItem is valid
+      //setCartDetail(updatedItem); // Ensure updatedItem is valid
+      //console.log("Updated item for edit:", updatedItem);
+      //console.log("Before setting cart:", useCartDetailStore.getState().cart);
+      setCartDetail(updatedItem);
+      //console.log("After setting cart:", useCartDetailStore.getState().cart);
     } else {
       console.error("Item not found for the given cartId:", cartId);
     }
+    //return;
     const queryParams = new URLSearchParams({
       id: productCode ?? "",
       ftype: "Edit",
