@@ -947,12 +947,12 @@ function JewelleryDetailScreen() {
       notifyErr("Failed to fetch price details.");
     }
 
-    // console.log("Selected ringsize edit :", ringSizeFrom);
-    // console.log(
-    //   "Selected Qty edit :",
-    //   formType === "new" ? Number(ringSizeFrom) : Number(cart?.size_from)
-    // );
-    // console.log("Selected Carat edit :", data.carat);
+    console.log("Selected ringsize edit :", ringSizeFrom);
+    console.log(
+      "Selected Qty edit :",
+      formType === "new" ? Number(ringSizeFrom) : Number(cart?.size_from)
+    );
+    console.log("Selected Carat edit :", data.carat);
     if (formType === "new") {
       if (
         jewelleryDetails?.Product_size_from &&
