@@ -328,12 +328,11 @@ function JewelleryDetailScreen() {
 
       const totalsidepcs = GetPcs("DIAMOND", "STONE");
       setBaseSideDiaTotPcs(totalsidepcs ?? 0);
-      setSideDiaTotPcs(totalsidepcs ?? 0);
+      //setSideDiaTotPcs(totalsidepcs ?? 0);
 
       const totalsideweight = GetWeight("DIAMOND", "STONE");
       setBaseSideDiaTotweight(totalsideweight ?? 0);
-      setSideDiaTotweight(totalsideweight ?? 0);
-      //}
+      //setSideDiaTotweight(totalsideweight ?? 0);
 
       //if (!metalColor) {
       console.log("Metal color from cart: ", cart.metal_color);
@@ -364,24 +363,25 @@ function JewelleryDetailScreen() {
 
       const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
       setSideDiaColorClarity(sideDiaColorClarity);
-      //      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
+      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
 
-      calculateSideDiamondPrice(
-        cart.side_stone_cts === 0
-          ? Number(totalsideweight)
-          : cart.side_stone_cts,
-        sideDiaColorClarity,
-        cart.product_qty
-      );
+      setMetalAmtFrom(cart.mount_amt_max);
+      // calculateSideDiamondPrice(
+      //   cart.side_stone_cts === 0
+      //     ? Number(totalsideweight)
+      //     : cart.side_stone_cts,
+      //   sideDiaColorClarity,
+      //   cart.product_qty
+      // );
 
-      CalculateMetalAmount(
-        cart.metal_color,
-        defaultPurity ?? "",
-        goldWeight ?? 0,
-        platinumWeight ?? 0,
-        cart.product_qty,
-        "Edit Cart"
-      );
+      // CalculateMetalAmount(
+      //   cart.metal_color,
+      //   defaultPurity ?? "",
+      //   goldWeight ?? 0,
+      //   platinumWeight ?? 0,
+      //   cart.product_qty,
+      //   "Edit Cart"
+      // );
 
       setCustomisedData({
         shape: cart.solitaire_shape,
@@ -400,8 +400,6 @@ function JewelleryDetailScreen() {
         premiumSize: cart.solitaire_prem_size,
         premiumPercentage: cart.solitaire_prem_pct.toString(),
       });
-
-      setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
     }
   };
 
@@ -949,15 +947,23 @@ function JewelleryDetailScreen() {
       notifyErr("Failed to fetch price details.");
     }
 
-    if (
-      jewelleryDetails?.Product_size_from &&
-      jewelleryDetails?.Product_size_from !== "-"
-    ) {
-      CalculateDivineMountDetails(
-        String(data.carat),
-        Number(ringSizeFrom),
-        qty ?? 1
-      );
+    // console.log("Selected ringsize edit :", ringSizeFrom);
+    // console.log(
+    //   "Selected Qty edit :",
+    //   formType === "new" ? Number(ringSizeFrom) : Number(cart?.size_from)
+    // );
+    // console.log("Selected Carat edit :", data.carat);
+    if (formType === "new") {
+      if (
+        jewelleryDetails?.Product_size_from &&
+        jewelleryDetails?.Product_size_from !== "-"
+      ) {
+        CalculateDivineMountDetails(
+          String(data.carat),
+          formType === "new" ? Number(ringSizeFrom) : Number(cart?.size_from),
+          qty ?? 1
+        );
+      }
     }
   };
 
