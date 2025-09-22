@@ -1,4 +1,5 @@
 export interface OrderFilters {
+  order_status: string;
   orderno: string;
   order_createdat: Date | null; // keep as Date in state
   customer_name: string;
