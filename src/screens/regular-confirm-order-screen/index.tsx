@@ -422,7 +422,7 @@ const RegularConfirmOrderScreen = () => {
         exp_dlv_date: exp_dlv_date,
         old_varient: "",
         product_code: "",
-        solitaire_pcs:row.pcs,//new addation
+        solitaire_pcs: row.pcs, //new addation
         product_qty: row.pcs,
         product_amt_min: row.min,
         product_amt_max: row.max,
@@ -711,12 +711,12 @@ const RegularConfirmOrderScreen = () => {
                           type="text"
                           value={String(row.premiumper)} // Convert number to string
                           disabled={true}
-                          className=" mt-1"
+                          className=" mt-2"
                         />
                       </td>
 
                       {/* Pcs */}
-                      <td className="w-[72px] border border-gray-200 pt-2">
+                      <td className="w-[72px] border border-gray-200 pt-[15px]">
                         <Dropdown
                           label=""
                           variant="outlined"
@@ -738,7 +738,7 @@ const RegularConfirmOrderScreen = () => {
                           value={formatByCurrencyINR(row.min)}
                           //onChange={(e) => handleChange(index, "min", e.target.value)}
                           placeholder="Min"
-                          className=" mt-1 text-black"
+                          className=" mt-2 text-black"
                           disabled={true}
                         />
                       </td>
@@ -749,7 +749,7 @@ const RegularConfirmOrderScreen = () => {
                           type="text"
                           placeholder="Max"
                           value={formatByCurrencyINR(row.max)}
-                          className=" mt-1 text-black"
+                          className=" mt-2 text-black"
                           disabled={true}
                           //onChange={(e) => handleChange(index, "max", e.target.value)}
                         />
@@ -763,6 +763,7 @@ const RegularConfirmOrderScreen = () => {
                             handleChange(index, "remarks", e.target.value)
                           }
                           rows={1}
+                          className="mt-2"
                         />
                       </td>
 

@@ -13,7 +13,14 @@ import { getOrderList } from "@/api/order";
 //import LoaderContext from "@/context/loader-context";
 import Link from "next/link";
 import Image from "next/image";
-import { CustomPagination } from "@/components";
+import { CustomPagination, DropdownCust } from "@/components";
+import DatePickerInput from "@/components/common/DatePickerInput";
+import { OrderFilters } from "@/interface/order-filter";
+import ITEM_TYPE from "@/enums/item-type";
+import ORDER_FOR from "@/enums/order-for";
+import { useIsoDate } from "@/hook/useIsoDate";
+//import Select from "react-select";
+
 //import NotificationContext from "@/context/notification-context";
 
 // Memoize the DataTable to prevent unnecessary re-renders
@@ -43,6 +50,30 @@ function OrderListScreen() {
   const [totalRows, setTotalRows] = useState<number>(0);
   const [selectedPage, setSelectedPage] = useState<number>(1);
 
+  const { formatAsIsoDate } = useIsoDate();
+
+  //for fliter
+  //Column filters (these will be sent to the API)
+  // const [filters, setFilters] = useState({
+  //   orderno: "",
+  //   order_createdat: "",
+  //   customer_name: "",
+  //   customer_branch: "",
+  //   product_type: "",
+  //   order_for: "",
+  //   exp_dlv_date: "",
+  // });
+
+  const [filters, setFilters] = useState<OrderFilters>({
+    orderno: "",
+    order_createdat: null,
+    customer_name: "",
+    customer_branch: "",
+    product_type: "",
+    order_for: "",
+    exp_dlv_date: null,
+  });
+
   // useEffect(() => {
   //   getlistdata();
   // }, []);
@@ -66,23 +97,39 @@ function OrderListScreen() {
   //   }
   // };
 
-  const fetchData = async (pageNo: number) => {
+  const fetchData = async (pageNo: number, filterParams = filters) => {
     setLoading(true);
-    //showLoader();
+    console.log(
+      "Fetching data for page:",
+      pageNo,
+      "with filters:",
+      filterParams
+    );
+
+    const formattedFilters = {
+      ...filters,
+      order_createdat: filters.order_createdat
+        ? formatAsIsoDate(filters.order_createdat)
+        : null,
+      exp_dlv_date: filters.exp_dlv_date
+        ? formatAsIsoDate(filters.exp_dlv_date)
+        : null,
+    };
+
     try {
       const result = await getOrderList(
         getUser() ?? "",
         pageNo,
-        getToken() ?? ""
+        getToken() ?? "",
+        formattedFilters // ✅ send single object
       );
       setExcelData(result.data.data ?? []);
-      setTotalRows(result.data.total_row); // Set total rows dynamically from API response
+      setTotalRows(result.data.total_row);
       setIsDataLoaded(true);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
-      //hideLoader();
     }
   };
 
@@ -100,89 +147,205 @@ function OrderListScreen() {
     fetchData(selectedPage);
   }, []);
 
+  // Handle filter change with debounce
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchData(1, filters); // reset to page 1 when filters change
+      setSelectedPage(1);
+    }, 500); // 0.5 sec debounce
+
+    return () => clearTimeout(delay);
+  }, [filters]);
+
   const columns: TableColumn<OrderList>[] = [
-    // {
-    //   name: " # ",
-    //   cell: (row: OrderList, index: number) => index + 1,
-    //   reorder: true,
-    //   center: true,
-    //   width: "50px",
-    // },
     {
-      name: "Order No.",
+      //name: "Order No.",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order No.</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500 p-1"
+              placeholder="Search..."
+              value={filters.orderno}
+              onChange={(e) =>
+                setFilters({ ...filters, orderno: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.orderno || "",
-      width: "130px",
+      cell: (row: OrderList) => (
+        <Link
+          href={`/order/order-detail-${row.product_type}?id=${row.orderno}`}
+          rel="noopener noreferrer"
+          title={`View order details for Order No. ${row.orderno}`}
+          className="underline"
+        >
+          {row.orderno || ""}
+        </Link>
+      ),
+      width: "100px",
     },
     {
-      name: "Order Date",
+      //name: "Order Date",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order Date.</div>
+          <div>
+            <DatePickerInput
+              value={filters.order_createdat}
+              onChange={(date) =>
+                setFilters({ ...filters, order_createdat: date })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) =>
         row.order_createdat !== null
           ? dayjs(row.order_createdat).format("DD MMM,YYYY")
           : "",
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
-      width: "130px",
+      //sortable: true,
+      //reorder: true,
+      //Alignment: "center",
+      width: "160px",
     },
     {
-      name: "Name",
+      //name: "Name",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Name</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500"
+              placeholder="Search..."
+              value={filters.customer_name}
+              onChange={(e) =>
+                setFilters({ ...filters, customer_name: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.customer_name,
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
+      //sortable: true,
+      //reorder: true,
+      //Alignment: "center",
     },
     {
-      name: "Stores Name",
+      //name: "Stores Name",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Stores Name</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500"
+              placeholder="Search..."
+              value={filters.customer_branch}
+              onChange={(e) =>
+                setFilters({ ...filters, customer_branch: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.customer_branch || "",
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
+      //sortable: true,
+      //reorder: true,
+      //Alignment: "center",
       width: "200px",
     },
     {
-      name: "Item Type",
+      //name: "Item Type",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Item Type</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(ITEM_TYPE)}
+              value={filters.product_type}
+              onChange={(val) => setFilters({ ...filters, product_type: val })}
+              classes="w-full text-black p-0 border-gray-300"
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.product_type || "",
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
+      // sortable: true,
+      // reorder: true,
+      //Alignment: "center",
       width: "120px",
     },
     {
-      name: "Order For",
+      //name: "Order For",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order For</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(ORDER_FOR)}
+              value={filters.order_for}
+              onChange={(val) => setFilters({ ...filters, order_for: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.order_for,
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
+      // sortable: true,
+      // reorder: true,
+      //Alignment: "center",
       width: "140px",
     },
     {
-      name: "Expected Date",
+      //name: "Expected Date",
+      //name: "Exp Date",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Expected Date</div>
+          <div>
+            <DatePickerInput
+              value={filters.exp_dlv_date}
+              onChange={(date) =>
+                setFilters({ ...filters, exp_dlv_date: date })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) =>
         row.exp_dlv_date !== null
           ? dayjs(row.exp_dlv_date).format("DD MMM,YYYY")
           : "",
-      sortable: true,
-      reorder: true,
-      Alignment: "center",
-      width: "140px",
+      // sortable: true,
+      // reorder: true,
+      //Alignment: "center",
+      width: "160px",
     },
-    {
-      name: "",
-      cell: (row: OrderList) => (
-        <Link
-          href={`/order/order-detail-${row.product_type}?id=${row.orderno}`}
-          //target="_blank"
-          rel="noopener noreferrer"
-        >
-          <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
-            View
-          </button>
-        </Link>
-      ),
-      center: true,
-      width: "150px",
-    },
-  ].map((col) => ({ ...col, name: col.name?.toUpperCase() }));
+    // {
+    //   name: "",
+    //   cell: (row: OrderList) => (
+    //     <Link
+    //       href={`/order/order-detail-${row.product_type}?id=${row.orderno}`}
+    //       //target="_blank"
+    //       rel="noopener noreferrer"
+    //     >
+    //       <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
+    //         View
+    //       </button>
+    //     </Link>
+    //   ),
+    //   center: true,
+    //   width: "150px",
+    // },
+  ];
 
   // Define table custom styles
   const CustomStyles: TableStyles = {
@@ -191,8 +354,17 @@ function OrderListScreen() {
         backgroundColor: "#000000",
         color: "white",
         minHeight: "30px", // Reduce the header height
-        paddingTop: "2px", // Adjust padding
+        paddingTop: "4px", // Adjust padding
         paddingBottom: "2px",
+        // paddingLeft: "2px",
+        // paddingRight: "2px",
+      },
+    },
+    headCells: {
+      style: {
+        paddingLeft: "2px", // override the initial padding
+        paddingRight: "2px",
+        // Add other styles here like fontSize, color, etc.
       },
     },
     rows: {

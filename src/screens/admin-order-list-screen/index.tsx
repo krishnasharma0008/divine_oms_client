@@ -18,7 +18,12 @@ import { DownloadOrderListExcel, getOrderList } from "@/api/order";
 import LoaderContext from "@/context/loader-context";
 import Link from "next/link";
 import Image from "next/image"; // Make sure to import Image from next/image
-import { CustomPagination } from "@/components";
+import { CustomPagination, DropdownCust } from "@/components";
+import STATUS from "@/enums/status";
+import { OrderFilters } from "@/interface/order-filter";
+import DatePickerInput from "@/components/common/DatePickerInput";
+import ITEM_TYPE from "@/enums/item-type";
+import ORDER_FOR from "@/enums/order-for";
 
 // Memoize the DataTable to prevent unnecessary re-renders
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,6 +50,17 @@ function AdminOrderListScreen() {
 
   const [totalRows, setTotalRows] = useState<number>(0);
   const [selectedPage, setSelectedPage] = useState<number>(1);
+
+  const [filters, setFilters] = useState<OrderFilters>({
+    order_status: "",
+    orderno: "",
+    order_createdat: null,
+    customer_name: "",
+    customer_branch: "",
+    product_type: "",
+    order_for: "",
+    exp_dlv_date: null,
+  });
 
   // Memoize the fetchData function to prevent unnecessary re-fetching
   const fetchData = useCallback(
@@ -92,17 +108,70 @@ function AdminOrderListScreen() {
       width: "50px",
     },
     {
-      name: "Order Status",
+      //name: "Order Status",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order Status</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(STATUS)}
+              value={filters.order_status ?? ""}
+              onChange={(val) => setFilters({ ...filters, order_status: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.order_status,
       width: "130px",
     },
     {
-      name: "Order No",
+      //name: "Order No",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order No.</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500 p-1"
+              placeholder="Search..."
+              value={filters.orderno}
+              onChange={(e) =>
+                setFilters({ ...filters, orderno: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.orderno,
+      cell: (row: OrderList) => (
+        <Link
+          href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
+          rel="noopener noreferrer"
+          title={`View order details for Order No. ${row.orderno}`}
+          className="underline"
+        >
+          {row.orderno || ""}
+        </Link>
+      ),
       width: "130px",
     },
     {
-      name: "ORDER DATE",
+      //name: "ORDER DATE",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order Date.</div>
+          <div>
+            <DatePickerInput
+              value={filters.order_createdat}
+              onChange={(date) =>
+                setFilters({ ...filters, order_createdat: date })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) =>
         row.order_createdat
           ? dayjs(row.order_createdat).format("DD MMM, YYYY")
@@ -111,49 +180,147 @@ function AdminOrderListScreen() {
       width: "130px",
     },
     {
-      name: "NAME",
+      //name: "NAME",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Name</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500"
+              placeholder="Search..."
+              value={filters.customer_name}
+              onChange={(e) =>
+                setFilters({ ...filters, customer_name: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.customer_name,
       reorder: true,
     },
     {
-      name: "STORES NAME",
+      //name: "STORES NAME",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Stores Name</div>
+          <div>
+            <input
+              type="text"
+              className="w-full p-[7px] text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500"
+              placeholder="Search..."
+              value={filters.customer_branch}
+              onChange={(e) =>
+                setFilters({ ...filters, customer_branch: e.target.value })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.customer_branch || "",
       reorder: true,
       width: "200px",
     },
     {
-      name: "ITEM TYPE",
+      //name: "ITEM TYPE",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Item Type</div>
+          <div>
+            <select
+              value={filters.product_type}
+              onChange={(e) =>
+                setFilters({ ...filters, product_type: e.target.value })
+              }
+              className="bg-white border border-gray-300 rounded-md p-2 text-black w-full"
+            >
+              {
+                //status.map((option, idx) => (
+                Object.values(ITEM_TYPE).map((option, idx) => (
+                  <option key={idx} value={option}>
+                    {option}
+                  </option>
+                ))
+              }
+            </select>
+            {/* <DropdownCust
+              label=""
+              options={Object.values(ITEM_TYPE)}
+              value={filters.product_type}
+              onChange={(val) => setFilters({ ...filters, product_type: val })}
+              classes="w-full text-black p-0"
+            /> */}
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.product_type || "",
       reorder: true,
       width: "120px",
     },
     {
-      name: "ORDER FOR",
+      //name: "ORDER FOR",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order For</div>
+          <div>
+            {/* <input
+              type="text"
+              className="w-full p-1 text-xs border border-gray-300 rounded bg-white text-black placeholder-gray-500"
+              placeholder="Search..."
+              value={filters.order_for}
+              onChange={(e) =>
+                setFilters({ ...filters, order_for: e.target.value })
+              }
+            /> */}
+            <DropdownCust
+              label=""
+              options={Object.values(ORDER_FOR)}
+              value={filters.order_for}
+              onChange={(val) => setFilters({ ...filters, order_for: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) => row.order_for,
       reorder: true,
       width: "140px",
     },
     {
-      name: "EXPECTED DATE",
+      //name: "EXPECTED DATE",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Expected Date</div>
+          <div>
+            <DatePickerInput
+              value={filters.exp_dlv_date}
+              onChange={(date) =>
+                setFilters({ ...filters, exp_dlv_date: date })
+              }
+            />
+          </div>
+        </div>
+      ),
       selector: (row: OrderList) =>
         row.exp_dlv_date ? dayjs(row.exp_dlv_date).format("DD MMM, YYYY") : "",
       reorder: true,
       width: "140px",
     },
-    {
-      name: "ACTION",
-      cell: (row: OrderList) => (
-        <Link
-          href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
-        >
-          <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
-            View
-          </button>
-        </Link>
-      ),
-      center: true,
-      width: "150px",
-    },
+    // {
+    //   name: "ACTION",
+    //   cell: (row: OrderList) => (
+    //     <Link
+    //       href={`/admin/order/order-detail-${row.product_type}?id=${row.orderno}`}
+    //     >
+    //       <button className="w-full bg-black text-white py-2 px-4 shadow-md hover:text-black hover:bg-white focus:outline-none">
+    //         View
+    //       </button>
+    //     </Link>
+    //   ),
+    //   center: true,
+    //   width: "150px",
+    // },
   ];
 
   const customStyles: TableStyles = {
@@ -162,6 +329,13 @@ function AdminOrderListScreen() {
         backgroundColor: "#000000",
         color: "white",
         minHeight: "30px",
+      },
+    },
+    headCells: {
+      style: {
+        paddingLeft: "2px", // override the initial padding
+        paddingRight: "2px",
+        // Add other styles here like fontSize, color, etc.
       },
     },
     rows: {

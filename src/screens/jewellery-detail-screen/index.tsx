@@ -31,6 +31,7 @@ interface CustomisationOptions {
   clarity: string;
   premiumSize?: string;
   premiumPercentage?: string;
+  variantId?: number;
 }
 
 function JewelleryDetailScreen() {
@@ -895,53 +896,174 @@ function JewelleryDetailScreen() {
 
     const qty = selectedQty || 1;
 
+    let SolitaireFrom;
+    let SolitaireTo;
+
     try {
-      const SolitaireFrom = await FetchPrice(
-        "SOLITAIRE",
-        carat[0],
-        shape,
-        getSolitaireColor(color[1]),
-        clarity[1]
-      );
-      setSoliPriceFrom(SolitaireFrom);
+      if (Number(GetMsg()) > 1) {
+        //console.log("variantId :", data.variantId);
 
-      const SolitaireTo = await FetchPrice(
-        "SOLITAIRE",
-        carat[1],
-        shape,
-        getSolitaireColor(color[0]),
-        clarity[0]
-      );
-      setSoliPriceTo(SolitaireTo);
-      // Default to 0 if premiumPercentage is invalid or not provided
-      const premiumPercentage = Number(data.premiumPercentage ?? 0);
-      const premiumMinPrice =
-        SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
-      const premiumMaxPrice =
-        SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
+        const bomList = jewelleryDetails?.Bom?.filter(
+          (b) =>
+            String(b.Variant_id) === String(data.variantId) &&
+            b.Item_group?.trim().toUpperCase() === "SOLITAIRE" &&
+            b.Item_type?.trim().toUpperCase() === "STONE"
+        );
+        //console.log("bomList :", bomList);
+        let amountFrom = 0;
+        let amountTo = 0;
 
-      const total_solitaire_pcs = totalPcs || 1; // totalPcs || 1;
+        for (const bom of bomList || []) {
+          const parts = bom.Bom_variant_name.trim()
+            .split("-")
+            .map((p) => p.trim());
+          // Example: SOL-RND-0.39-0.44----
+          const bomCaratFrom = parseFloat(parts[2]) || 0;
+          const bomCaratTo = parseFloat(parts[3]) || 0;
+          //let bomcolor = parts[4] || "";
+          //let bomclarity = parts[5] || "";
+          //const bomqty = bom.Pcs || 1;
+          let bomcolorMin = "";
+          let bomcolorMax = "";
+          let bomclarityMin = "";
+          let bomclarityMax = "";
 
-      setSoliAmtFrom(
-        parseFloat(
-          (
-            premiumMinPrice *
-            parseFloat(carat[0]) *
-            qty *
-            total_solitaire_pcs
-          ).toFixed(2)
-        )
-      );
-      setSoliAmtTo(
-        parseFloat(
-          (
-            premiumMaxPrice *
-            parseFloat(carat[1]) *
-            qty *
-            total_solitaire_pcs
-          ).toFixed(2)
-        )
-      );
+          if (
+            (parts[1] === "PER" || parts[1] === "PRN" || parts[1] === "OVL") &&
+            parseFloat(parts[2]) >= 0.1 &&
+            parseFloat(parts[3]) <= 0.17
+          ) {
+            // FANCY SHAPE CARAT FROM 0.10 TO 0.13 = GH/VS
+            console.log("1 part");
+            bomcolorMin = "GH";
+            bomcolorMax = "EF";
+            bomclarityMin = "VS";
+            bomclarityMax = "VVS";
+            //console.log("bomcolor : ", bomcolor, " bomclarity : ", bomclarity);
+          } else if (
+            (parts[1] === "PER" || parts[1] === "PRN" || parts[1] === "OVL") &&
+            parseFloat(parts[2]) >= 0.18 &&
+            parseFloat(parts[3]) <= 0.22
+          ) {
+            // FANCY SHAPE CARAT FROM 0.18 TO 0.22 = GH/VS
+            console.log("2 part");
+            bomcolorMin = "K";
+            bomcolorMax = "D";
+            bomclarityMin = "SI1";
+            bomclarityMax = "IF";
+          } else if (
+            parts[1] === "RND" &&
+            parseFloat(parts[2]) >= 0.1 &&
+            parseFloat(parts[3]) <= 0.17
+          ) {
+            // SHAPE IS ROUND CARAT FROM 0.10 TO 0.13 = IJ/VS
+            console.log("3 part");
+            bomcolorMin = "IJ";
+            bomcolorMax = "EF";
+            bomclarityMin = "SI";
+            bomclarityMax = "VVS";
+          } else if (
+            parts[1] === "RND" &&
+            parseFloat(parts[2]) >= 0.18 &&
+            parseFloat(parts[3]) <= 0.22
+          ) {
+            // SHAPE IS ROUND CARAT FROM 0.18 TO 0.22 = K-SI2
+            console.log("4 part");
+            bomcolorMin = "K";
+            bomcolorMax = "D";
+            bomclarityMin = "SI2";
+            bomclarityMax = "IF";
+          }
+
+          let priceFrom = 0;
+          let priceTo = 0;
+
+          priceFrom = await FetchPrice(
+            "SOLITAIRE",
+            String(bomCaratFrom),
+            parts[1], //shape,
+            parseFloat(carat[0]) === bomCaratFrom
+              ? getSolitaireColor(color[1])
+              : getSolitaireColor(bomcolorMin),
+            parseFloat(carat[0]) === bomCaratFrom ? clarity[1] : bomclarityMin
+          );
+
+          priceTo = await FetchPrice(
+            "SOLITAIRE",
+            String(bomCaratTo),
+            parts[1],
+            parseFloat(carat[0]) === bomCaratFrom
+              ? getSolitaireColor(color[0])
+              : getSolitaireColor(bomcolorMax),
+            parseFloat(carat[0]) === bomCaratFrom ? clarity[0] : bomclarityMax
+          );
+
+          const premiumPercentage = Number(data.premiumPercentage ?? 0);
+          const premiumMinPrice =
+            priceFrom + priceFrom * (premiumPercentage / 100);
+          const premiumMaxPrice = priceTo + priceTo * (premiumPercentage / 100);
+
+          const pcs = Number(bom.Pcs) || 1;
+          //const bomCaratRange = bom?.Weight ?? 0;
+
+          amountFrom += premiumMinPrice * bomCaratFrom * qty * pcs;
+          amountTo += premiumMaxPrice * bomCaratTo * qty * pcs;
+
+          console.log(
+            `Bom: ${bom.Bom_variant_name}, From: ${bomCaratFrom}cts @${priceFrom} , To: ${bomCaratTo}cts @${priceTo} , Pcs: ${pcs}`
+          );
+        }
+
+        setSoliAmtFrom(parseFloat(amountFrom.toFixed(2)));
+        setSoliAmtTo(parseFloat(amountTo.toFixed(2)));
+      } else {
+        SolitaireFrom = await FetchPrice(
+          "SOLITAIRE",
+          carat[0],
+          shape,
+          getSolitaireColor(color[1]),
+          clarity[1]
+        );
+        setSoliPriceFrom(SolitaireFrom);
+
+        SolitaireTo = await FetchPrice(
+          "SOLITAIRE",
+          carat[1],
+          shape,
+          getSolitaireColor(color[0]),
+          clarity[0]
+        );
+        setSoliPriceTo(SolitaireTo);
+        // Default to 0 if premiumPercentage is invalid or not provided
+        const premiumPercentage = Number(data.premiumPercentage ?? 0);
+        const premiumMinPrice =
+          SolitaireFrom + SolitaireFrom * (Number(premiumPercentage) / 100);
+        const premiumMaxPrice =
+          SolitaireTo + SolitaireTo * (Number(premiumPercentage) / 100);
+
+        const total_solitaire_pcs = totalPcs || 1; // totalPcs || 1;
+
+        setSoliAmtFrom(
+          parseFloat(
+            (
+              premiumMinPrice *
+              parseFloat(carat[0]) *
+              qty *
+              total_solitaire_pcs
+            ).toFixed(2)
+          )
+        );
+        setSoliAmtTo(
+          parseFloat(
+            (
+              premiumMaxPrice *
+              parseFloat(carat[1]) *
+              qty *
+              total_solitaire_pcs
+            ).toFixed(2)
+          )
+        );
+      }
     } catch (error) {
       console.error("Error fetching price details:", error);
       notifyErr("Failed to fetch price details.");
