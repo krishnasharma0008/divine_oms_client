@@ -65,6 +65,7 @@ function OrderListScreen() {
   // });
 
   const [filters, setFilters] = useState<OrderFilters>({
+    order_status: "",
     orderno: "",
     order_createdat: null,
     customer_name: "",

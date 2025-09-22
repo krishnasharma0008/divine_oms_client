@@ -34,6 +34,7 @@ export interface GetOrderStatusResponse {
 }
 
 export interface OrderFiltersApi {
+  order_status: string;
   orderno: string;
   order_createdat: string | null; // formatted YYYY-MM-DD
   customer_name: string;
@@ -60,6 +61,7 @@ const getOrderList = (
       username: username,
       pageno: pageno,
       //...filters,
+      order_status: filters.order_status || null,
       orderno:
         filters.orderno === "" || isNaN(Number(filters.orderno))
           ? null
