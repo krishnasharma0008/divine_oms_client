@@ -22,6 +22,7 @@ interface CustomisationOptions {
   clarity: string;
   premiumSize?: string;
   premiumPercentage?: string;
+  variantId?: number;
 }
 
 interface SolitaireCustomisationPopupProps {
@@ -158,6 +159,7 @@ const SolitaireCustomisationPopup: React.FC<
   }, [colorF, carat, getColorOptions, colorT, setColorT]);
 
   useEffect(() => {
+    console.log("jewellery Data:", jewelleryData);
     if (
       clarityF &&
       getClarityOptions(carat).indexOf(clarityF) >
@@ -253,13 +255,13 @@ const SolitaireCustomisationPopup: React.FC<
     setFieldErrors(errors);
     console.log("Field Errors:", errors);
     if (Object.keys(errors).length) return;
-    console.log("Selected Shape:", shape);
-    console.log("Selected Carat:", carat);
+    //console.log("Selected Shape:", shape);
+    //console.log("Selected Carat:", carat);
 
     const selectedColor = `${colorF}-${colorT}`;
     const selectedClarity = `${clarityF}-${clarityT}`;
-    console.log("Selected Color:", selectedColor);
-    console.log("Selected Clarity:", selectedClarity);
+    //console.log("Selected Color:", selectedColor);
+    //console.log("Selected Clarity:", selectedClarity);
 
     onApply({
       shape,
@@ -268,6 +270,7 @@ const SolitaireCustomisationPopup: React.FC<
       clarity: selectedClarity,
       premiumSize,
       premiumPercentage,
+      variantId: multiSizeDisplay ? parseInt(multiSizeDisplay) : undefined,
     });
   };
 
@@ -287,6 +290,7 @@ const SolitaireCustomisationPopup: React.FC<
   if (!isOpen) return null;
 
   const handleMultiSizeChange = (variantId: string) => {
+    console.log("Selected Variant ID:", variantId);
     setMultiSizeDisplay(variantId);
 
     const bomList = jewelleryData?.[0]?.Bom?.filter(

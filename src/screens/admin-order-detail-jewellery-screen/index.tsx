@@ -16,6 +16,7 @@ import { OrderDetail } from "@/interface/order-detail";
 import { formatByCurrencyINR } from "@/util/format-inr";
 import { getAdminToken } from "@/local-storage";
 import dayjs from "dayjs";
+import STATUS from "@/enums/status";
 //import { DropdownCust } from "@/components";
 
 function AdminOrderDetailJewelleryScreen() {
@@ -28,13 +29,13 @@ function AdminOrderDetailJewelleryScreen() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const [orderStatus, setOrderStatus] = useState<string>("");
 
-  const status = [
-    "WIP",
-    "Delivered to SD",
-    "Cancelled",
-    "Open",
-    "Order Closed",
-  ];
+  // const status = [
+  //   "WIP",
+  //   "Delivered to SD",
+  //   "Cancelled",
+  //   "Open",
+  //   "Order Closed",
+  // ];
 
   useEffect(() => {
     if (id) {
@@ -295,11 +296,14 @@ function AdminOrderDetailJewelleryScreen() {
               onChange={handleStatusChange}
               className="bg-white border border-gray-300 rounded-md p-2"
             >
-              {status.map((option, idx) => (
-                <option key={idx} value={option}>
-                  {option}
-                </option>
-              ))}
+              {
+                //status.map((option, idx) => (
+                Object.values(STATUS).map((option, idx) => (
+                  <option key={idx} value={option}>
+                    {option}
+                  </option>
+                ))
+              }
             </select>
           </div>
 

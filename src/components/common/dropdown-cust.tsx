@@ -21,12 +21,14 @@ const DropdownCust: React.FC<DropdownProps> = ({
   Labelclasses,
   disabled = false, // ✅ Default to false
 }) => (
-  <div className={`${classes} mb-4`}>
-    <label
-      className={`${Labelclasses} block text-gray-700 text-sm font-medium mb-2`}
-    >
-      {label}
-    </label>
+  <div className={`${classes} `}>
+    {label && (
+      <label
+        className={`${Labelclasses} block text-gray-700 text-sm font-medium mb-2`}
+      >
+        {label}
+      </label>
+    )}
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
