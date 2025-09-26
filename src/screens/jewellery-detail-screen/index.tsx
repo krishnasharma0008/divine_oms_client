@@ -366,6 +366,7 @@ function JewelleryDetailScreen() {
       setSideDiaColorClarity(sideDiaColorClarity);
       setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
 
+      setMetalPrice(cart.metal_price); //new
       setMetalAmtFrom(cart.mount_amt_max);
       // calculateSideDiamondPrice(
       //   cart.side_stone_cts === 0
