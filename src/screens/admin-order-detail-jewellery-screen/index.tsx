@@ -78,6 +78,7 @@ function AdminOrderDetailJewelleryScreen() {
       name: "Product",
       selector: (row: OrderDetail) => row.product_code,
       center: true,
+      grow: 3,
     },
     {
       name: "Old Product",
