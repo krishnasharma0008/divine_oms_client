@@ -7,6 +7,8 @@ export const Solitaire_shape = [
 ];
 export const Solus_shape = ["Radiant", "Cushion", "Heart"];
 
+export const All_Shapes = [...Solitaire_shape, ...Solus_shape];
+
 // Color and clarity related constants
 export const otherRoundColors = ["EF", "GH", "IJ"];
 export const otherRoundColorsCarat = ["EF", "GH"];
