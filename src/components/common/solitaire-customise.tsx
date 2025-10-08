@@ -159,7 +159,7 @@ const SolitaireCustomisationPopup: React.FC<
   }, [colorF, carat, getColorOptions, colorT, setColorT]);
 
   useEffect(() => {
-    console.log("jewellery Data:", jewelleryData);
+    //console.log("jewellery Data:", jewelleryData);
     if (
       clarityF &&
       getClarityOptions(carat).indexOf(clarityF) >

@@ -16,10 +16,12 @@ import LoginContext from "@/context/login-context";
 import { useRouter } from "next/navigation";
 import { usePremiumSizeAndPercentage } from "@/hook";
 import {
-  Solitaire_shape,
+  All_Shapes,
+  Solus_shape,
   otherRoundColors,
   otherRoundColorsCarat,
   colors,
+  Solus_colors,
   clarities,
   claritiesRound,
   claritiesRoundCarat,
@@ -28,6 +30,17 @@ import {
 import dayjs from "dayjs";
 import MessageModal from "@/components/common/message-modal";
 import { formatByCurrencyINR } from "@/util/format-inr";
+
+const shapeMap: Record<string, string> = {
+  Round: "RND",
+  Princess: "PRN",
+  Oval: "OVL",
+  Pear: "PER",
+  Radiant: "RADQ",
+  Cushion: "CUSQ",
+  Heart: "HRT",
+  Marquise: "MAQ",
+};
 
 const RegularConfirmOrderScreen = () => {
   // Access customer data from Zustand store
@@ -120,38 +133,53 @@ const RegularConfirmOrderScreen = () => {
   // Function to get color options based on the slab
   const getColorOptions = (shape: string, slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
+    const isSolusShape = Solus_shape.includes(shape);
 
-    if (shape === "Round") {
-      if (carat < 0.18) {
-        return otherRoundColors;
-      } else {
-        return colors;
-      }
+    const isRound = shape === "Round";
+    if (isSolusShape) {
+      // 🔹 For Radiant, Cushion, Heart — use Solus colors
+      return Solus_colors;
     } else {
-      if (carat >= 0.1 && carat <= 0.17) {
-        return otherRoundColorsCarat;
+      if (isRound) {
+        if (carat < 0.18) {
+          return otherRoundColors;
+        } else {
+          return colors;
+        }
       } else {
-        return colors.filter(
-          (color) => color !== "I" && color !== "J" && color !== "K"
-        );
+        if (carat >= 0.1 && carat <= 0.17) {
+          return otherRoundColorsCarat;
+        } else {
+          return colors.filter(
+            (color) => color !== "I" && color !== "J" && color !== "K"
+          );
+        }
       }
     }
   };
 
   const getClarityOptions = (shape: string, slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
+    const isSolusShape = Solus_shape.includes(shape);
+    const isRound = shape === "Round";
 
-    if (shape === "Round") {
-      if (carat < 0.18) {
-        return claritiesRound;
-      } else {
-        return clarities;
-      }
+    if (isSolusShape) {
+      // 🔹 For Radiant, Cushion, Heart — use Solus clarities
+      return claritiesRoundCarat;
     } else {
-      if (carat >= 0.1 && carat <= 0.17) {
-        return claritiesRoundCarat;
+      // 🔹 Default logic for other shapes
+      if (isRound) {
+        if (carat < 0.18) {
+          return claritiesRound;
+        } else {
+          return clarities;
+        }
       } else {
-        return clarities.slice(0, 5);
+        if (carat >= 0.1 && carat <= 0.17) {
+          return claritiesRoundCarat;
+        } else {
+          return clarities.slice(0, 5);
+        }
       }
     }
   };
@@ -189,20 +217,23 @@ const RegularConfirmOrderScreen = () => {
   ): Promise<number> => {
     showLoader();
     try {
-      const shapedata =
-        shape === "Round"
-          ? "RND"
-          : shape === "Princess"
-          ? "PRN"
-          : shape === "Oval"
-          ? "OVL"
-          : shape === "Pear"
-          ? "PER"
-          : "";
+      // const shapedata =
+      //   shape === "Round"
+      //     ? "RND"
+      //     : shape === "Princess"
+      //     ? "PRN"
+      //     : shape === "Oval"
+      //     ? "OVL"
+      //     : shape === "Pear"
+      //     ? "PER"
+      //     : "";
+      console.log("shape in fetch price : ", shape);
+      console.log("shape code in fetch price : ", shapeMap[shape] || "");
       const response = await getJewelleryProductPrice(
         itemgroup,
         slab,
-        shapedata,
+        //shapedata,
+        shapeMap[shape] || "",
         color,
         quality
       );
@@ -614,7 +645,7 @@ const RegularConfirmOrderScreen = () => {
                       <td className="border border-gray-200 ">
                         <DropdownCust
                           label=""
-                          options={Solitaire_shape}
+                          options={All_Shapes}
                           value={row.shape}
                           onChange={(value: string) =>
                             handleChange(index, "shape", value)
