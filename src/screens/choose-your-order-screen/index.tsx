@@ -193,9 +193,9 @@ const ChooseYourOrderScreen = () => {
 
     // Fixing the condition to add either 14 or 21 days based on the value
     if (value === "solitaire") {
-      expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days
+      expDeliveryDate.setDate(today.getDate() + 25); // Add 14 days changed back to 25 days
     } else {
-      expDeliveryDate.setDate(today.getDate() + 21); // Add 21 days
+      expDeliveryDate.setDate(today.getDate() + 25); // Add 21 days changed back to 25 days
     }
 
     // Format the date using dayjs
