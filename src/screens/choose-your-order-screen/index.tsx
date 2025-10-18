@@ -70,9 +70,9 @@ const ChooseYourOrderScreen = () => {
     const expDeliveryDate = new Date(today);
 
     if (selectedValue === "solitaire") {
-      expDeliveryDate.setDate(today.getDate() + 14); // Add 14 days for solitaire
+      expDeliveryDate.setDate(today.getDate() + 25); // Add 14 days for solitaire changed to 25 days
     } else {
-      expDeliveryDate.setDate(today.getDate() + 21); // Add 21 days for jewellery
+      expDeliveryDate.setDate(today.getDate() + 25); // Add 21 days for jewellery changed to 25 days
     }
 
     const formattedExpDeliveryDate =
