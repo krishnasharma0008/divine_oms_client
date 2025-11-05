@@ -217,24 +217,20 @@ const RegularConfirmOrderScreen = () => {
   ): Promise<number> => {
     showLoader();
     try {
-      // const shapedata =
-      //   shape === "Round"
-      //     ? "RND"
-      //     : shape === "Princess"
-      //     ? "PRN"
-      //     : shape === "Oval"
-      //     ? "OVL"
-      //     : shape === "Pear"
-      //     ? "PER"
-      //     : "";
-      console.log("shape in fetch price : ", shape);
-      console.log("shape code in fetch price : ", shapeMap[shape] || "");
+      const colordata =
+        color === "Yellow Vivid"
+          ? "VDF"
+          : color === "Yellow Intense"
+          ? "INY"
+          : color;
+      // console.log("shape in fetch price : ", shape);
+      // console.log("shape code in fetch price : ", shapeMap[shape] || "");
       const response = await getJewelleryProductPrice(
         itemgroup,
         slab,
         //shapedata,
         shapeMap[shape] || "",
-        color,
+        colordata, //color,
         quality
       );
       hideLoader();
@@ -257,10 +253,24 @@ const RegularConfirmOrderScreen = () => {
     pcs: number
   ) => {
     try {
+      const colordataFrom =
+        colorFrom === "Yellow Vivid"
+          ? "VDF"
+          : colorFrom === "Yellow Intense"
+          ? "INY"
+          : colorFrom;
+
+      const colordataTo =
+        colorTo === "Yellow Vivid"
+          ? "VDF"
+          : colorTo === "Yellow Intense"
+          ? "INY"
+          : colorTo;
+
       // Fetch prices based on carat range
       const [minPrice, maxPrice] = await Promise.all([
-        FetchPrice("SOLITAIRE", minCarat, shape, colorTo, clarityTo),
-        FetchPrice("SOLITAIRE", maxCarat, shape, colorFrom, clarityFrom),
+        FetchPrice("SOLITAIRE", minCarat, shape, colordataTo, clarityTo),
+        FetchPrice("SOLITAIRE", maxCarat, shape, colordataFrom, clarityFrom),
       ]);
 
       // Apply premium percentage to the prices
@@ -762,7 +772,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Min Price */}
-                      <td className="w-20 border border-gray-200">
+                      <td className="w-24 border border-gray-200">
                         <InputText
                           type="text"
                           //label="Min"
@@ -775,7 +785,7 @@ const RegularConfirmOrderScreen = () => {
                       </td>
 
                       {/* Max Price */}
-                      <td className="w-20 border border-gray-200 ">
+                      <td className="w-24 border border-gray-200 ">
                         <InputText
                           type="text"
                           placeholder="Max"
