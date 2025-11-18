@@ -464,7 +464,6 @@ function JewelleryDetailScreen() {
     size: number,
     qty: number
   ) => {
-
     // console.log("Default Size : ", baseRingSize);
     const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
     let sizeDifference = 0;
@@ -535,7 +534,7 @@ function JewelleryDetailScreen() {
     let adjustedPlatinumWeight = platinumWeight ?? 0;
     if (!filteredSize?.length && platinumWeight) {
       const adjustment = platinumWeight * adjustPercent * sizeDifference;
-      adjustedPlatinumWeight += adjustment;      
+      adjustedPlatinumWeight += adjustment;
     }
 
     const adjustedMetalWeight =
@@ -1425,7 +1424,24 @@ function JewelleryDetailScreen() {
                 value={metalColor}
                 onChange={handleMetalColor}
               >
-                {jewelleryDetails?.Metal_color.split(",")
+                {Array.from(
+                  new Set(
+                    jewelleryDetails?.Metal_color?.split(",")
+                      .map((item) => item.trim()) // clean
+                      .filter((item) => {
+                        if (metalPurity.trim().toUpperCase() === "950PT") {
+                          return item.toLowerCase() === "white";
+                        }
+                        return true;
+                      })
+                  )
+                ).map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
+
+                {/* {jewelleryDetails?.Metal_color.split(",")
                   .filter((item: string) => {
                     if (metalPurity.trim().toUpperCase() === "950PT") {
                       return item.trim().toLowerCase() === "white";
@@ -1437,7 +1453,7 @@ function JewelleryDetailScreen() {
                     <option key={index} value={item}>
                       <span>{item.trim()}</span>
                     </option>
-                  ))}
+                  ))} */}
               </select>
             </div>
 
