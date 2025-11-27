@@ -219,7 +219,7 @@ const RegularConfirmOrderScreen = () => {
     try {
       const colordata =
         color === "Yellow Vivid"
-          ? "VDF"
+          ? "VDY"
           : color === "Yellow Intense"
           ? "INY"
           : color;
@@ -255,14 +255,14 @@ const RegularConfirmOrderScreen = () => {
     try {
       const colordataFrom =
         colorFrom === "Yellow Vivid"
-          ? "VDF"
+          ? "VDY"
           : colorFrom === "Yellow Intense"
           ? "INY"
           : colorFrom;
 
       const colordataTo =
         colorTo === "Yellow Vivid"
-          ? "VDF"
+          ? "VDY"
           : colorTo === "Yellow Intense"
           ? "INY"
           : colorTo;
