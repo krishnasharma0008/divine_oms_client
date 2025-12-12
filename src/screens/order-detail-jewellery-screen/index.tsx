@@ -133,11 +133,11 @@ function OrderDetailJewelleryScreen() {
         `${row.side_stone_pcs} / ${row.side_stone_cts}`,
       center: true,
     },
-    {
-      name: "Metal Price",
-      selector: (row: OrderDetail) => formatByCurrencyINR(row.metal_price ?? 0),
-      center: true,
-    },
+    // {
+    //   name: "Metal Price",
+    //   selector: (row: OrderDetail) => formatByCurrencyINR(row.metal_price ?? 0),
+    //   center: true,
+    // },
     {
       name: "Qty",
       selector: (row: OrderDetail) => row.product_qty,
