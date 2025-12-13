@@ -1042,21 +1042,21 @@ function JewelleryDetailScreen() {
       console.log("Gold Price : ", goldPrice);
       console.log("platinum Price : ", platinumPrice);
       // Calculations
-      const goldAmount =
+      let goldAmount =
         goldWeight > 0 ? goldWeight * goldPrice * selectedQty : 0;
 
       const platinumAmount =
         platinumWeight > 0 ? platinumWeight * platinumPrice * selectedQty : 0;
 
       // Minimum gold amount rule
-      // if (
-      //   goldWeight > 0 &&
-      //   goldWeight <= 1 &&
-      //   goldPrice > 0 &&
-      //   goldAmount < 7800
-      // ) {
-      //   goldAmount = 7800;
-      // }
+      if (
+        goldWeight > 0 &&
+        goldWeight <= 1 &&
+        goldPrice > 0 &&
+        goldAmount < 7800
+      ) {
+        goldAmount = 7800;
+      }
 
       console.log("Gold Amt : ", goldAmount);
       console.log("platinum Amt : ", platinumWeight);
@@ -1067,8 +1067,16 @@ function JewelleryDetailScreen() {
       console.log("Total Metal Amt : ", totalMetalAmount);
       console.log("Metal Weight : ", metalWeight);
 
-      if (metalWeight > 0) {
-        setMetalPrice(totalMetalAmount / metalWeight);
+      // if (metalWeight > 0) {
+      //   setMetalPrice(totalMetalAmount / metalWeight);
+      // } else {
+      //   setMetalPrice(0);
+      // }
+
+      if (Metalweight > 0) {
+        // Round per-gram price to 2 decimals
+        const perGram = totalMetalAmount / Metalweight;
+        setMetalPrice(Number(perGram.toFixed(2)));
       } else {
         setMetalPrice(0);
       }
