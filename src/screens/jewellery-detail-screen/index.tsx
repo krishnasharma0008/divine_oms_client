@@ -1048,15 +1048,20 @@ function JewelleryDetailScreen() {
       const platinumAmount =
         platinumWeight > 0 ? platinumWeight * platinumPrice * selectedQty : 0;
 
-      // Minimum gold amount rule
-      if (
-        goldWeight > 0 &&
-        goldWeight <= 1 &&
-        goldPrice > 0 &&
-        goldAmount < 7800
-      ) {
-        goldAmount = 7800;
+      // logic for less than or equal to 1 gm
+      if (goldWeight > 0 && goldWeight <= 1) {
+        goldAmount = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
       }
+
+      // Minimum gold amount rule
+      // if (
+      //   goldWeight > 0 &&
+      //   goldWeight <= 1 &&
+      //   goldPrice > 0 &&
+      //   goldAmount < 7800
+      // ) {
+      //   goldAmount = 7800;
+      // }
 
       console.log("Gold Amt : ", goldAmount);
       console.log("platinum Amt : ", platinumWeight);
@@ -1072,14 +1077,15 @@ function JewelleryDetailScreen() {
       // } else {
       //   setMetalPrice(0);
       // }
-
-      if (Metalweight > 0) {
-        // Round per-gram price to 2 decimals
-        const perGram = totalMetalAmount / Metalweight;
-        setMetalPrice(Number(perGram.toFixed(2)));
-      } else {
-        setMetalPrice(0);
-      }
+      let perGram = 0;
+      //if (Metalweight > 0) {
+      perGram = totalMetalAmount / metalWeight;
+      setMetalPrice(Number(perGram.toFixed(2)));
+      console.log("Metal Price per gm : ", perGram);
+      //} else {
+      //  setMetalPrice(0);
+      //}
+      console.log("Metal Price per gm : ", perGram);
     } catch (error) {
       console.error("Error in CalculateMetalAmount:", error);
       setMetalAmtFrom(0);
