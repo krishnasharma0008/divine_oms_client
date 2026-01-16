@@ -160,21 +160,41 @@ const JewelleryBulkImportScreen: React.FC = () => {
     return availableClarities.includes(clarityF);
   };
 
-  const getColorTOptions = (slab: string, isRound: boolean, colorF: string) => {
-    const availableColors = getColorOptions(slab, isRound);
-    const colorFIndex = availableColors.indexOf(colorF);
-    return availableColors.filter((_, index) => index >= colorFIndex);
+  // const getColorTOptions = (slab: string, isRound: boolean, colorF: string) => {
+  //   const availableColors = getColorOptions(slab, isRound);
+  //   const colorFIndex = availableColors.indexOf(colorF);
+  //   return availableColors.filter((_, index) => index >= colorFIndex);
+  // };
+
+  const getColorTOptions = (
+    slab: string,
+    isRound: boolean,
+    colorFrom: string
+  ) => {
+    const available = getColorOptions(slab, isRound);
+    const fromIndex = available.indexOf(colorFrom);
+    return fromIndex !== -1 ? available.slice(fromIndex) : [];
   };
 
   const getClarityTOptions = (
     slab: string,
     isRound: boolean,
-    clarityF: string
+    clarityFrom: string
   ) => {
-    const availableClarities = getClarityOptions(slab, isRound);
-    const clarityFIndex = availableClarities.indexOf(clarityF);
-    return availableClarities.filter((_, index) => index >= clarityFIndex);
+    const available = getClarityOptions(slab, isRound);
+    const fromIndex = available.indexOf(clarityFrom);
+    return fromIndex !== -1 ? available.slice(fromIndex) : [];
   };
+
+  // const getClarityTOptions = (
+  //   slab: string,
+  //   isRound: boolean,
+  //   clarityF: string
+  // ) => {
+  //   const availableClarities = getClarityOptions(slab, isRound);
+  //   const clarityFIndex = availableClarities.indexOf(clarityF);
+  //   return availableClarities.filter((_, index) => index >= clarityFIndex);
+  // };
 
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -302,7 +322,10 @@ const JewelleryBulkImportScreen: React.FC = () => {
       const errors = [];
       const getTrimmedValue = (key: string) =>
         row[key]?.toString().trim() || "";
-      const isRound = row["solitaire_shape"]?.toString() === "Round";
+      //const isRound = row["solitaire_shape"]?.toString() === "Round";
+      const isRound =
+        row["solitaire_shape"]?.toString().trim().toUpperCase() === "ROUND";
+
       const shape = row["solitaire_shape"]?.toString() || "";
       const caratRange = row["solitaire_slab"]?.toString() || "";
       const productCode = row["product_code"]?.toString().trim() || "";
