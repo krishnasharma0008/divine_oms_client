@@ -62,9 +62,10 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col-reverse md:flex-row">
       {/* Thumbnail Section */}
-      <div className="flex flex-col space-y-3 mr-4 ">
+      {/* <div className="flex flex-col space-y-3 mr-4 "> */}
+      <div className="flex md:flex-col mt-2 md:mt-0 md:mr-4 overflow-x-auto md:overflow-x-visible space-x-2 md:space-x-0 md:space-y-3">
         {filteredImages.map((image: Image, index: number) => (
           <div
             key={image.uid}
@@ -113,6 +114,8 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
           </div>
         ))}
       </div>
+
+
 
       {/* Main Image/Video Display */}
       <div className="flex-1">

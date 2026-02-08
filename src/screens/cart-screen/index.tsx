@@ -78,9 +78,9 @@ function CartScreen() {
     fetchCartData();
   }, [showLoader, hideLoader]);
 
-  const navigateToShopping = () => {
-    router.push("/jewellery");
-  };
+  // const navigateToShopping = () => {
+  //   router.push("/jewellery");
+  // };
 
   const handleRemarkClick = (item: CartDetail, rtype: string) => {
     if (rtype === "cart") {
@@ -150,7 +150,7 @@ function CartScreen() {
       setSelectedItems(
         cartData
           .map((item) => item.id)
-          .filter((id): id is number => id !== undefined)
+          .filter((id): id is number => id !== undefined),
       );
     }
   };
@@ -160,7 +160,7 @@ function CartScreen() {
     setSelectedItems((prevSelectedItems) =>
       prevSelectedItems.includes(id)
         ? prevSelectedItems.filter((itemId) => itemId !== id) // Use a different variable name
-        : [...prevSelectedItems, id]
+        : [...prevSelectedItems, id],
     );
   };
 
@@ -181,7 +181,7 @@ function CartScreen() {
 
   const handleQuantityChange = async (
     cartId: number | undefined,
-    increment: boolean
+    increment: boolean,
   ) => {
     if (!cartId) return;
 
@@ -192,7 +192,7 @@ function CartScreen() {
       if (item.id === cartId) {
         const newProductQty = Math.max(
           1,
-          (item.product_qty || 1) + (increment ? 1 : -1)
+          (item.product_qty || 1) + (increment ? 1 : -1),
         );
 
         // Calculate unit amounts
@@ -413,16 +413,16 @@ function CartScreen() {
     }
 
     const selectedCartItems = cartData.filter((item) =>
-      selectedItems.includes(item.id ?? 0)
+      selectedItems.includes(item.id ?? 0),
     );
 
     const uniquePartners = new Set(
-      selectedCartItems.map((item) => item.customer_name)
+      selectedCartItems.map((item) => item.customer_name),
     );
 
     if (uniquePartners.size !== 1) {
       setIsMsg(
-        "You can only select one partner jeweller to proceed with checkout."
+        "You can only select one partner jeweller to proceed with checkout.",
       );
       setIsCheckoutModalVisible(true);
       return;
@@ -442,17 +442,18 @@ function CartScreen() {
         setCartMsg(response.data.cart_to_order_info);
       }
 
-      if (response.data?.msg === "Sucess") {
+      if (response.data?.success === true) {
         updateCartCount(isCartCount - selectedItems.length);
         setIsCheckoutModalMessageVisible(true);
       } else {
-        setIsMsg("Failed to create order. Please try again.");
+        //setIsMsg("Failed to create order. Please try again.");
+        setIsMsg(response.data?.msg);
         setIsCheckoutModalVisible(true);
       }
     } catch (error) {
       console.error("Error creating order:", error);
       setIsMsg(
-        "An error occurred while processing your request. Please try again."
+        "An error occurred while processing your request. Please try again.",
       );
       setIsCheckoutModalVisible(true);
     } finally {
@@ -485,22 +486,22 @@ function CartScreen() {
     // );
 
     const selectedCartItems = (cartData ?? []).filter((item) =>
-      selectedItems.includes(item.id ?? 0)
+      selectedItems.includes(item.id ?? 0),
     );
 
     const totalQty = selectedCartItems.reduce(
       (acc, item) => acc + (item.product_qty || 0),
-      0
+      0,
     );
 
     const totalAmtMin = selectedCartItems.reduce(
       (acc, item) => acc + (item.product_amt_min || 0),
-      0
+      0,
     );
 
     const totalAmtMax = selectedCartItems.reduce(
       (acc, item) => acc + (item.product_amt_max || 0),
-      0
+      0,
     );
 
     return { totalQty, totalAmtMin, totalAmtMax };
@@ -547,92 +548,104 @@ function CartScreen() {
   };
 
   return (
-    <div className="flex max-h-[calc(100vh_-_90px)] overflow-y-auto gap-x-2 m-2">
-      <div className="w-4/5 flex flex-col  text-gray-800 my-0.5 ">
-        {/* Fixed Header */}
-        <div className="flex px-2 sticky top-0">
-          {/* Shopping Bag Section */}
-          <div className="w-full flex items-center text-black p-2 rounded-lg">
-            <div className="text-2xl font-medium">
-              Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
-            </div>
-          </div>
-          <div className="flex justify-center mr-2">
+    // <div className="flex max-h-[calc(100vh_-_90px)] overflow-y-auto gap-x-2 m-2">
+    <div className="flex flex-col lg:flex-row gap-3 p-2">
+      {/* <div className="w-4/5 flex flex-col  text-gray-800 my-0.5 "> */}
+      {/* Fixed Header */}
+
+      <div className="w-full lg:w-4/5 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div className="sticky top-0 z-30 bg-white sm:bg-transparent shadow-md p-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          {/* Buttons: mobile white background only */}
+          <div className="order-1 sm:order-2 flex flex-wrap justify-end gap-2 w-full sm:w-auto">
             <button
-              className="w-auto h-10 whitespace-nowrap flex items-center px-6 py-2 bg-black text-white rounded-lg transition duration-300 transform hover:bg-gray-800"
-              onClick={navigateToShopping}
+              className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+              onClick={() => router.push("/jewellery")}
             >
               Continue Shopping
             </button>
+
+            {(cartData ?? []).length > 0 && (
+              <>
+                <button
+                  className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+                  onClick={DownloadClick}
+                >
+                  Export to Excel
+                </button>
+                <button
+                  onClick={handleSelectAll}
+                  className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+                >
+                  Select All
+                </button>
+              </>
+            )}
           </div>
-          {/* Action Buttons */}
-          {(cartData ?? []).length > 0 && (
-            <div className="w-1/2 flex justify-end space-x-2">
-              <button
-                className="h-10 px-4 whitespace-nowrap py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-                onClick={DownloadClick}
-              >
-                Export to Excel
-              </button>
-              <button
-                onClick={handleSelectAll}
-                className="h-10 px-4 py-1 whitespace-nowrap bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-              >
-                Select All
-              </button>
-            </div>
-          )}
+
+          {/* Shopping Bag Title */}
+          <h1 className="order-2 sm:order-1 text-base sm:text-xl font-semibold w-full sm:w-auto text-left sm:text-left">
+            Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
+          </h1>
         </div>
+      </div>
+
+
         {/* Cart Items Section */}
-        <div className="flex-1 overflow-y-auto h-[90vh] px-4 py-2">
+        {/* <div className="flex-1 overflow-y-auto h-[90vh] px-2 sm:px-4 py-2"> */}
+        <div className="flex-1  py-2">
           {(cartData ?? []).length > 0 ? (
             cartData.map((item, index) => (
               <div
                 key={index}
-                className="relative flex p-4 mb-4 gap-x-2 bg-white border rounded-md hover:shadow-lg transition-transform duration-300"
+                className="relative flex flex-col md:flex-row p-3 md:p-4 mb-4 gap-3 bg-white border rounded-md hover:shadow-lg transition-transform duration-300"
               >
-                {/* Checkbox for Selecting Item */}
-                <div className="w-auto flex items-center">
+                {/* Checkbox + mobile delete */}
+                <div className="flex items-center justify-between md:justify-start md:w-auto mb-2 md:mb-0">
                   <input
                     type="checkbox"
                     checked={selectedItems.includes(item.id ?? 0)}
-                    //onChange={() => handleSelectItem(item.id ?? 0)}
                     onChange={() => {
                       const isValidSelection =
                         (item.product_amt_min || 0) +
                           (item.product_amt_max || 0) >
                         0;
-                      // (item.solitaire_amt_min || 0) +
-                      //   (item.solitaire_amt_max || 0) >
-                      // 0;
 
                       if (isValidSelection) {
                         handleSelectItem(item.id ?? 0);
                       } else {
                         alert(
-                          "Solitaire not selected for some products, please customize products"
+                          "Solitaire not selected for some products, please customize products",
                         );
                       }
                     }}
                     className="w-5 h-5"
                   />
+                  {/* Mobile delete button */}
+                  <button
+                    onClick={() => handleDeleteItem(item?.id)}
+                    className="md:hidden ml-3 text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    X
+                  </button>
                 </div>
+
                 {/* Image Section */}
-                <div className="w-1/3 overflow-hidden rounded-lg">
+                <div className="w-full md:w-1/3 overflow-hidden rounded-lg flex md:h-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={
                       item.product_type.toLowerCase() === "jewellery"
-                        ? item.image_url ?? ""
+                        ? (item.image_url ?? "")
                         : item.product_type.toLowerCase() === "solitaire" &&
-                          item.solitaire_shape === "Round"
-                        ? "/solitaire/image7.png"
-                        : item.product_type.toLowerCase() === "solitaire" &&
-                          item.solitaire_shape === "Princess"
-                        ? "/solitaire/image8.png"
-                        : item.solitaire_shape === "Oval"
-                        ? "/solitaire/image9.png"
-                        : "/solitaire/image_9.png"
+                            item.solitaire_shape === "Round"
+                          ? "/solitaire/image7.png"
+                          : item.product_type.toLowerCase() === "solitaire" &&
+                              item.solitaire_shape === "Princess"
+                            ? "/solitaire/image8.png"
+                            : item.solitaire_shape === "Oval"
+                              ? "/solitaire/image9.png"
+                              : "/solitaire/image_9.png"
                     }
                     alt=""
                     width={200}
@@ -643,61 +656,66 @@ function CartScreen() {
                         imgElement.src = "/jewellery/NoImageBig.jpg";
                       }
                     }}
-                    className="object-contain w-full h-48 object-cover transition-transform duration-300 transform group-hover:scale-110"
+                    className=" object-contain w-full 
+                            h-40 sm:h-48          /* mobile/tablet */
+                            md:h-full             /* take full column height on md+ */
+                            transition-transform duration-300 hover:scale-105
+                          "
                   />
                 </div>
+
                 {/* Data Section */}
-                <div className="w-2/3 flex flex-col justify-between">
-                  <div className="flex items-center justify-left">
-                    <h2 className="text-base font-semibold text-gray-800">
-                      Partner Jewellers :&nbsp;
+                <div className="w-full md:w-2/3 flex flex-col justify-between gap-1">
+                  <div className="flex flex-wrap items-center gap-x-1">
+                    <h2 className="text-sm sm:text-base font-semibold text-gray-800">
+                      Partner Jewellers:
                     </h2>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       {item.order_for === "Retail Customer"
                         ? "Divine Solitaires"
                         : item.customer_name || "-"}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 mt-2">
-                      Order For : {item.order_for || "-"}
+
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Order For: {item.order_for || "-"}
                     </p>
-                    <p className="text-sm text-gray-600">
-                      Type : {item.order_type || "-"}
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Type: {item.order_type || "-"}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Store : {item.customer_branch || "-"}
+
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Store: {item.customer_branch || "-"}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Customer :{" "}
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Customer:{" "}
                     {item.order_for === "Retail Customer"
                       ? item.customer_name
                       : "-"}
                   </p>
+
                   {item.product_type === "jewellery" && (
                     <>
-                      <div className="flex items-center justify-left space-x-8">
-                        <p className="text-base font-semibold text-gray-600">
+                      <div className="flex flex-wrap items-center gap-4">
+                        <p className="text-sm font-semibold text-gray-600">
                           {item.product_code}
                         </p>
-                        <p className="text-sm font-sm text-gray-600">
-                          Old : {item.old_varient}
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Old: {item.old_varient}
                         </p>
                       </div>
-                      <div className="flex items-center justify-left space-x-4">
-                        <p className="text-sm font-sm text-gray-600">
-                          Collection : {item.collection}
-                        </p>
-                        <p className="text-sm font-sm text-gray-600">
-                          Sub Category : {item.product_sub_category}
-                        </p>
+                      <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-600">
+                        <p>Collection: {item.collection}</p>
+                        <p>Sub Category: {item.product_sub_category}</p>
                       </div>
                     </>
                   )}
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                      Diamond :{" "}
+
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Diamond:{" "}
                       {`${item.solitaire_slab || "-"} cts ${
                         item.solitaire_shape || "-"
                       } ${item.solitaire_color || "-"} ${
@@ -724,86 +742,79 @@ function CartScreen() {
                       </button>
                     </div>
                   </div>
+
                   {item.product_type === "jewellery" && (
                     <>
                       {item.size_from !== "-" && Number(item.size_from) > 3 && (
-                        <p className="text-sm text-gray-600">
-                          Size : {`${item.size_from || "-"}`}
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Size: {item.size_from || "-"}
                         </p>
                       )}
-                      <p className="text-sm text-gray-600">
-                        Metal Color :{" "}
-                        {`${item.metal_color || "-"} ${
-                          item.metal_purity || "-"
-                        }`}
+                      <p className="text-xs sm:text-sm text-gray-600">
+                        Metal Color: {item.metal_color || "-"}{" "}
+                        {item.metal_purity || "-"}
                       </p>
                       {item.side_stone_cts > 0 && (
-                        <p className="text-sm text-gray-600">
-                          Side Diamonds :{" "}
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Side Diamonds:{" "}
                           {item.side_stone_cts
                             ? `${item.side_stone_cts.toFixed(2)} cts`
                             : "-"}{" "}
-                          {item.side_stone_color
-                            ? `${item.side_stone_color}`
-                            : "-"}{" "}
-                          {item.side_stone_quality
-                            ? `${item.side_stone_quality}`
-                            : "-"}
+                          {item.side_stone_color || "-"}{" "}
+                          {item.side_stone_quality || "-"}
                         </p>
                       )}
-                      <p className="flex text-sm text-gray-600">
-                        Metal Weight :&nbsp;
-                        <p className="font-semibold text-black">
+                      <p className="flex text-xs sm:text-sm text-gray-600">
+                        Metal Weight:&nbsp;
+                        <span className="font-semibold text-black">
                           {item.metal_weight.toFixed(3) || "-"}
-                        </p>
+                        </span>
                       </p>
                     </>
                   )}
-                  <p className="flex text-sm text-gray-600">
-                    Amount : Min :&nbsp;
-                    <p className="font-semibold text-black">
+
+                  <p className="flex flex-wrap items-center text-xs sm:text-sm text-gray-600">
+                    Amount: Min:&nbsp;
+                    <span className="font-semibold text-black">
                       {formatByCurrencyINR(item.product_amt_min)}
-                    </p>{" "}
-                    &nbsp;Max :&nbsp;
-                    <p className="font-semibold text-black">
+                    </span>
+                    &nbsp;Max:&nbsp;
+                    <span className="font-semibold text-black">
                       {formatByCurrencyINR(item.product_amt_max)}
-                    </p>{" "}
+                    </span>
                   </p>
 
-                  <p className="flex text-sm text-gray-600">
-                    Expected Delivery Date : &nbsp;
-                    <p className="font-semibold text-black">
+                  <p className="flex flex-wrap items-center text-xs sm:text-sm text-gray-600">
+                    Expected Delivery Date:&nbsp;
+                    <span className="font-semibold text-black">
                       {dayjs(item.exp_dlv_date).isValid()
                         ? dayjs(item.exp_dlv_date).format("DD-MM-YYYY")
                         : " "}
-                    </p>
+                    </span>
                   </p>
-                  {/* Clickable Remark */}
 
-                  <div className="flex items-center justify-left">
+                  <div className="flex items-center flex-wrap gap-1">
                     <p
-                      className="flex text-sm font-bold text-black cursor-pointer underline cursor-pointer"
+                      className="text-xs sm:text-sm font-bold text-black cursor-pointer underline"
                       onClick={() => handleRemarkClick(item, "cart")}
                     >
                       Add Remark
                     </p>
-                    <p className="text-sm no-underline">
-                      &nbsp;:&nbsp;{item.cart_remarks || ""}
+                    <p className="text-xs sm:text-sm">
+                      : {item.cart_remarks || ""}
                     </p>
                   </div>
+
                   {item.product_type === "jewellery" && (
-                    <div className="w-full justify-end ml-2 flex space-x-2">
-                      {/* Copy Button */}
+                    <div className="w-full flex justify-end gap-2 mt-2">
                       <button
-                        className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                        className="px-3 py-1 sm:px-4 sm:py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black text-xs sm:text-sm"
                         onClick={() => handleCopyItem(item)}
                       >
                         Copy
                       </button>
-
-                      {/* Edit Button */}
                       <button
-                        className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
+                        className="px-3 py-1 sm:px-4 sm:py-1 bg-black text-white rounded-md border border-black hover:bg:white hover:text:black text-xs sm:text-sm"
                         onClick={() => handleEdit(item?.id)}
                       >
                         Edit
@@ -811,11 +822,11 @@ function CartScreen() {
                     </div>
                   )}
                 </div>
-                {/* Delete Item Button */}
+
+                {/* Desktop delete button */}
                 <button
-                  //onClick={() => handleDeleteItem(item.product_code)}
                   onClick={() => handleDeleteItem(item?.id)}
-                  className="absolute top-0 right-2 text-red-600 hover:text-red-800"
+                  className="hidden md:block absolute top-1 right-2 text-red-600 hover:text-red-800"
                 >
                   X
                 </button>
@@ -833,125 +844,116 @@ function CartScreen() {
 
       {/* Order Summary Section */}
       {(cartData ?? []).length > 0 && (
-        <div className="p-2 w-1/5 border rounded-lg shadow-md bg-white sm:w-1/2 relative mt-4 sm:mt-0">
-          {(cartData ?? []).length > 0 && (
-            <div className="flex flex-col gap-2 px-6 mt-6">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Order Summary
-              </h2>
+        <div className="p-2 w-full md:w-1/3 lg:w-1/4 border rounded-lg shadow-md bg-white mt-4 md:mt-0">
+          <div className="flex flex-col gap-4 px-4 sm:px-6 mt-4">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-center md:text-left">
+              Order Summary
+            </h2>
 
-              {/* Total Quantity Section */}
-              <div className="flex justify-between items-center py-2">
-                <span className="text-xl text-gray-600">Total Quantity</span>
-                <div className="text-lg font-semibold text-black">
-                  {totalQty}
-                </div>
+            {/* Total Quantity Section */}
+            <div className="flex justify-between items-center py-2">
+              <span className="text-base sm:text-xl text-gray-600">
+                Total Quantity
+              </span>
+              <div className="text-lg font-semibold text-black">{totalQty}</div>
+            </div>
+
+            {/* Total Amount Section */}
+            <div className="flex justify-between items-center py-2">
+              <span className="text-base sm:text-xl text-gray-600">
+                Total Amount
+              </span>
+              <div className="text-lg font-semibold text-black text-right">
+                {formatByCurrencyINR(totalAmtMin)} -{" "}
+                {formatByCurrencyINR(totalAmtMax)}
               </div>
+            </div>
 
-              {/* Total Amount Section */}
-              <div className="flex justify-between items-center py-2">
-                <span className="text-xl text-gray-600">Total Amount</span>
-                <div className="text-lg font-semibold text-black">
-                  {formatByCurrencyINR(totalAmtMin)} -{" "}
-                  {formatByCurrencyINR(totalAmtMax)}
-                </div>
-              </div>
+            {/* Proceed to Checkout Button */}
+            <div className="mt-4 w-full flex items-center justify-center">
+              <button
+                className="w-full h-12 flex items-center justify-center px-6 py-3 border border-black bg-black text-white rounded-lg hover:bg-white hover:text-black transition duration-300"
+                onClick={handleProceedToCheckout}
+              >
+                Proceed to Checkout
+              </button>
+            </div>
 
-              {/* Proceed to Checkout Button */}
-              <div className="mt-6 w-full flex items-center justify-center ">
-                <button
-                  className="w-full h-10 flex items-center justify-center px-6 py-3 border border-black bg-black text-white rounded-lg hover:bg-white hover:text-black transition duration-300"
-                  onClick={handleProceedToCheckout}
-                >
-                  Proceed to Checkout
-                </button>
-              </div>
-
-              {isConfirmationModalVisible && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Are you sure you want to place the order?
-                    </h2>
-                    <p className="text-sm text-gray-600 mt-2">
-                      You cannot cancel the order once it is placed and the
-                      order will be executed.
-                    </p>
-                    <div className="mt-4 flex gap-4">
-                      <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                        onClick={handlePlaceOrder}
-                      >
-                        Place Order
-                      </button>
-                      <button
-                        className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
-                        onClick={handleGoBackToCart}
-                      >
-                        Go back to Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Remark Section */}
-              <div className="flex justify-center items-center py-2">
-                <span
-                  className="text-xl text-black underline cursor-pointer"
-                  onClick={() =>
-                    handleRemarkClick(cartData[0], "order_summary")
-                  }
-                  //onClick={() => setIsModalVisible(true)}
-                >
-                  Add Remark
-                </span>
-              </div>
-              <div className="flex justify-left items-center py-2">
+            {/* Remark Section */}
+            <div className="flex flex-col items-start py-2">
+              <span
+                className="text-lg sm:text-xl text-black underline cursor-pointer"
+                onClick={() => handleRemarkClick(cartData[0], "order_summary")}
+              >
+                Add Remark
+              </span>
+              <div className="flex items-center mt-2">
                 <span className="text-sm font-bold text-black">
-                  Remark :-&nbsp;
+                  Remark:&nbsp;
                 </span>
                 <p className="text-sm text-black cursor-pointer hover:underline">
                   {orderSummaryRemark || ""}
                 </p>
               </div>
-
-              {/* Checkout Confirmation Modal */}
-              {isCheckoutModalVisible && (
-                <MessageModal
-                  title="Proceed to Checkout"
-                  //onClose={() => setIsCheckoutModalVisible(false)}
-                  onConfirm={closeCheckoutModal}
-                >
-                  <p>{isMsg}</p>
-                </MessageModal>
-              )}
-
-              {/* Checkout Confirmation Message */}
-              {isCheckoutModalMessageVisible && (
-                <MessageModal
-                  title="Success"
-                  //onClose={() => setIsCheckoutModalVisible(false)}
-                  onConfirm={closeCheckoutMessageModal}
-                >
-                  <p>Your order has been created successfully.</p>
-
-                  {/*console.log("cartMsg:", cartMsg)*/}
-
-                  {Array.isArray(cartMsg) &&
-                    cartMsg.length > 0 &&
-                    cartMsg.map((item, index) => (
-                      <div key={index}>
-                        <p>Product Type: {item.product_type}</p>
-                        <p>Order Number: {item.orderno}</p>
-                      </div>
-                    ))}
-                </MessageModal>
-              )}
             </div>
+          </div>
+
+          {/* Confirmation Modal */}
+          {isConfirmationModalVisible && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Are you sure you want to place the order?
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  You cannot cancel the order once it is placed and the order
+                  will be executed.
+                </p>
+                <div className="mt-4 flex gap-4">
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    onClick={handlePlaceOrder}
+                  >
+                    Place Order
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
+                    onClick={handleGoBackToCart}
+                  >
+                    Go back to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Checkout Error Modal */}
+          {isCheckoutModalVisible && (
+            <MessageModal
+              title="Proceed to Checkout"
+              onConfirm={closeCheckoutModal}
+            >
+              <p>{isMsg}</p>
+            </MessageModal>
+          )}
+
+          {/* Checkout Success Modal */}
+          {isCheckoutModalMessageVisible && (
+            <MessageModal title="Success" onConfirm={closeCheckoutMessageModal}>
+              <p>Your order has been created successfully.</p>
+              {Array.isArray(cartMsg) &&
+                cartMsg.length > 0 &&
+                cartMsg.map((item, index) => (
+                  <div key={index}>
+                    <p>Product Type: {item.product_type}</p>
+                    <p>Order Number: {item.orderno}</p>
+                  </div>
+                ))}
+            </MessageModal>
           )}
         </div>
       )}
+
       <AddRemarkModal
         isVisible={isModalVisible}
         closeModal={closeModal}

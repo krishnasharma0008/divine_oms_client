@@ -8,6 +8,7 @@ export interface OrderList {
   customer_branch: string;
   product_type: string;
   order_for: string;
+  order_type:string;
   exp_dlv_date: string;
 
   // order_date: string;

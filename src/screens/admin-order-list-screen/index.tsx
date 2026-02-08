@@ -25,6 +25,7 @@ import DatePickerInput from "@/components/common/DatePickerInput";
 import ITEM_TYPE from "@/enums/item-type";
 import ORDER_FOR from "@/enums/order-for";
 import { useIsoDate } from "@/hook/useIsoDate";
+import ORDER_TYPE from "@/enums/order-type";
 
 // Memoize the DataTable to prevent unnecessary re-renders
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,6 +63,7 @@ function AdminOrderListScreen() {
     customer_branch: "",
     product_type: "",
     order_for: "",
+    order_type:"",
     exp_dlv_date: null,
   });
 
@@ -298,6 +300,26 @@ function AdminOrderListScreen() {
         </div>
       ),
       selector: (row: OrderList) => row.order_for,
+      reorder: true,
+      width: "140px",
+    },
+    {
+      //name: "ORDER TYPE",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order Type</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(ORDER_TYPE)}
+              value={filters.order_type}
+              onChange={(val) => setFilters({ ...filters, order_type: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
+      selector: (row: OrderList) => row.order_type,
       reorder: true,
       width: "140px",
     },

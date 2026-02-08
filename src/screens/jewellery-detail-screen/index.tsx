@@ -268,90 +268,6 @@ function JewelleryDetailScreen() {
     }
   };
 
-  // const handleEditCart = async () => {
-  //   console.log("Edit cart data : ", cart?.product_code);
-  //   console.log("Cart from store:", cart);
-  //   if (cart?.product_code) {
-  //     getbaseSizeCarat();
-
-  //     const totalPcs = GetPcs("SOLITAIRE", "STONE");
-  //     //console.log("Total pcs : ", totalPcs);
-  //     setTotalPcs(totalPcs ?? 0);
-
-  //     const goldWeight = GetWeight("GOLD", "METAL");
-  //     setBaseGoldweight(goldWeight ?? 0);
-  //     setGoldweight(goldWeight ?? 0);
-
-  //     const platinumWeight = GetWeight("PLATINUM", "METAL");
-  //     setBasePlatinumweight(platinumWeight ?? 0);
-  //     setPlatinumweight(platinumWeight ?? 0);
-
-  //     const Metalweight = (goldWeight ?? 0) + (platinumWeight ?? 0);
-  //     setBaseMetalweight(Metalweight ?? 0);
-  //     setMetalweight(Metalweight ?? 0);
-
-  //     const totalsidepcs = GetPcs("DIAMOND", "STONE");
-  //     setBaseSideDiaTotPcs(totalsidepcs ?? 0);
-  //     //setSideDiaTotPcs(totalsidepcs ?? 0);
-
-  //     const totalsideweight = GetWeight("DIAMOND", "STONE");
-  //     setBaseSideDiaTotweight(totalsideweight ?? 0);
-  //     //setSideDiaTotweight(totalsideweight ?? 0);
-
-  //     //if (!metalColor) {
-  //     console.log("Metal color from cart: ", cart.metal_color);
-  //     if (cart.metal_color !== "" && cart.metal_color !== null) {
-  //       setMetalColor(cart.metal_color || ""); // Set from cart if available
-  //     }
-
-  //     const defaultPurity =
-  //       cart.metal_purity === ""
-  //         ? jewelleryDetails?.Metal_purity.split(",")[0].trim()
-  //         : cart.metal_purity;
-
-  //     setMetalPurity(defaultPurity ?? "");
-
-  //     setRingSizeFrom(Number(cart.size_from)); // Set from cart
-  //     setSelectedQty(cart.product_qty); // Set from cart
-
-  //     setTotalPcs(cart.solitaire_pcs);
-
-  //     setSideDiaTotPcs(
-  //       cart.side_stone_pcs === 0 ? Number(totalsidepcs) : cart.side_stone_pcs
-  //     );
-  //     setSideDiaTotweight(
-  //       cart.side_stone_cts === 0
-  //         ? Number(totalsideweight)
-  //         : cart.side_stone_cts
-  //     ); //
-
-  //     const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
-  //     setSideDiaColorClarity(sideDiaColorClarity);
-  //     setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
-
-  //     setMetalPrice(cart.metal_price); //new
-  //     setMetalAmtFrom(cart.mount_amt_max);
-
-  //     setCustomisedData({
-  //       shape: cart.solitaire_shape,
-  //       color: cart.solitaire_color,
-  //       carat: cart.solitaire_slab,
-  //       clarity: cart.solitaire_quality,
-  //       premiumSize: cart.solitaire_prem_size,
-  //       premiumPercentage: cart.solitaire_prem_pct.toString(),
-  //     });
-  //     // Automatically apply the values to the form (if needed)
-  //     handleApply({
-  //       shape: cart.solitaire_shape,
-  //       color: cart.solitaire_color, // Assuming color is stored as a string
-  //       carat: cart.solitaire_slab,
-  //       clarity: cart.solitaire_quality, // Assuming clarity is stored as a string
-  //       premiumSize: cart.solitaire_prem_size,
-  //       premiumPercentage: cart.solitaire_prem_pct.toString(),
-  //     });
-  //   }
-  // };
-
   const handleEditCart = async () => {
     console.log("Edit cart data : ", cart?.product_code);
     console.log("Cart from store:", cart);
@@ -407,10 +323,6 @@ function JewelleryDetailScreen() {
     const sideDiaColorClarity = `${cart.side_stone_color}-${cart.side_stone_quality}`;
     setSideDiaColorClarity(sideDiaColorClarity);
     setMetalweight(cart.metal_weight === 0 ? Metalweight : cart.metal_weight);
-
-    // Optional: temporarily show old values
-    // setMetalPrice(cart.metal_price);
-    // setMetalAmtFrom(cart.mount_amt_max);
 
     setCustomisedData({
       shape: cart.solitaire_shape,
@@ -537,170 +449,7 @@ function JewelleryDetailScreen() {
       selectedQty ?? 1
     );
   };
-
-  // const CalculateDivineMountDetails = async (
-  //   carat: string,
-  //   size: number,
-  //   qty: number
-  // ) => {
-  //   console.log("Carat : ", carat);
-  //   console.log("Size : ", size);
-  //   console.log("Qty : ", qty);
-  //   console.log("Default Size : ", baseRingSize);
-  //   const adjustPercent = 3 / 100; // Adjustment percentage as a decimal
-  //   let sizeDifference = 0;
-
-  //   // Filter variants by size
-  //   const filteredSize = jewelleryDetails?.Variants?.filter((variant) => {
-  //     //console.log("Variant Size:", variant.Size, "Expected Size:", size);
-  //     return Number(variant.Size) === size; // Ensure numeric comparison
-  //   });
-
-  //   console.log("Filter Size:", filteredSize);
-
-  //   // Handle case where size is not found
-  //   if (!filteredSize?.length) {
-  //     console.warn(
-  //       "No matching size found. Falling back to default size:",
-  //       baseRingSize
-  //     );
-  //     sizeDifference = size - baseRingSize; // Calculate size difference (positive or negative)
-  //     carat = baseCarat;
-  //     size = baseRingSize; // Use default size
-  //   }
-
-  //   // Filter variants by carat and size
-  //   const filteredVariants = jewelleryDetails?.Variants.filter(
-  //     (variant) =>
-  //       variant.Solitaire_slab.trim() === carat.trim() && // Exact match for Solitaire_slab
-  //       Number(variant.Size) === size // Numeric comparison for Size
-  //   );
-
-  //   console.log("Filter variants by carat and size ", filteredVariants);
-  //   // Calculate Metal Weight
-  //   const goldWeight = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "METAL" &&
-  //         bomItem.Item_group === "GOLD"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Weight || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   console.log("Gold Wt : ", goldWeight);
-
-  //   const platinumWeight = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "METAL" &&
-  //         bomItem.Item_group === "PLATINUM"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Weight || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   // Adjust Metal Weight based on size difference
-  //   let adjustedGoldWeight = goldWeight ?? 0;
-  //   if (!filteredSize?.length && goldWeight) {
-  //     const adjustment = goldWeight * adjustPercent * sizeDifference;
-  //     adjustedGoldWeight += adjustment;
-  //   }
-
-  //   let adjustedPlatinumWeight = platinumWeight ?? 0;
-  //   if (!filteredSize?.length && platinumWeight) {
-  //     const adjustment = platinumWeight * adjustPercent * sizeDifference;
-  //     adjustedPlatinumWeight += adjustment;
-  //   }
-
-  //   const adjustedMetalWeight =
-  //     (adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight) +
-  //     (adjustedPlatinumWeight === 0
-  //       ? basePlatinumweight
-  //       : adjustedPlatinumWeight);
-  //   //console.log("Final Metal Weight:", adjustedMetalWeight);
-  //   setGoldweight(
-  //     adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight
-  //   );
-  //   setPlatinumweight(
-  //     adjustedPlatinumWeight === 0 ? basePlatinumweight : adjustedPlatinumWeight
-  //   );
-  //   setMetalweight(
-  //     adjustedMetalWeight === 0 ? baseMetalweight : adjustedMetalWeight
-  //   );
-
-  //   // Calculate Total Side Diamond Pcs
-  //   const totalsidepcs = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "STONE" &&
-  //         bomItem.Item_group === "DIAMOND"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Pcs || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   //console.log("Total Side Diamond Pcs: ", totalsidepcs);
-  //   setSideDiaTotPcs(
-  //     totalsidepcs === 0 ? baseSideDiaTotPcs ?? 0 : totalsidepcs ?? 0
-  //   );
-
-  //   // Calculate Total Side Diamond Weight
-  //   const totalsideweight = filteredVariants?.reduce((acc, variant) => {
-  //     const matchingBom = jewelleryDetails?.Bom?.filter(
-  //       (bomItem) =>
-  //         bomItem.Variant_id === variant.Variant_id &&
-  //         bomItem.Item_type === "STONE" &&
-  //         bomItem.Item_group === "DIAMOND"
-  //     );
-
-  //     const total = matchingBom?.reduce(
-  //       (sum, bomItem) => sum + (bomItem?.Weight || 0),
-  //       0
-  //     );
-
-  //     return acc + (total || 0);
-  //   }, 0);
-
-  //   setSideDiaTotweight(
-  //     totalsideweight === 0 ? baseSideDiaTotweight ?? 0 : totalsideweight ?? 0
-  //   );
-
-  //   calculateSideDiamondPrice(
-  //     totalsideweight === 0 ? baseSideDiaTotweight ?? 0 : totalsideweight ?? 0,
-  //     sideDiaColorClarity,
-  //     qty
-  //   );
-
-  //   CalculateMetalAmount(
-  //     metalColor,
-  //     metalPurity,
-  //     adjustedGoldWeight === 0 ? baseGoldweight : adjustedGoldWeight,
-  //     adjustedPlatinumWeight === 0
-  //       ? basePlatinumweight
-  //       : adjustedPlatinumWeight,
-  //     qty ?? 1,
-  //     "Divine Mount"
-  //   );
-  // };
+  
 
   const CalculateDivineMountDetails = async (
     carat: string,
@@ -1693,9 +1442,11 @@ function JewelleryDetailScreen() {
   };
 
   return (
-    <div className="flex bg-white">
+    <div className="flex flex-col lg:flex-row bg-white min-h-screen">
+     {/* <div className="flex flex-col lg:flex-row bg-white"> */}
+      
       {/* Image Gallery Section */}
-      <div className="bg-white p-4 rounded-lg shadow-lg w-1/2 relative">
+      <div className="bg-white p-4 w-full lg:w-1/2">
         <ImageGallery
           images={filterByColorAndFormat(metalColor)}
           msg={ChkMsg()}
@@ -1704,9 +1455,10 @@ function JewelleryDetailScreen() {
       </div>
 
       {/* Details Section */}
-      <div className="bg-white p-4 w-1/2 relative">
+      <div className="bg-white p-4 w-full lg:w-1/2">
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-6 text-center">
+          {/* <div className="flex space-x-6 text-center"> */}
+          <div className="flex flex-col sm:flex-row sm:space-x-6 text-left sm:text-center">
             <h2 className="text-lg">
               Product Code :{" "}
               <span className="font-semibold">
@@ -1720,7 +1472,8 @@ function JewelleryDetailScreen() {
               </span>
             </h2>
           </div>
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2"> */}
+          <div className="flex items-center space-x-2 mt-2 sm:mt-0">
             <label className="block font-medium text-gray-700">QTY</label>
             <select
               className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
@@ -1736,7 +1489,7 @@ function JewelleryDetailScreen() {
           </div>
         </div>
         <div className="flex">
-          <div className="flex space-x-6 text-center">
+          <div className="flex flex-col sm:flex-row md:space-x-6 md:text-center mb-2">
             <h2 className="text-lg">
               Collection :{" "}
               <span className="font-semibold">
@@ -1752,7 +1505,8 @@ function JewelleryDetailScreen() {
           </div>
         </div>
         <div className="w-full p-4 mb-4 bg-[#F9F6ED] rounded-lg">
-          <div className="flex justify-between items-center mb-6">
+          {/* <div className="flex justify-between items-center mb-6"> */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
             <div className="flex flex-col">
               <h2 className="text-lg font-semibold">Divine Solitaire</h2>
               {/* comparing with total pcs to show This is a multi solitaire product */}
@@ -1820,7 +1574,8 @@ function JewelleryDetailScreen() {
         </div>
 
         <div className="w-full p-4 bg-[#F9F6ED] rounded-lg">
-          <div className="flex justify-between items-center mb-6">
+          {/* <div className="flex justify-between items-center mb-6"> */}
+          <div className="flex flex-col lg:flex-row w-full gap-4 lg:gap-2 lg:justify-between mb-2">
             <h2 className="text-lg font-semibold">Divine Mount</h2>
             {(jewelleryDetails?.Product_price == null ||
               Number(jewelleryDetails?.Product_price) === 0) && (
@@ -1840,7 +1595,8 @@ function JewelleryDetailScreen() {
               </div>
             )}
           </div>
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between"> */}
+          <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
             <div className="flex items-center space-x-2">
               <label className="block text-lg font-medium text-gray-700">
                 Metal :
@@ -1859,6 +1615,7 @@ function JewelleryDetailScreen() {
                 )}
               </select>
               <select
+                //className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
                 className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
                 value={metalColor}
                 onChange={handleMetalColor}
@@ -1978,8 +1735,9 @@ function JewelleryDetailScreen() {
           )}
         </div>
 
-        <div className="flex w-full space-x-2 justify-end">
-          <div className="w-full p-2 my-4">
+        {/* <div className="flex w-full space-x-2 justify-end"> */}
+        <div className="flex flex-col lg:flex-row w-full gap-4 lg:gap-2 lg:justify-end">
+          <div className="w-full p-2 md:my-4">
             <div className="p-2 my-4 border border-black rounded-lg">
               <div className="flex justify-between items-center text-center">
                 <h2 className="text-sm">Min</h2>
@@ -2021,7 +1779,7 @@ function JewelleryDetailScreen() {
               </div>
             </div>
           </div>
-          <div className="w-full p-4 my-4 flex items-center justify-center space-x-2">
+          <div className="w-full p-4 md:my-4 flex items-center justify-center space-x-2">
             <button
               className="w-full flex items-center p-2 py-4 bg-black text-white rounded-lg space-x-2 justify-center"
               onClick={handleCart}
@@ -2031,6 +1789,8 @@ function JewelleryDetailScreen() {
             </button>
           </div>
         </div>
+
+
       </div>
 
       {/* Popup */}

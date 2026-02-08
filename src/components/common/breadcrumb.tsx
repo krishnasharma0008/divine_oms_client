@@ -16,33 +16,36 @@ const Breadcrumb = () => {
   const formatTitle = (title: string) => {
     return title
       .replace(/-/g, " ") // Replace hyphens with spaces
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
+      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
   };
 
-  if (pathnames.length === 0) {
-    return null;
-  }
+  if (pathnames.length === 0) return null;
+
+  // Only show last 3 segments for mobile
+  const displayedPath = pathnames.length > 3 ? ["...", ...pathnames.slice(-2)] : pathnames;
 
   return (
-    <nav className="breadcrumb" aria-label="breadcrumb">
-      <ol className="breadcrumbList">
-        <li className="breadcrumbItem">
-          <Link href="/">Home</Link>
-          {pathnames.length > 0 && (
-            <span className="breadcrumbSeparator">{" / "}</span>
-          )}
+    <nav className="breadcrumb text-sm px-2 py-1 sm:text-base" aria-label="breadcrumb">
+      <ol className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+        <li>
+          <Link href="/" className="text-gray-600 hover:text-gray-800">Home</Link>
+          <span className="mx-1">/</span>
         </li>
-        {pathnames.map((value, index) => {
-          const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
-          const isLast = index === pathnames.length - 1;
+        {displayedPath.map((value, index) => {
+          const isLast = index === displayedPath.length - 1;
           return (
-            <li key={routeTo} className="breadcrumbItem">
+            <li key={index} className="flex items-center">
               {!isLast ? (
-                <Link href={routeTo}>{formatTitle(value)}</Link>
+                <Link
+                  href={`/${pathnames.slice(0, index + 1).join("/")}`}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  {value === "..." ? "..." : formatTitle(value)}
+                </Link>
               ) : (
-                <span>{formatTitle(value)}</span>
+                <span className="font-semibold">{formatTitle(value)}</span>
               )}
-              {!isLast && <span className="breadcrumbSeparator">{" / "}</span>}
+              {!isLast && <span className="mx-1">/</span>}
             </li>
           );
         })}
