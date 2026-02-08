@@ -41,6 +41,7 @@ export interface OrderFiltersApi {
   customer_branch: string;
   product_type: string;
   order_for: string;
+  order_type: string;
   exp_dlv_date: string | null; // formatted YYYY-MM-DD
 }
 
@@ -71,6 +72,7 @@ const getOrderList = (
       customer_branch: filters.customer_branch || null,
       product_type: filters.product_type || null,
       order_for: filters.order_for || null,
+      order_type:filters.order_type || null,
       exp_dlv_date: filters.exp_dlv_date,
     },
   });

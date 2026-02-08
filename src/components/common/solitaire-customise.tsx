@@ -310,171 +310,198 @@ const SolitaireCustomisationPopup: React.FC<
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 sm:w-3/4 md:w-2/3 lg:w-3/4 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-0 right-2 text-gray-600 hover:text-gray-900"
-        >
-          <span className="text-2xl font-semibold">&times;</span>{" "}
-          {/* "X" for close */}
-        </button>
-        <h2 className="text-lg font-semibold mb-4 text-center">
-          Customise Your Solitaire
-        </h2>
+      <div className="bg-white rounded-lg shadow-lg w-[95%] sm:w-3/4 md:w-2/3 lg:w-3/4 max-h-[90vh] flex flex-col overflow-hidden">
+
+        {/* Header - sticky only on mobile, normal on desktop */}
+        <div className="relative flex items-center justify-center p-6 border-b sticky top-0 bg-white z-30 rounded-t-lg">
+          {/* Centered title */}
+          <h2 className="text-lg font-semibold absolute left-1/2 transform -translate-x-1/2">
+            Customise Your Solitaire
+          </h2>
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute right-4 text-gray-600 hover:text-gray-900 text-2xl font-semibold z-40"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
+        </div>
+
 
         {/* Form Layout */}
         {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
-        <div className="w-full flex space-y-4 space-x-2 md:space-y-0 justify-between">
-          {!ismultiSize ? (
-            <>
-              <div className="w-1/6">
-                <label className="block text-gray-700 font-medium text-center mb-7">
-                  Shape
-                </label>
-                <DropdownCust
-                  label=""
-                  options={
-                    collection === "SOLUS" ? Solus_shape : Solitaire_shape
-                  }
-                  value={shape}
-                  onChange={setShape}
-                  error={fieldErrors.shape}
-                  classes="w-full"
-                  disabled={!!Dshape} // disable if Dshape exists
-                />
-              </div>
-              <div className="w-1/5">
-                <label className="block text-gray-700 font-medium text-center mb-7">
-                  Carat
-                </label>
-                <DropdownCust
-                  label=""
-                  options={cts_slab}
-                  value={carat}
-                  onChange={setCarat}
-                  error={fieldErrors.carat}
-                  classes="w-full"
-                />
-                {/* {mcolor.split(",").map((item: string, index) => (
-              <option key={index} value={item}>
-                <span>{item.trim()}</span>
-              </option>
-            ))} */}
-              </div>
-            </>
-          ) : (
-            <div className="w-1/4">
-              <label className="block text-gray-700 font-medium text-center mb-7">
-                Multi Size
-              </label>
-              <Dropdown
-                label=""
-                //options={multiSize_slab || []}
-                options={
-                  jewelleryData?.[0]?.Variants?.filter(
-                    (v) => v.Variant_name
-                  )?.map((variant) => ({
-                    label: variant.Variant_name,
-                    value: String(variant.Variant_id),
-                  })) || []
-                }
-                value={multiSizeDisplay}
-                onChange={handleMultiSizeChange}
-                //error={fieldErrors.carat}
-                classes="w-full"
-              />
-            </div>
-          )}
+        {/* <div className="w-full flex space-y-4 space-x-2 md:space-y-0 justify-between"> */}
+        {/* Scrollable Content */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+          <div className="w-full flex flex-col md:flex-row gap-4 md:gap-2 md:justify-between">
+              {!ismultiSize ? (
+                <>
+                  {/* <div className="w-1/6"> */}
+                  <div className="w-full md:w-1/6">
+                    <label className="block text-gray-700 font-medium text-center mb-7">
+                      Shape
+                    </label>
+                    <DropdownCust
+                      label=""
+                      options={
+                        collection === "SOLUS" ? Solus_shape : Solitaire_shape
+                      }
+                      value={shape}
+                      onChange={setShape}
+                      error={fieldErrors.shape}
+                      classes="w-full"
+                      disabled={!!Dshape} // disable if Dshape exists
+                    />
+                  </div>
+                  {/* <div className="w-1/5"> */}
+                  <div className="w-full md:w-1/5">
+                    <label className="block text-gray-700 font-medium text-center mb-7">
+                      Carat
+                    </label>
+                    <DropdownCust
+                      label=""
+                      options={cts_slab}
+                      value={carat}
+                      onChange={setCarat}
+                      error={fieldErrors.carat}
+                      classes="w-full"
+                    />
+                    {/* {mcolor.split(",").map((item: string, index) => (
+                  <option key={index} value={item}>
+                    <span>{item.trim()}</span>
+                  </option>
+                ))} */}
+                  </div>
+                </>
+              ) : (
+                // <div className="w-1/4">
+                <div className="w-full md:w-1/4">
+                  <label className="block text-gray-700 font-medium text-center mb-7">
+                    Multi Size
+                  </label>
+                  <Dropdown
+                    label=""
+                    //options={multiSize_slab || []}
+                    options={
+                      jewelleryData?.[0]?.Variants?.filter(
+                        (v) => v.Variant_name
+                      )?.map((variant) => ({
+                        label: variant.Variant_name,
+                        value: String(variant.Variant_id),
+                      })) || []
+                    }
+                    value={multiSizeDisplay}
+                    onChange={handleMultiSizeChange}
+                    //error={fieldErrors.carat}
+                    classes="w-full"
+                  />
+                </div>
+              )}
 
-          <div className="w-1/4">
-            <label className="block text-gray-700 font-medium text-center">
-              Color
-            </label>
-            <div className="flex space-x-2">
-              <DropdownCust
-                label="From"
-                options={getColorOptions(carat)}
-                value={colorF}
-                onChange={setColorF}
-                error={fieldErrors.colorF}
-                classes="w-1/2"
-                Labelclasses="text-center "
-              />
-              <DropdownCust
-                label="To"
-                options={getColorTOptions(colorF)}
-                value={colorT}
-                onChange={setColorT}
-                error={fieldErrors.colorT}
-                classes="w-1/2"
-                Labelclasses="text-center "
-              />
+              {/* <div className="w-1/4"> */}
+              <div className="w-full md:w-1/4">
+                <label className="block text-gray-700 font-medium text-center">
+                  Color
+                </label>
+                {/* <div className="flex space-x-2"> */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <DropdownCust
+                    label="From"
+                    options={getColorOptions(carat)}
+                    value={colorF}
+                    onChange={setColorF}
+                    error={fieldErrors.colorF}
+                    //classes="w-1/2"
+                    classes="w-full sm:w-1/2"
+                    Labelclasses="text-center "
+                  />
+                  <DropdownCust
+                    label="To"
+                    options={getColorTOptions(colorF)}
+                    value={colorT}
+                    onChange={setColorT}
+                    error={fieldErrors.colorT}
+                    //classes="w-1/2"
+                    classes="w-full sm:w-1/2"
+                    Labelclasses="text-center "
+                  />
+                </div>
+              </div>
+              {/* <div className="w-1/4"> */}
+              <div className="w-full md:w-1/4">
+                <label className="block text-gray-700 font-medium text-center">
+                  Clarity
+                </label>
+                {/* <div className="flex space-x-2"> */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <DropdownCust
+                    label="From"
+                    options={getClarityOptions(carat)}
+                    value={clarityF}
+                    onChange={setClarityF}
+                    error={fieldErrors.clarityF}
+                    //classes="w-1/2"
+                    classes="w-full sm:w-1/2"
+                    Labelclasses="text-center "
+                  />
+                  <DropdownCust
+                    label="To"
+                    options={getClarityTOptions(clarityF)}
+                    value={clarityT}
+                    onChange={setClarityT}
+                    error={fieldErrors.clarityT}
+                    //classes="w-1/2"
+                    classes="w-full sm:w-1/2"
+                    Labelclasses="text-center "
+                  />
+                </div>
+              </div>
+              {/* <div className="w-1/6"> */}
+              <div className="w-full md:w-1/6">
+                <label 
+                //className="block text-gray-700 font-medium text-center mb-7">
+                className="block text-gray-700 font-medium text-center mb-2 sm:mb-7">
+                  Premium Size
+                </label>
+                <DropdownCust
+                  label=""
+                  options={premiumSizeOptions}
+                  value={premiumSize}
+                  onChange={setPremiumSize}
+                  //error={fieldErrors.premiumSize}
+                  classes="w-full"
+                />
+              </div>
+              {/* <div className="w-1/6"> */}
+              <div className="w-full md:w-1/6">
+                <label className="block text-gray-700 text-sm font-medium mb-7">
+                  Premium %
+                </label>
+                <input
+                  type="text"
+                  value={premiumPercentage}
+                  disabled
+                  className="w-full p-2 border rounded bg-gray-100 text-gray-600"
+                  // error={fieldErrors.premiumPercentage}
+                />
+              </div>
             </div>
-          </div>
-          <div className="w-1/4">
-            <label className="block text-gray-700 font-medium text-center">
-              Clarity
-            </label>
-            <div className="flex space-x-2">
-              <DropdownCust
-                label="From"
-                options={getClarityOptions(carat)}
-                value={clarityF}
-                onChange={setClarityF}
-                error={fieldErrors.clarityF}
-                classes="w-1/2"
-                Labelclasses="text-center "
-              />
-              <DropdownCust
-                label="To"
-                options={getClarityTOptions(clarityF)}
-                value={clarityT}
-                onChange={setClarityT}
-                error={fieldErrors.clarityT}
-                classes="w-1/2"
-                Labelclasses="text-center "
-              />
-            </div>
-          </div>
-          <div className="w-1/6">
-            <label className="block text-gray-700 font-medium text-center mb-7">
-              Premium Size
-            </label>
-            <DropdownCust
-              label=""
-              options={premiumSizeOptions}
-              value={premiumSize}
-              onChange={setPremiumSize}
-              //error={fieldErrors.premiumSize}
-              classes="w-full"
-            />
-          </div>
-          <div className="w-1/6">
-            <label className="block text-gray-700 text-sm font-medium mb-7">
-              Premium %
-            </label>
-            <input
-              type="text"
-              value={premiumPercentage}
-              disabled
-              className="w-full p-2 border rounded bg-gray-100 text-gray-600"
-              // error={fieldErrors.premiumPercentage}
-            />
-          </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end space-x-4 mt-6">
+         {/* Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 px-6 pb-6">
           <button
             onClick={handleClear}
-            className="px-4 py-2 bg-gray-200 rounded text-gray-700 hover:bg-gray-300"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded text-gray-700 hover:bg-gray-300"
           >
             Clear
           </button>
           <button
             onClick={handleApply}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Apply
           </button>

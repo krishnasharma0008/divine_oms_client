@@ -19,6 +19,7 @@ import { OrderFilters } from "@/interface/order-filter";
 import ITEM_TYPE from "@/enums/item-type";
 import ORDER_FOR from "@/enums/order-for";
 import { useIsoDate } from "@/hook/useIsoDate";
+import ORDER_TYPE from "@/enums/order-type";
 //import Select from "react-select";
 
 //import NotificationContext from "@/context/notification-context";
@@ -72,6 +73,7 @@ function OrderListScreen() {
     customer_branch: "",
     product_type: "",
     order_for: "",
+    order_type: "",
     exp_dlv_date: null,
   });
 
@@ -303,6 +305,25 @@ function OrderListScreen() {
       // sortable: true,
       // reorder: true,
       //Alignment: "center",
+      width: "140px",
+    },
+    {
+      //name: "Order For",
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order Type</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(ORDER_TYPE)}
+              value={filters.order_type}
+              onChange={(val) => setFilters({ ...filters, order_type: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
+      selector: (row: OrderList) => row.order_type,
       width: "140px",
     },
     {
