@@ -17,6 +17,7 @@ export interface CartDetail {
   exp_dlv_date: string; // date
   old_varient: string; //new
   product_code: string;
+  designno: string; // new
   solitaire_pcs: number;
   product_qty: number;
   product_amt_min: number;

@@ -6,6 +6,7 @@ interface Image {
 export interface JewelleryDetail {
   Item_id: number;
   Item_number: string;
+  designno: string;
   Product_name: string;
 
   Product_category: string; //

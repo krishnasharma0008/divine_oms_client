@@ -1299,6 +1299,7 @@ function JewelleryDetailScreen() {
       exp_dlv_date: exp_dlv_date,
       old_varient: jewelleryDetails?.Old_varient || "",
       product_code: jewelleryDetails?.Item_number || "",
+      designno: jewelleryDetails?.designno || "",
       solitaire_pcs: totalPcs, //new additation
       product_qty: selectedQty,
       product_amt_min:
