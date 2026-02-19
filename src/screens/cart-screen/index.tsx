@@ -283,8 +283,7 @@ function CartScreen() {
       side_stone_pcs: item.side_stone_pcs || 0,
       side_stone_cts: item.side_stone_cts || 0,
       side_stone_color: item.side_stone_pcs > 0 ? item.side_stone_color : "-",
-      side_stone_quality:
-        item.side_stone_pcs > 0 ? item.side_stone_quality : "-",
+      side_stone_quality: item.side_stone_pcs > 0 ? item.side_stone_quality : "-",
       cart_remarks: item.cart_remarks || "",
       order_remarks: item.order_remarks || "",
       metal_type: item.metal_type || "",
@@ -297,6 +296,7 @@ function CartScreen() {
       look: item.look || "", //new
       portfolio_type: item.portfolio_type || "", //new
       gender: item.gender || "",
+      designno: item.designno || "", //new
     };
 
     try {
