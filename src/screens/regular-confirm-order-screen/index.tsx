@@ -463,6 +463,7 @@ const RegularConfirmOrderScreen = () => {
         exp_dlv_date: exp_dlv_date,
         old_varient: "",
         product_code: "",
+        designno: "",
         solitaire_pcs: row.pcs, //new addation
         product_qty: row.pcs,
         product_amt_min: row.min,

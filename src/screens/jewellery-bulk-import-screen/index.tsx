@@ -534,6 +534,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           look: jewellerydetail?.Look || "",
           portfolio_type: jewellerydetail?.Portfolio_type || "",
           gender: jewellerydetail?.Gender || "",
+          designno: jewellerydetail?.designno || "",
         };
         setCartData((prevCartData) => [...prevCartData, payload]);
       }
