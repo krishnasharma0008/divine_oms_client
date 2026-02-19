@@ -554,7 +554,7 @@ function CartScreen() {
       {/* Fixed Header */}
 
       <div className="w-full lg:w-4/5 overflow-y-auto max-h-[calc(100vh-140px)]">
-        <div className="sticky top-0 z-30 bg-white sm:bg-transparent shadow-md p-2">
+        <div className="sticky top-0 z-30 bg-white shadow-md p-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           {/* Buttons: mobile white background only */}
           <div className="order-1 sm:order-2 flex flex-wrap justify-end gap-2 w-full sm:w-auto">
