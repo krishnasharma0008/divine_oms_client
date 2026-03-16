@@ -1008,11 +1008,17 @@ function JewelleryDetailScreen() {
             b.Item_group?.trim().toUpperCase() === "SOLITAIRE" &&
             b.Item_type?.trim().toUpperCase() === "STONE"
         );
-        //console.log("bomList :", bomList);
+
+        console.log("bomList :", bomList);
         let amountFrom = 0;
         let amountTo = 0;
 
+        let count = 0;
+
         for (const bom of bomList || []) {
+          count += 1
+
+          console.log("Count no of rows : ",count);
           const parts = bom.Bom_variant_name.trim()
             .split("-")
             .map((p) => p.trim());
@@ -1189,16 +1195,7 @@ function JewelleryDetailScreen() {
     }
   };
 
-  const handleCart = async () => {
-    // 1) Ensure latest metal amount & price
-    // await CalculateMetalAmount(
-    //   metalColor,
-    //   metalPurity,
-    //   Goldweight,
-    //   Platinumweight,
-    //   selectedQty,
-    //   "Before Save"
-    // );
+  const handleCart = async () => {   
 
     // 2) Validate metal weight and amount
     if (Goldweight + Platinumweight <= 0) {
@@ -1285,6 +1282,10 @@ function JewelleryDetailScreen() {
         : new Date().toISOString() // fallback to the current date
       : new Date().toISOString();
 
+    //   console.log("isCustomerName :", customerOrder?.customer_id );
+    // console.log("cust_code : ",customerOrder?.cust_code);
+    // console.log("cust_name : ",customerOrder?.cust_name);
+    // console.log("customer_branch : ",customerOrder?.store);
     const payload: CartDetail = {
       order_for: customerOrder?.order_for || "",
       customer_id: customerOrder?.customer_id || 0,

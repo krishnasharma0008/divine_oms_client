@@ -335,6 +335,8 @@ const ChooseYourOrderScreen = () => {
     //   selectedCustOrder !== "RCO"
     // Prepare payload based on the customer type
     console.log("isCustomerName :", isCustomerName);
+    console.log("cust_code : ",selectedCustCode);
+    console.log("cust_name : ",isCustomerName);
     const payload: CustomerOrderDetail = {
       order_for: selectedOrderFor, // getCustType() ?? "",
       customer_id:
