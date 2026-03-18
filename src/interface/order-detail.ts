@@ -45,4 +45,5 @@ export interface OrderDetail {
   order_status: string;
   old_varient: string;
   order_createdat: string;
+  placed_by: string;
 }

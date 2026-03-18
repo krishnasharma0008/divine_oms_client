@@ -380,7 +380,7 @@ function AdminOrderDetailJewelleryScreen() {
                 ? dayjs(orderData[0]?.exp_dlv_date).format("DD MMM, YYYY")
                 : "",
             ],
-            ["Placed By", orderData[0]?.username || "--"],
+            ["Placed By", orderData[0]?.placed_by || "--"],
             ["RBH", "--"], // Placeholder
             ["ZBH", "--"], // Placeholder
 
