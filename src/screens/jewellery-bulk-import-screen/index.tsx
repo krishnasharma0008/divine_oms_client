@@ -393,7 +393,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
           const maxCarat = parseFloat(slabParts[1]);
           if (minCarat <= 0 || maxCarat <= 0 || minCarat > maxCarat) {
             errors.push(`Invalid carat range in solitaire_slab: ${caratRange}`);
-          } else if (!jewellerydetail?.Cts_size_slab.includes(caratRange)) {
+          } else if (!jewellerydetail?.Cts_size_slab?.includes(caratRange)) {
             errors.push(
               `Invalid carat range in solitaire_slab for product: ${caratRange}`
             );
@@ -450,7 +450,7 @@ const JewelleryBulkImportScreen: React.FC = () => {
       const metalColor = getTrimmedValue("metal_color")?.toUpperCase();
       // Validate if the metal color is non-empty and exists in the list of valid colors
       if (metalColor) {
-        const validColors = jewellerydetail?.Metal_color.split(",").map(
+        const validColors = jewellerydetail?.Metal_color?.split(",").map(
           (color) => color.trim().toUpperCase()
         ); // Trim and convert each color name to uppercase
         if (!validColors?.includes(metalColor)) {
