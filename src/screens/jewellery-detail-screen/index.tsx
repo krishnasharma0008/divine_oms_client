@@ -1295,34 +1295,34 @@ function JewelleryDetailScreen() {
           ) {
             // FANCY SHAPE CARAT FROM 0.18 TO 0.22 = GH/VS
             //console.log("2 part");
-            bomcolorMin = "K";
+            bomcolorMin = "H";
             bomcolorMax = "D";
-            bomclarityMin = "SI1";
+            bomclarityMin = "VS2";
             bomclarityMax = "IF";
           } else if (
             parts[1] === "RND" &&
             parseFloat(parts[2]) >= 0.1 &&
             parseFloat(parts[3]) <= 0.17
           ) {
-            // SHAPE IS ROUND CARAT FROM 0.10 TO 0.13 = IJ/VS
+            // SHAPE IS ROUND CARAT FROM 0.10 TO 0.17 = IJ/VS
             console.log("3 part");
             bomcolorMin = "IJ";
             bomcolorMax = "EF";
             bomclarityMin = "SI";
             bomclarityMax = "VVS";
           } 
-          // else if (
-          //   parts[1] === "RND" &&
-          //   parseFloat(parts[2]) >= 0.18 &&
-          //   parseFloat(parts[3]) <= 0.22
-          // ) {
-          //   // SHAPE IS ROUND CARAT FROM 0.18 TO 0.22 = K-SI2
-          //   console.log("4 part");
-          //   bomcolorMin = "K";
-          //   bomcolorMax = "D";
-          //   bomclarityMin = "SI2";
-          //   bomclarityMax = "IF";
-          // }
+          else if (
+            parts[1] === "RND" &&
+            parseFloat(parts[2]) >= 0.18 &&
+            parseFloat(parts[3]) <= 0.22
+          ) {
+            // SHAPE IS ROUND CARAT FROM 0.18 TO 0.22 = K-SI2
+            console.log("4 part");
+            bomcolorMin = "K";
+            bomcolorMax = "D";
+            bomclarityMin = "SI2";
+            bomclarityMax = "IF";
+          }
 
           let priceFrom = 0;
           let priceTo = 0;
