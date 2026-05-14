@@ -309,8 +309,8 @@ const SolitaireCustomisationPopup: React.FC<
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[95%] sm:w-3/4 md:w-2/3 lg:w-3/4 max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+      <div className="bg-white rounded-lg shadow-lg w-[95%] sm:w-3/4 md:w-2/3 lg:w-3/4 max-h-[90vh] flex flex-col">
 
         {/* Header - sticky only on mobile, normal on desktop */}
         <div className="relative flex items-center justify-center p-6 border-b sticky top-0 bg-white z-30 rounded-t-lg">
@@ -334,7 +334,7 @@ const SolitaireCustomisationPopup: React.FC<
         {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
         {/* <div className="w-full flex space-y-4 space-x-2 md:space-y-0 justify-between"> */}
         {/* Scrollable Content */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-6 overflow-visible flex-1">
           <div className="w-full flex flex-col md:flex-row gap-4 md:gap-2 md:justify-between">
               {!ismultiSize ? (
                 <>
