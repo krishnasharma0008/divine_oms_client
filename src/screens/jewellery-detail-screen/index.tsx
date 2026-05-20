@@ -1216,6 +1216,8 @@ function JewelleryDetailScreen() {
     setCustomisedData(data);
     setIsPopupOpen(false);
 
+    console.log("Customised Data check :", data);
+
     const shape =
       data.shape === "Round"
         ? "RND"

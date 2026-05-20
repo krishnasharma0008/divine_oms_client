@@ -59,7 +59,6 @@ const SolitaireCustomisationPopup: React.FC<
   collection,
   Dshape,
   ismultiSize,
-  //multiSize_slab,
   jewelleryData,
 }) => {
   const [shape, setShape] = useState<string>("");
@@ -73,28 +72,17 @@ const SolitaireCustomisationPopup: React.FC<
   const [multiSize, setMultiSize] = useState<string>("");
   const [multiSizeDisplay, setMultiSizeDisplay] = useState<string>("");
   const [premiumSizeOptions, setPremiumSizeOptions] = useState<string[]>([]);
-  //const [error, setError] = useState<string>("");
 
-  // Use the custom hook for premium size and percentage
   const { getPremiumPercentage, getPremiumSizeOptions } =
     usePremiumSizeAndPercentage();
 
-  const isRound = shape === "Round"; // Check if the shape is Round
+  const isRound = shape === "Round";
 
-  // const otherRoundColors = ["EF", "GH", "IJ"];
-  // const otherRoundColorsCarat = ["EF", "GH"];
-  // const colors = ["D", "E", "F", "G", "H", "I", "J", "K"];
-
-  // const clarities = ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2"];
-  // const claritiesRound = ["VVS", "VS", "SI"];
-  // const claritiesRoundCarat = ["VVS", "VS"];
-
-  // Function to get color options based on the slab
   const getColorOptions = (slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
 
     if (collection === "SOLUS") {
-      return Solus_colors; // Use solus color options if collection is SOLUS
+      return Solus_colors;
     } else {
       if (isRound) {
         if (carat < 0.18) {
@@ -117,7 +105,7 @@ const SolitaireCustomisationPopup: React.FC<
   const getClarityOptions = (slab: string) => {
     const carat = parseFloat(slab.split("-")[1]);
     if (collection === "SOLUS") {
-      return claritiesRoundCarat; // Use solus color options if collection is SOLUS
+      return claritiesRoundCarat;
     } else {
       if (isRound) {
         if (carat < 0.18) {
@@ -150,7 +138,6 @@ const SolitaireCustomisationPopup: React.FC<
   useEffect(() => {
     if (
       colorF &&
-      //colorT &&
       getColorOptions(carat).indexOf(colorF) >
         getColorOptions(carat).indexOf(colorT)
     ) {
@@ -159,7 +146,6 @@ const SolitaireCustomisationPopup: React.FC<
   }, [colorF, carat, getColorOptions, colorT, setColorT]);
 
   useEffect(() => {
-    //console.log("jewellery Data:", jewelleryData);
     if (
       clarityF &&
       getClarityOptions(carat).indexOf(clarityF) >
@@ -180,15 +166,13 @@ const SolitaireCustomisationPopup: React.FC<
 
   useEffect(() => {
     if (carat) {
-      // Filter the premium size options based on the carat size
       const filteredPremiumSizes = getPremiumSizeOptions(carat);
       setPremiumSizeOptions(filteredPremiumSizes);
-      setPremiumSize(""); // Reset the selected premium size
-      setPremiumPercentage(""); // Reset the premium percentage
+      setPremiumSize("");
+      setPremiumPercentage("");
     }
-  }, [carat, getPremiumSizeOptions]); // This runs whenever 'carat' changes
+  }, [carat, getPremiumSizeOptions]);
 
-  // Fetch Premium Percentage when Premium Size is selected
   useEffect(() => {
     if (premiumSize) {
       const percentage = getPremiumPercentage(premiumSize);
@@ -199,21 +183,21 @@ const SolitaireCustomisationPopup: React.FC<
   useEffect(() => {
     if (isOpen) {
       if (ismultiSize && multiSize) {
-        const parts = multiSize.split("-"); // Example: SOL-RND-0.39-0.44----
-        const shapeCode = parts[1]; // Extract shape code (e.g., "RND")
-        setShape(shapeMap[shapeCode] || ""); // Map to full shape name using shapeMap
-        setCarat(parts[2] + "-" + parts[3]); // Set carat range
+        console.log("Multi Size String:", multiSize);
+        const parts = multiSize.split("-");
+        const shapeCode = parts[1];
+        setShape(shapeMap[shapeCode] || "");
+        setCarat(parts[2] + "-" + parts[3]);
         console.log("Carat:", parts[4]);
         if (parts[4]) {
-          setColorF(parts[4]); // Extract color
+          setColorF(parts[4]);
         }
         if (parts[5]) {
-          setClarityF(parts[5]); // Extract clarity
+          setClarityF(parts[5]);
         }
-        setColorT(""); // Reset colorT, since it's dependent on colorF
-        setClarityT(""); // Reset clarityT, since it's dependent on clarityF
+        setColorT("");
+        setClarityT("");
       } else {
-        // Reset fields with either customised data or default values
         console.log(customisedData);
         setShape(customisedData?.shape || Dshape || "");
         setCarat(customisedData?.carat || "");
@@ -222,13 +206,8 @@ const SolitaireCustomisationPopup: React.FC<
         setClarityF(customisedData?.clarity?.split("-")[0] || "");
         setClarityT(customisedData?.clarity?.split("-")[1] || "");
         setPremiumSize(customisedData?.premiumSize || "");
-        console.log(
-          "customisedData?.premiumSize:",
-          customisedData?.premiumSize
-        );
         setPremiumPercentage(customisedData?.premiumPercentage || "");
 
-        // Fetch and update premium size options
         if (customisedData?.carat) {
           const premiumSizes = getPremiumSizeOptions(customisedData.carat);
           setPremiumSizeOptions(premiumSizes || []);
@@ -238,10 +217,6 @@ const SolitaireCustomisationPopup: React.FC<
       }
     }
   }, [isOpen, customisedData, getPremiumSizeOptions, ismultiSize, multiSize]);
-
-  useEffect(() => {
-    //console.log("premiumSize after setting:", premiumSize);
-  }, [premiumSize]);
 
   const handleApply = () => {
     console.log("Applying customisation...");
@@ -255,13 +230,9 @@ const SolitaireCustomisationPopup: React.FC<
     setFieldErrors(errors);
     console.log("Field Errors:", errors);
     if (Object.keys(errors).length) return;
-    //console.log("Selected Shape:", shape);
-    //console.log("Selected Carat:", carat);
 
     const selectedColor = `${colorF}-${colorT}`;
     const selectedClarity = `${clarityF}-${clarityT}`;
-    //console.log("Selected Color:", selectedColor);
-    //console.log("Selected Clarity:", selectedClarity);
 
     onApply({
       shape,
@@ -284,7 +255,6 @@ const SolitaireCustomisationPopup: React.FC<
     setPremiumSize("");
     setPremiumPercentage("");
     setMultiSize("");
-    //setError("");
   };
 
   if (!isOpen) return null;
@@ -310,16 +280,14 @@ const SolitaireCustomisationPopup: React.FC<
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+      {/* ✅ Removed overflow-hidden so dropdowns are not clipped */}
       <div className="bg-white rounded-lg shadow-lg w-[95%] sm:w-3/4 md:w-2/3 lg:w-3/4 max-h-[90vh] flex flex-col">
 
-        {/* Header - sticky only on mobile, normal on desktop */}
+        {/* Header */}
         <div className="relative flex items-center justify-center p-6 border-b sticky top-0 bg-white z-30 rounded-t-lg">
-          {/* Centered title */}
           <h2 className="text-lg font-semibold absolute left-1/2 transform -translate-x-1/2">
             Customise Your Solitaire
           </h2>
-
-          {/* Close button */}
           <button
             onClick={onClose}
             className="absolute right-4 text-gray-600 hover:text-gray-900 text-2xl font-semibold z-40"
@@ -329,169 +297,157 @@ const SolitaireCustomisationPopup: React.FC<
           </button>
         </div>
 
-
-        {/* Form Layout */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
-        {/* <div className="w-full flex space-y-4 space-x-2 md:space-y-0 justify-between"> */}
-        {/* Scrollable Content */}
-        <div className="p-4 sm:p-6 overflow-visible flex-1">
+        {/* Scrollable Content
+            ✅ overflow-y-auto on mobile, overflow-visible on md+ so dropdowns aren't clipped on desktop
+        */}
+        <div className="p-4 sm:p-6 overflow-x-hidden overflow-y-auto md:overflow-visible flex-1">
           <div className="w-full flex flex-col md:flex-row gap-4 md:gap-2 md:justify-between">
-              {!ismultiSize ? (
-                <>
-                  {/* <div className="w-1/6"> */}
-                  <div className="w-full md:w-1/6">
-                    <label className="block text-gray-700 font-medium text-center mb-7">
-                      Shape
-                    </label>
-                    <DropdownCust
-                      label=""
-                      options={
-                        collection === "SOLUS" ? Solus_shape : Solitaire_shape
-                      }
-                      value={shape}
-                      onChange={setShape}
-                      error={fieldErrors.shape}
-                      classes="w-full"
-                      disabled={!!Dshape} // disable if Dshape exists
-                    />
-                  </div>
-                  {/* <div className="w-1/5"> */}
-                  <div className="w-full md:w-1/5">
-                    <label className="block text-gray-700 font-medium text-center mb-7">
-                      Carat
-                    </label>
-                    <DropdownCust
-                      label=""
-                      options={cts_slab}
-                      value={carat}
-                      onChange={setCarat}
-                      error={fieldErrors.carat}
-                      classes="w-full"
-                    />
-                    {/* {mcolor.split(",").map((item: string, index) => (
-                  <option key={index} value={item}>
-                    <span>{item.trim()}</span>
-                  </option>
-                ))} */}
-                  </div>
-                </>
-              ) : (
-                // <div className="w-1/4">
-                <div className="w-full md:w-1/4">
+
+            {!ismultiSize ? (
+              <>
+                {/* Shape */}
+                <div className="w-full md:w-1/6">
                   <label className="block text-gray-700 font-medium text-center mb-7">
-                    Multi Size
+                    Shape
                   </label>
-                  <Dropdown
+                  <DropdownCust
                     label=""
-                    //options={multiSize_slab || []}
                     options={
-                      jewelleryData?.[0]?.Variants?.filter(
-                        (v) => v.Variant_name
-                      )?.map((variant) => ({
-                        label: variant.Variant_name,
-                        value: String(variant.Variant_id),
-                      })) || []
+                      collection === "SOLUS" ? Solus_shape : Solitaire_shape
                     }
-                    value={multiSizeDisplay}
-                    onChange={handleMultiSizeChange}
-                    //error={fieldErrors.carat}
+                    value={shape}
+                    onChange={setShape}
+                    error={fieldErrors.shape}
+                    classes="w-full"
+                    disabled={!!Dshape}
+                  />
+                </div>
+
+                {/* Carat */}
+                <div className="w-full md:w-1/5">
+                  <label className="block text-gray-700 font-medium text-center mb-7">
+                    Carat
+                  </label>
+                  <DropdownCust
+                    label=""
+                    options={cts_slab}
+                    value={carat}
+                    onChange={setCarat}
+                    error={fieldErrors.carat}
                     classes="w-full"
                   />
                 </div>
-              )}
-
-              {/* <div className="w-1/4"> */}
+              </>
+            ) : (
+              /* Multi Size */
               <div className="w-full md:w-1/4">
-                <label className="block text-gray-700 font-medium text-center">
-                  Color
+                <label className="block text-gray-700 font-medium text-center mb-7">
+                  Multi Size
                 </label>
-                {/* <div className="flex space-x-2"> */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <DropdownCust
-                    label="From"
-                    options={getColorOptions(carat)}
-                    value={colorF}
-                    onChange={setColorF}
-                    error={fieldErrors.colorF}
-                    //classes="w-1/2"
-                    classes="w-full sm:w-1/2"
-                    Labelclasses="text-center "
-                  />
-                  <DropdownCust
-                    label="To"
-                    options={getColorTOptions(colorF)}
-                    value={colorT}
-                    onChange={setColorT}
-                    error={fieldErrors.colorT}
-                    //classes="w-1/2"
-                    classes="w-full sm:w-1/2"
-                    Labelclasses="text-center "
-                  />
-                </div>
-              </div>
-              {/* <div className="w-1/4"> */}
-              <div className="w-full md:w-1/4">
-                <label className="block text-gray-700 font-medium text-center">
-                  Clarity
-                </label>
-                {/* <div className="flex space-x-2"> */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <DropdownCust
-                    label="From"
-                    options={getClarityOptions(carat)}
-                    value={clarityF}
-                    onChange={setClarityF}
-                    error={fieldErrors.clarityF}
-                    //classes="w-1/2"
-                    classes="w-full sm:w-1/2"
-                    Labelclasses="text-center "
-                  />
-                  <DropdownCust
-                    label="To"
-                    options={getClarityTOptions(clarityF)}
-                    value={clarityT}
-                    onChange={setClarityT}
-                    error={fieldErrors.clarityT}
-                    //classes="w-1/2"
-                    classes="w-full sm:w-1/2"
-                    Labelclasses="text-center "
-                  />
-                </div>
-              </div>
-              {/* <div className="w-1/6"> */}
-              <div className="w-full md:w-1/6">
-                <label 
-                //className="block text-gray-700 font-medium text-center mb-7">
-                className="block text-gray-700 font-medium text-center mb-2 sm:mb-7">
-                  Premium Size
-                </label>
-                <DropdownCust
+                <Dropdown
                   label=""
-                  options={premiumSizeOptions}
-                  value={premiumSize}
-                  onChange={setPremiumSize}
-                  //error={fieldErrors.premiumSize}
+                  options={
+                    jewelleryData?.[0]?.Variants?.filter(
+                      (v) => v.Variant_name
+                    )?.map((variant) => ({
+                      label: variant.Variant_name,
+                      value: String(variant.Variant_id),
+                    })) || []
+                  }
+                  value={multiSizeDisplay}
+                  onChange={handleMultiSizeChange}
                   classes="w-full"
                 />
               </div>
-              {/* <div className="w-1/6"> */}
-              <div className="w-full md:w-1/6">
-                <label className="block text-gray-700 text-sm font-medium mb-7">
-                  Premium %
-                </label>
-                <input
-                  type="text"
-                  value={premiumPercentage}
-                  disabled
-                  className="w-full p-2 border rounded bg-gray-100 text-gray-600"
-                  // error={fieldErrors.premiumPercentage}
+            )}
+
+            {/* Color */}
+            <div className="w-full md:w-1/4">
+              <label className="block text-gray-700 font-medium text-center">
+                Color
+              </label>
+              {/* ✅ Always side-by-side (flex-row) on all screen sizes */}
+              <div className="flex flex-row gap-2">
+                <DropdownCust
+                  label="From"
+                  options={getColorOptions(carat)}
+                  value={colorF}
+                  onChange={setColorF}
+                  error={fieldErrors.colorF}
+                  classes="w-1/2"
+                  Labelclasses="text-center"
+                />
+                <DropdownCust
+                  label="To"
+                  options={getColorTOptions(colorF)}
+                  value={colorT}
+                  onChange={setColorT}
+                  error={fieldErrors.colorT}
+                  classes="w-1/2"
+                  Labelclasses="text-center"
                 />
               </div>
             </div>
+
+            {/* Clarity */}
+            <div className="w-full md:w-1/4">
+              <label className="block text-gray-700 font-medium text-center">
+                Clarity
+              </label>
+              {/* ✅ Always side-by-side (flex-row) on all screen sizes */}
+              <div className="flex flex-row gap-2">
+                <DropdownCust
+                  label="From"
+                  options={getClarityOptions(carat)}
+                  value={clarityF}
+                  onChange={setClarityF}
+                  error={fieldErrors.clarityF}
+                  classes="w-1/2"
+                  Labelclasses="text-center"
+                />
+                <DropdownCust
+                  label="To"
+                  options={getClarityTOptions(clarityF)}
+                  value={clarityT}
+                  onChange={setClarityT}
+                  error={fieldErrors.clarityT}
+                  classes="w-1/2"
+                  Labelclasses="text-center"
+                />
+              </div>
+            </div>
+
+            {/* Premium Size */}
+            <div className="w-full md:w-1/6">
+              <label className="block text-gray-700 font-medium text-center mb-2 sm:mb-7">
+                Premium Size
+              </label>
+              <DropdownCust
+                label=""
+                options={premiumSizeOptions}
+                value={premiumSize}
+                onChange={setPremiumSize}
+                classes="w-full"
+              />
+            </div>
+
+            {/* Premium % */}
+            <div className="w-full md:w-1/6">
+              <label className="block text-gray-700 text-sm font-medium text-center mb-2 sm:mb-7">
+                Premium %
+              </label>
+              <input
+                type="text"
+                value={premiumPercentage}
+                disabled
+                className="w-full p-2 border rounded bg-gray-100 text-gray-600"
+              />
+            </div>
+
+          </div>
         </div>
 
         {/* Buttons */}
-         {/* Buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 px-6 pb-6">
           <button
             onClick={handleClear}
@@ -506,6 +462,7 @@ const SolitaireCustomisationPopup: React.FC<
             Apply
           </button>
         </div>
+
       </div>
     </div>
   );
