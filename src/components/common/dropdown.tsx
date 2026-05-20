@@ -5,7 +5,6 @@ type OptionType = { label: string; value: string };
 
 export interface DropdownProps
   extends Omit<SelectProps, "children" | "onChange"> {
-  //options: Array<string>;
   classes?: string;
   label: string;
   options: Array<OptionType>;
@@ -23,12 +22,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   variant,
   onChange,
 }) => {
-  // Render the dropdown component
   return (
-    <div className="mb-4 [&>div>ul]:my-0 [&>div>ul>li]:!text-black [&>div]:min-w-0">
+    <div className="mb-4 relative z-50 [&>div>ul]:my-0 [&>div>ul>li]:!text-black [&>div]:min-w-0 [&>div>ul]:!z-[9999]">
       <Select
         label={label}
-        className={`rounded bg-white  [&>span]:px-2 [&>span]:!pt-0  [&+label]:!text-black ${classes}`}
+        className={`rounded bg-white [&>span]:px-2 [&>span]:!pt-0 [&+label]:!text-black ${classes}`}
         style={{ minWidth: 0 }}
         color="gray"
         disabled={disabled}
@@ -36,7 +34,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         value={value}
         onChange={(e) => {
           if (typeof e === "string") {
-            onChange(e); // Invoke the onChange prop with the selected value
+            onChange(e);
           }
         }}
       >
