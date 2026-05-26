@@ -52,6 +52,15 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       placeholder={placeholder}
       styles={{
         indicatorSeparator: (styles) => ({ ...styles, display: "none" }),
+         menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
       }}
     />
     // </div>
