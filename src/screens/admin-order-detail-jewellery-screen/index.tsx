@@ -287,40 +287,52 @@ function AdminOrderDetailJewelleryScreen() {
         {/* <h1 className="text-3xl font-bold text-gray-700 mb-4">
           Admin Order Details
         </h1> */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="w-1/2 flex flex-row">
-            <label className="text-sm font-medium text-gray-700 mt-2">
-              Status :&nbsp;
+        <div className="flex justify-between items-center mb-4 gap-10">
+          {/* Status */}
+          <div className="flex flex-row items-center gap-2 shrink-0">
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Status:
             </label>
             <select
               value={orderStatus}
               onChange={handleStatusChange}
               className="bg-white border border-gray-300 rounded-md p-2"
             >
-              {
-                //status.map((option, idx) => (
-                Object.values(STATUS).map((option, idx) => (
-                  <option key={idx} value={option}>
-                    {option}
-                  </option>
-                ))
-              }
+              {Object.values(STATUS).map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
           </div>
 
-          <button
-            onClick={handleBackButtonClick}
-            className="bg-black text-white py-1 px-4 rounded-md shadow-md hover:bg-white hover:text-black border"
-          >
-            Back
-          </button>
-          <button
-            onClick={DownloadClick}
-            className="px-4 py-1 bg-black text-white rounded-md hover:bg-blue-600 transition"
-          >
-            Get Excel
-          </button>
-        </div>
+          {/* Order From - centered */}
+          <div className="flex flex-row items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Order From:
+            </span>
+            <span className="text-sm text-gray-700">
+              {orderData[0]?.order_from || "--"}
+            </span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            <button
+              onClick={handleBackButtonClick}
+              className="bg-black text-white py-1 px-4 rounded-md shadow-md hover:bg-white hover:text-black border transition"
+            >
+              Back
+            </button>
+            <button
+              onClick={DownloadClick}
+              className="px-4 py-1 bg-black text-white rounded-md hover:bg-blue-600 transition"
+            >
+              Get Excel
+            </button>
+          </div>
+      </div>
+
         <div className="overflow-x-auto rounded-lg shadow-md">
           {orderData.length > 0 ? (
             <DataTable
@@ -374,6 +386,7 @@ function AdminOrderDetailJewelleryScreen() {
             ["Store Name", orderData[0]?.customer_branch || "--"],
             ["Order Type", orderData[0]?.order_type || "--"],
             ["Order For", orderData[0]?.order_for || "--"],
+            // ["Order From", orderData[0]?.order_from || "--"],
             [
               "Delivery Date",
               orderData[0]?.exp_dlv_date

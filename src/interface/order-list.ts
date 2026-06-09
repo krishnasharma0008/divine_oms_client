@@ -9,6 +9,7 @@ export interface OrderList {
   product_type: string;
   order_for: string;
   order_type:string;
+  order_from: string;
   exp_dlv_date: string;
 
   // order_date: string;

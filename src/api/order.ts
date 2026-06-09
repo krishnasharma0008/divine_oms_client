@@ -42,6 +42,7 @@ export interface OrderFiltersApi {
   product_type: string;
   order_for: string;
   order_type: string;
+  order_from: string;
   exp_dlv_date: string | null; // formatted YYYY-MM-DD
 }
 
@@ -73,6 +74,7 @@ const getOrderList = (
       product_type: filters.product_type || null,
       order_for: filters.order_for || null,
       order_type:filters.order_type || null,
+      order_from: filters.order_from || null,
       exp_dlv_date: filters.exp_dlv_date,
     },
   });
