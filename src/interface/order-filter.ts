@@ -7,5 +7,6 @@ export interface OrderFilters {
   product_type: string;
   order_for: string;
   order_type: string;
+  order_from: string;
   exp_dlv_date: Date | null; // keep as Date in state
 }

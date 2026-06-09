@@ -309,6 +309,15 @@ function OrderDetailJewelleryScreen() {
           Order Summary
         </h2>
         <div className="space-y-4">
+
+          {/* Order From */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Order From</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {orderData[0]?.order_from || "--"}
+            </span>
+          </div>
+          
           {/* Date of Order orderData?.order_date */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Date of Order</span>

@@ -26,6 +26,7 @@ import ITEM_TYPE from "@/enums/item-type";
 import ORDER_FOR from "@/enums/order-for";
 import { useIsoDate } from "@/hook/useIsoDate";
 import ORDER_TYPE from "@/enums/order-type";
+import ORDER_FROM from "@/enums/order-from";
 
 // Memoize the DataTable to prevent unnecessary re-renders
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +65,7 @@ function AdminOrderListScreen() {
     product_type: "",
     order_for: "",
     order_type:"",
+    order_from:"",
     exp_dlv_date: null,
   });
 
@@ -138,6 +140,25 @@ function AdminOrderListScreen() {
       reorder: true,
       center: true,
       width: "50px",
+    },
+    {
+      name: (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-center">Order From</div>
+          <div>
+            <DropdownCust
+              label=""
+              options={Object.values(ORDER_FROM)}
+              value={filters.order_from}
+              onChange={(val) => setFilters({ ...filters, order_from: val })}
+              classes="w-full text-black p-0"
+            />
+          </div>
+        </div>
+      ),
+      selector: (row: OrderList) => row.order_from,
+      reorder: true,
+      width: "140px",
     },
     {
       //name: "Order Status",
@@ -322,7 +343,7 @@ function AdminOrderListScreen() {
       selector: (row: OrderList) => row.order_type,
       reorder: true,
       width: "140px",
-    },
+    },    
     {
       //name: "EXPECTED DATE",
       name: (

@@ -4,6 +4,7 @@ export interface OrderDetail {
   orderno: number;
   order_for: string;
   order_type: string;
+  order_from: string;
   customer_id: number;
   customer_name: string;
   customer_branch: string;
