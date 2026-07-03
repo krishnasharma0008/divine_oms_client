@@ -8,4 +8,5 @@ export interface Jewellery {
   bom_variant_name: string;
   image_url: string;
   isnew: boolean;
+  is_exclusive?: boolean;
 }

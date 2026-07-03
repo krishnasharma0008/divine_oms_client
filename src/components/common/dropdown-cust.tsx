@@ -32,12 +32,12 @@ const DropdownCust: React.FC<DropdownProps> = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      disabled={disabled} // ✅ Apply the disabled prop
-      className={`w-full p-2 border rounded focus:outline-none focus:ring-2 ${
+      disabled={disabled}
+      className={`w-full rounded-lg border px-3 py-2.5 text-sm text-gray-900 outline-none focus:ring-2 ${
         error
-          ? "border-red-500 focus:ring-red-400"
-          : "border-gray-300 focus:ring-blue-500"
-      }`}
+          ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+          : "border-gray-300 focus:border-gray-900 focus:ring-gray-900/10"
+      } disabled:bg-gray-100 disabled:text-gray-500`}
     >
       <option value="">Select</option>
       {options.map((option) => (

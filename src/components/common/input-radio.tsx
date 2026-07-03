@@ -16,7 +16,7 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   name, // Use 'name' prop to distinguish groups
 }) => {
   return (
-    <div className="flex space-x-6">
+    <div className="flex flex-wrap gap-x-6 gap-y-2">
       {options.map((option) => (
         <label key={option.value} className="flex items-center space-x-2">
           <Radio

@@ -62,19 +62,19 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
   }
 
   return (
-    <div className="flex flex-col-reverse md:flex-row">
-      {/* Thumbnail Section */}
-      {/* <div className="flex flex-col space-y-3 mr-4 "> */}
-      <div className="flex md:flex-col mt-2 md:mt-0 md:mr-4 overflow-x-auto md:overflow-x-visible space-x-2 md:space-x-0 md:space-y-3">
+    <div className="flex flex-col-reverse gap-4 md:flex-row">
+      {/* Thumbnails */}
+      <div className="flex gap-2 overflow-x-auto pb-1 md:max-h-[480px] md:w-20 md:flex-col md:overflow-y-auto md:overflow-x-visible md:pb-0">
         {filteredImages.map((image: Image, index: number) => (
-          <div
+          <button
+            type="button"
             key={image.uid}
             onClick={() => handleImageClick(index)}
-            className={`cursor-pointer p-1 ${
+            className={`shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 p-0.5 transition ${
               selectedImage === index
-                ? "border border-[#FFDF91E5]"
-                : "border border-gray-200"
-            } rounded-lg`}
+                ? "border-gray-900"
+                : "border-gray-200 hover:border-gray-400"
+            }`}
           >
             {image.title.startsWith("Image") ? (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -111,32 +111,20 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
                 </div>
               </div>
             )}
-          </div>
+          </button>
         ))}
       </div>
 
-
-
-      {/* Main Image/Video Display */}
-      <div className="flex-1">
+      {/* Main image */}
+      <div className="flex min-h-[180px] flex-1 items-center justify-center rounded-xl bg-gray-50 p-2 sm:min-h-[240px] sm:p-4 md:min-h-[420px]">
         {selectedImage !== null && (
-          <div
-            className="relative w-full h-full"
-            //style={{ height: `${mainImageHeight}px` }} // Set the height to match 4 thumbnails
-          >
+          <div className="relative h-full w-full">
             {filteredImages[selectedImage].title.startsWith("Image") ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={filteredImages[selectedImage].url}
                 alt={filteredImages[selectedImage].title}
-                className="center md:w-auto w-60 max-h-full md:max-h-auto md:h-full m-auto object-contain rounded-lg shadow-md  "
-                style={{
-                  height: "70%", // Ensure the image takes up the full height of the container
-                  width: "100%",
-                  objectFit: "contain", // Maintain aspect ratio while filling the container
-                  //borderTop: "1px solid rgb(0 0 0 / 0.1)", // Add a top border to the main image container
-                  border: "1px solid #FFDF91E5",
-                }}
+                className="mx-auto max-h-[200px] w-full object-contain sm:max-h-[280px] md:max-h-[440px]"
                 onError={(e) => {
                   const imgElement = e.target as HTMLImageElement;
                   imgElement.src = "/jewellery/NoImageBig.jpg";
@@ -160,19 +148,12 @@ const ImageGallery: React.FC<{ msg?: string; images: Image[] }> = ({
               </div>
             )}
             {msg !== "" && (
-              <div
-                className="absolute border-[0.5px] border-[#CFAD61] top-0 -left-1 font-medium text-[15px] text-black px-[23px] py-[7px] rounded-bl-lg shadow-md"
-                style={{
-                  background:
-                    "linear-gradient(160.69deg, #ECD18F -26.56%, rgba(255, 214, 116, 0.99) 100%)",
-                }}
-              >
-                {/* {msg} */}
+              <div className="absolute left-0 top-0 rounded-br-lg bg-[#A9C5C6] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-900">
                 {msg === "This is multi size - solitaire product"
-                  ? " MULTI SIZE SOLITAIRE "
+                  ? "Multi size solitaire"
                   : msg === "This is multi - solitaire product"
-                  ? " MULTI SOLITAIRE "
-                  : msg}
+                    ? "Multi solitaire"
+                    : msg}
               </div>
             )}
             {filteredImages[selectedImage].url === "/vtdia/carousel_3.png" && (

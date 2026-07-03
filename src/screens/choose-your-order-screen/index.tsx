@@ -1,11 +1,6 @@
 "use client";
 
 import React, { useContext, useEffect, useState } from "react";
-import RadioButton from "@/components/common/input-radio";
-//import CheckboxGroup from "@/components/common/checkbox";
-import Dropdown from "@/components/common/dropdown";
-import InputText from "@/components/common/input-text";
-//import { Button, SingleSelectCheckbox } from "@/components/common";
 import { Button } from "@/components/common";
 import { useRouter } from "next/navigation";
 import { useCustomerStore } from "@/store/customerStore";
@@ -13,7 +8,6 @@ import { useCustomerOrderStore } from "@/store/customerorderStore";
 import { getCustType } from "@/local-storage";
 import { PJCustomerStoreDetail } from "@/interface/pj-custome-store";
 import NotificationContext from "@/context/notification-context";
-import TextArea from "@/components/common/input-text-area";
 import { getpjCustomer, getpjStore } from "@/api/pjcustomer-store-detail";
 import { CustomerOrderDetail } from "@/interface";
 import dayjs from "dayjs";
@@ -23,10 +17,54 @@ import SearchableSelect from "@/components/common/searchDropdown";
 dayjs.extend(utcPlugin);
 
 interface OptionType {
-  // value: string;
-  // label: string;
   code: string;
   name: string;
+}
+
+interface OptionPillsProps {
+  options: { label: string; value: string }[];
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function OptionPills({ options, value, onChange }: OptionPillsProps) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={`min-h-[44px] rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+            value === opt.value
+              ? "bg-gray-900 text-white shadow-sm"
+              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ReadOnlyField({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | null;
+}) {
+  return (
+    <div>
+      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
+      <p className="min-h-[44px] rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm leading-snug text-gray-900">
+        {value?.trim() || "—"}
+      </p>
+    </div>
+  );
 }
 
 const ChooseYourOrderScreen = () => {
@@ -117,15 +155,11 @@ const ChooseYourOrderScreen = () => {
   // };
 
   const handleSuggestionClick = (id: string, name: string) => {
-    console.log("Selected customer Code ", id);
-    console.log("Selected customer Name ", name);
-    // setIsCustomerName(id); old
-    //setIsSelectedCustomer(id); // Store the selected customer name
     setIsCustomerName(name);
-    getpjstoredata(id); //fetch store data
-    //setShowSuggestions(false);
-    //setSearchQuery(name); // Optionally clear the search query
+    getpjstoredata(id);
     setStores([]);
+    setSelectedSValue("");
+    setSelectedCustCode("");
     setSelectedAdd("");
     setSelectedContact("");
   };
@@ -303,6 +337,18 @@ const ChooseYourOrderScreen = () => {
     );
   }
 
+  const isJeweller = getCustType() === "Jeweller";
+  const contactDisplay = isJeweller ? selectedContact : customer?.contactno;
+  const addressDisplay = isJeweller ? selectedAdd : customer?.address;
+  const selectedStore = stores.find(
+    (store) => store.CustomerID.toString() === selectedSValue
+  );
+  const selectedStoreLabel =
+    selectedStore?.NickName?.trim() ||
+    selectedStore?.Name?.trim() ||
+    "";
+  const retailStoreLabel = "Mumbai HO";
+
   const handleProceed = () => {
     // Reset customer order before proceeding
     resetCustomerOrder();
@@ -380,258 +426,199 @@ const ChooseYourOrderScreen = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 min-h-screen md:min-h-[calc(100vh_-_85px)] rounded p-2 m-2 shadow-md space-y-2">
-      {/* Header */}
-      {/* <header className="bg-blue-500 text-white py-4 px-6 shadow-md">
-        <h1 className="text-2xl font-semibold">Choose Your Order</h1>
-      </header> */}
+    <div className="min-h-[calc(100vh-85px)] bg-gray-50 pb-32 lg:pb-10">
+      <div className="mx-auto max-w-3xl px-3 py-5 sm:px-6 lg:max-w-4xl lg:py-10">
+        <header className="mb-5 sm:mb-6">
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+            Choose your order
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Set partner, store, and order options before browsing products
+          </p>
+        </header>
 
-      {/* Scrollable content */}
-      {/* <div className="overflow-y-auto max-h-[50vh] space-y-4 px-4"> */}
-      {/* overflow-y-auto max-h-[48vh] */}
-      <main className="flex-1 p-2 space-y-2 bg-white">
-        <div>
-          <div className="flex md:flex-row flex-col w-full justify-between mt-2">
-            <div className="w-full px-4">
-              {getCustType() === "Jeweller" ? (
-                <div className="relative">
-                  {/* <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
+        <div className="space-y-3 sm:space-y-4">
+          {/* Customer & store */}
+          <section className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:text-sm">
+              Customer
+            </h2>
+            <div className="mt-3 space-y-4 sm:mt-4">
+              {isJeweller ? (
+                <>
+                  <div>
+                    <p className="mb-1.5 text-xs font-medium text-gray-700 sm:text-sm">
+                      Partner jeweller
+                    </p>
+                    <SearchableSelect
+                      options={customerData.map((store) => ({
+                        label: store.name,
+                        value: store.code,
+                      }))}
+                      onChange={(val) => {
+                        if (val) {
+                          handleSuggestionClick(val.value, val.label);
+                        }
+                      }}
+                      placeholder="Search partner jeweller..."
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="store-select"
+                      className="mb-1.5 block text-xs font-medium text-gray-700 sm:text-sm"
                     >
-                      <rect
-                        x="0.90918"
-                        y="7.51172"
-                        width="27.0468"
-                        height="27.0468"
-                        transform="rotate(-15 0.90918 7.51172)"
-                        fill="url(#pattern0_166_1548)"
-                      />
-                      <defs>
-                        <pattern
-                          id="pattern0_166_1548"
-                          patternContentUnits="objectBoundingBox"
-                          width="1"
-                          height="1"
+                      Select store
+                    </label>
+                    <select
+                      id="store-select"
+                      value={selectedSValue}
+                      onChange={(e) => handleSDropdownChange(e.target.value)}
+                      disabled={stores.length === 0}
+                      className="w-full min-h-[44px] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                    >
+                      <option value="">
+                        {stores.length === 0
+                          ? "Select a partner first"
+                          : "Choose a store"}
+                      </option>
+                      {stores.map((store) => (
+                        <option
+                          key={store.CustomerID}
+                          value={store.CustomerID.toString()}
                         >
-                          <use
-                            xlinkHref="#image0_166_1548"
-                            transform="scale(0.02)"
-                          />
-                        </pattern>
-                        <image
-                          id="image0_166_1548"
-                          width="30"
-                          height="30"
-                          xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADuElEQVR4nN2aTahVVRTH96uslJAmTcykLyoqGmiEZhgEfQyKIroQYt3eu/v/2/c+u+IVBKnBnViDJkEQNUiKPqy0UMSkiQ0iApOgkAYFVmbq84NSotQsja3P2F3vPu9xzj7Xd/rDGj3e+q//2Wutvc4615gcaLfblzjnHpb0kqTPgDHgKHAqsJOSfpG0A3gfWNpqta4yUwHtdnsmsNoH2BP0pEzS38AWa+288yKg2+1eACwDDuYR0Mf8aa211s4emIjR0dHLJG2cILC/gE+AFcBD/ok3m80bgUXAYuBlYHef/xtzzi0sXYRz7krg6wwBRyW9MDw8fMUk3A055+6VtL0n3Y5JeqI0EcAM4MsMEZ/mLN4hSSNhc5B0ArivBBmnydZniFhTq9UuLkLgnLsD2Bv4/NWnYzoJxhhr7VMZIt71QlPwNBqN2yT9FpzMtlS+TafTmS7pp0j73O7/bhLC30e+iwUcjydxDKyMtUzg9iQk53J+EAjZWTRtPYaA7yOnsdaUBGvtDcCfAd8jRR3Oj9VG2f0e2Bw8tPeKOnsmImTM3+7Jou7PbQO+g4WKfny46yfk7aRR9+ee08M5J7ez3ls3sOdNyajVaheOjzqnOa219+R2BnwbKfSnk0Yd598T1ORjuR1J+m6qCKFI54qllqTnzABSS2dmrrO8d+V2BqyLCHnLlAw/gPJf3utyO5P0bETIvrLbr3OuEfDtL9R+Jd2ZMSwuSBr5udybAiHrU7zS7ooIeceUhFardS1wPOCqFXYKrMpYHMxNEnn2RbwHmJbC6QxJP0fEbKvX65eahLDWPhiO8cDyUgqvj72ZkOdmSUeCB/VVt9u9KJX/s7WyISZG0itFj9+nabhZkfRHKfsuvwaaYIOydWRkZFbOd54lwO9h/RUaSSaCn0AlfZMhxgezul6vXz5Jf4skfd5zuid8KptBrEklfZQh5tR46/zY73ettfdba29xzl3t7x7gUUkvRt48DwMPmEGhdmbEXhWmQ1GT9GHO1CwOv6sd38AfyRm8v4s2SLrbTAV0Op3p/vYFXgW+kHSoJ+BjESEbTZUADEeEHCp7+EwKa+01sfRqNpu3mioB+DEiZqmpEoA3IkLWmSrBxhfhB5ItqgeBPnuqf80Pi6ZKkPRDREzLVAnA65E2XGy3O2gA9YiQYsuFQaPPiie0m0yVQPx7izNVArBm0B+OSoFz7slIau01VUIro078JzdTJUjaGREiUyVIeu18fQlLCv9bk/9FnVhrZ8fqpNFoXJ+C5B9KiNaRUnbwoAAAAABJRU5ErkJggg=="
-                        />
-                      </defs>
-                    </svg>
-                  </div> */}
-                  {/* <input
-                    type="text"
-                    placeholder="Search partner jeweller"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="w-full p-2 pl-14 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  />
-                  {loading && (
-                    <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
-                      <div className="loader"></div>
-                    </div>
-                  )} */}
-                  {/* Dropdown suggestion box */}
-                  {/* {showSuggestions && customerData.length > 0 && (
-                    <ul className="absolute left-0 top-full  w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
-                      {customerData.map((customer) => (
-                        <li
-                          key={customer.code}
-                          onClick={() =>
-                            handleSuggestionClick(
-                              String(customer.code),
-                              customer.name
-                            )
-                          }
-                          className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                        >
-                          {customer.name}
-                        </li>
+                          {store.NickName || store.Name}
+                        </option>
                       ))}
-                    </ul>
-                  )} */}
-                  <SearchableSelect
-                    options={customerData.map((store) => ({
-                      label: store.name,
-                      value: store.code,
-                    }))}
-                    onChange={(val) => {
-                      console.log("User cleared the selection", val);
-                      console.log("User cleared the selection");
-                      if (val) {
-                        handleSuggestionClick(val.value, val.label);
-                      }
-                    }}
-                    //isClearable
-                    placeholder="Search partner jeweller..."
-                  />
-                </div>
+                    </select>
+                  </div>
+                </>
               ) : (
-                <div className="w-full">
-                  <InputText
-                    type="text"
-                    label="Customer Name"
-                    value={customer?.name}
-                    disabled={true}
-                  />
+                <ReadOnlyField label="Customer name" value={customer?.name} />
+              )}
+
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                <ReadOnlyField label="Contact" value={contactDisplay} />
+                <ReadOnlyField label="Address" value={addressDisplay} />
+              </div>
+
+              {/* Selection summary — visible once partner/store chosen */}
+              {(isJeweller
+                ? isCustomerName || selectedStoreLabel
+                : customer?.name) && (
+                <div className="rounded-lg border border-[#A9C5C6]/50 bg-[#A9C5C6]/10 p-3 sm:p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                    Selected for this order
+                  </p>
+                  <dl className="mt-2 space-y-2 text-sm">
+                    {isJeweller && isCustomerName && (
+                      <div>
+                        <dt className="text-gray-500">Partner</dt>
+                        <dd className="font-medium text-gray-900">
+                          {isCustomerName}
+                        </dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt className="text-gray-500">Store</dt>
+                      <dd className="font-semibold text-gray-900">
+                        {isJeweller
+                          ? selectedStoreLabel || "Not selected yet"
+                          : retailStoreLabel}
+                      </dd>
+                    </div>
+                    {contactDisplay?.trim() && (
+                      <div>
+                        <dt className="text-gray-500">Contact</dt>
+                        <dd className="text-gray-900">{contactDisplay}</dd>
+                      </div>
+                    )}
+                    {addressDisplay?.trim() && (
+                      <div>
+                        <dt className="text-gray-500">Address</dt>
+                        <dd className="text-gray-900">{addressDisplay}</dd>
+                      </div>
+                    )}
+                  </dl>
                 </div>
               )}
             </div>
-            <div className="w-full px-4">
-              {getCustType() === "Jeweller" && (
-                <Dropdown
-                  label="Select Store"
-                  variant="outlined"
-                  options={stores.map((store) => ({
-                    label: store.NickName,
-                    value: store.CustomerID.toString(),
-                  }))}
-                  value={stores.toString()} // Ensure this is the correct state selectedSValue
-                  onChange={handleSDropdownChange}
-                />
-              )}
-            </div>
-          </div>
-          <div className="flex flex-row w-full">
-            <div className="w-full px-4">
-              <TextArea
-                label="Contact Detail"
-                value={
-                  getCustType() === "Jeweller"
-                    ? selectedContact
-                    : customer?.contactno
-                }
-                disabled={true}
-              />
-            </div>
-            <div className="w-full px-4">
-              <TextArea
-                label="Address"
-                value={
-                  getCustType() === "Jeweller" ? selectedAdd : customer?.address
-                }
-                disabled={true}
-              />
-            </div>
-          </div>
-          {/* </div> */}
+          </section>
 
-          <div className="w-full flex md:flex-row flex-col justify-between pl-4">
-            <fieldset className="w-auto p-2 border border-black/10 rounded-md">
-              <legend className="text-base font-semibold">
-                Select Item Type
-              </legend>
-              <div className="px-4">
-                <RadioButton
-                  name="Select Item Type"
+          {/* Item type & order for */}
+          <section className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:text-sm">
+              Product & delivery
+            </h2>
+            <div className="mt-3 space-y-4 sm:mt-4 sm:space-y-5">
+              <div>
+                <p className="mb-2 text-xs font-medium text-gray-700 sm:text-sm">
+                  Item type
+                </p>
+                <OptionPills
                   options={Ioptions}
-                  selectedValue={selectedValue}
+                  value={selectedValue}
                   onChange={handleItemTypeChange}
                 />
               </div>
-            </fieldset>
-            <div className="px-4">
-              <fieldset className="w-auto p-2 border border-black/10 rounded-md">
-                <legend className="text-base font-semibold">Order For</legend>
-
-                <RadioButton
-                  name="Order For"
+              <div>
+                <p className="mb-2 text-xs font-medium text-gray-700 sm:text-sm">
+                  Order for
+                </p>
+                <OptionPills
                   options={OrderForoptions}
-                  selectedValue={selectedOrderFor}
+                  value={selectedOrderFor}
                   onChange={handleOrderForChange}
                 />
-              </fieldset>
-            </div>
-            <div className="flex px-4 mt-4">
-              <InputText
-                type="text"
-                label="EXPECTED DELIVERY DATE"
-                value={expectedDeliveryDate} //selectedDate
-                disabled={true}
+              </div>
+              <ReadOnlyField
+                label="Expected delivery date"
+                value={expectedDeliveryDate}
               />
             </div>
-          </div>
-          <div className="w-full flex md:flex-row flex-col justify-between pl-4 mt-6 px-6">
-            <fieldset className="p-2 border border-black/10 rounded-md px-6">
-              <legend className="text-base font-semibold">Order Type</legend>
-              <div className="flex md:flex-row flex-col justify-between">
-                {/* {selectedOrderFor !== "Customer" && (
-                  <>
-                    <SingleSelectCheckbox
-                      title="Consignment"
-                      options={Consignmentoptions}
-                      //onSelect={handleConsignment}
-                      selectedValue={selectedconsignmen}
-                      onChange={handleOrderTypeChange}
-                      //disabled={selectedOrderFor === "Customer" ? true : false}
-                    />
-                    <SingleSelectCheckbox
-                      title="Sales or Return" 
-                      options={SORoptions}
-                      selectedValue={selectedsor}
-                      onChange={handleOrderTypeChange}
-                      //disabled={selectedOrderFor === "Customer" ? true : false}
-                      //classes="font-semibold"
-                    />
-                    <SingleSelectCheckbox
-                      title="Outright Purchase" 
-                      options={Outpurchaseoptions}
-                      selectedValue={selectedoutrightpur}
-                      onChange={handleOrderTypeChange}
-                      //disabled={selectedOrderFor === "Customer" ? true : false}
-                      //classes="font-semibold"
-                    />
-                  </>
-                )}
+          </section>
 
-                <SingleSelectCheckbox
-                  title="Customer Order"
-                  options={CustomerOrderoptions}
-                  //onSelect={handleConsignment}
-                  selectedValue={selectedCustOrder}
-                  onChange={handleOrderTypeChange}
-                /> */}
-                <RadioButton
-                  name=""
-                  options={CVoptions}
-                  selectedValue={orderType}
-                  onChange={handleOrderTypeChange}
-                />
-              </div>
-            </fieldset>
+          {/* Order type */}
+          <section className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:text-sm">
+              Order type
+            </h2>
+            <div className="mt-3 sm:mt-4">
+              <OptionPills
+                options={CVoptions}
+                value={orderType}
+                onChange={handleOrderTypeChange}
+              />
+            </div>
+          </section>
+
+          <p className="px-1 text-xs leading-relaxed text-gray-500">
+            Disclaimer: We are not committing for delivering the order on the
+            delivery date. We will try our best to deliver within time.
+          </p>
+
+          <div className="hidden justify-end pt-2 lg:flex">
+            <Button
+              themeType="dark"
+              classes="min-w-[160px] h-11 text-sm font-semibold"
+              onClick={handleProceed}
+            >
+              Proceed
+            </Button>
           </div>
         </div>
-      </main>
-      <footer>
-        <div className="w-full text-[#888] px-6">
-          Disclaimer: We are not committing for delivering the order on the
-          delivery date. We will try our best to deliver within time.
-        </div>
-        <div className="w-full bg-slate-200 h-[0.5px]"></div>
-        <div className="w-full flex justify-end">
-          <Button
-            themeType="dark"
-            classes="w-40 h-12 text-base"
-            onClick={handleProceed}
-          >
-            Proceed
-          </Button>
-        </div>
-      </footer>
+      </div>
+
+      {/* Sticky proceed bar — mobile only */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <Button
+          themeType="dark"
+          classes="w-full h-11 text-sm font-semibold"
+          onClick={handleProceed}
+        >
+          Proceed
+        </Button>
+      </div>
     </div>
   );
 };

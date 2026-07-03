@@ -15,7 +15,9 @@ import { getUser } from "@/local-storage";
 import LoaderContext from "@/context/loader-context";
 import { CartDetail } from "@/interface";
 import { formatByCurrencyINR } from "@/util/format-inr";
+import { groupCartByPartner } from "@/util/cart-partner";
 import AddRemarkModal from "@/components/common/add-remark-modal";
+import CartLineItem from "@/components/common/cart-line-item";
 import { useCartDetailStore } from "@/store/cartDetailStore";
 import LoginContext from "@/context/login-context";
 import MessageModal from "@/components/common/message-modal";
@@ -161,6 +163,28 @@ function CartScreen() {
       prevSelectedItems.includes(id)
         ? prevSelectedItems.filter((itemId) => itemId !== id) // Use a different variable name
         : [...prevSelectedItems, id],
+    );
+  };
+
+  const handleSelectPartnerGroup = (items: CartDetail[]) => {
+    const selectableIds = items
+      .filter(
+        (item) =>
+          (item.product_amt_min || 0) + (item.product_amt_max || 0) > 0,
+      )
+      .map((item) => item.id)
+      .filter((id): id is number => id !== undefined);
+
+    if (selectableIds.length === 0) return;
+
+    const allSelected = selectableIds.every((id) =>
+      selectedItems.includes(id),
+    );
+
+    setSelectedItems((prev) =>
+      allSelected
+        ? prev.filter((id) => !selectableIds.includes(id))
+        : [...new Set([...prev, ...selectableIds])],
     );
   };
 
@@ -509,6 +533,42 @@ function CartScreen() {
 
   // Extract totals for rendering
   const { totalQty, totalAmtMin, totalAmtMax } = calculateSelectedTotals();
+  const partnerGroups = groupCartByPartner(cartData ?? []);
+  const partnerCount = partnerGroups.length;
+
+  const renderCartLineItem = (item: CartDetail, index: number) => (
+    <CartLineItem
+      key={item.id ?? `${item.product_code}-${index}`}
+      item={item}
+      selected={selectedItems.includes(item.id ?? 0)}
+      onSelect={() => {
+        const isValidSelection =
+          (item.product_amt_min || 0) + (item.product_amt_max || 0) > 0;
+        if (isValidSelection) {
+          handleSelectItem(item.id ?? 0);
+        } else {
+          alert(
+            "Solitaire not selected for some products, please customize products",
+          );
+        }
+      }}
+      onDelete={() => handleDeleteItem(item?.id)}
+      onQuantityChange={(increment) =>
+        handleQuantityChange(item?.id, increment)
+      }
+      onRemarkClick={() => handleRemarkClick(item, "cart")}
+      onCopy={
+        item.product_type === "jewellery"
+          ? () => handleCopyItem(item)
+          : undefined
+      }
+      onEdit={
+        item.product_type === "jewellery"
+          ? () => handleEdit(item?.id)
+          : undefined
+      }
+    />
+  );
 
   const ExcelDownload = async () => {
     //console.log("Download Excel");
@@ -548,410 +608,245 @@ function CartScreen() {
   };
 
   return (
-    // <div className="flex max-h-[calc(100vh_-_90px)] overflow-y-auto gap-x-2 m-2">
-    <div className="flex flex-col lg:flex-row gap-3 p-2">
-      {/* <div className="w-4/5 flex flex-col  text-gray-800 my-0.5 "> */}
-      {/* Fixed Header */}
-
-      <div className="w-full lg:w-4/5 overflow-y-auto max-h-[calc(100vh-140px)]">
-        <div className="sticky top-0 z-30 bg-white shadow-md p-2">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          {/* Buttons: mobile white background only */}
-          <div className="order-1 sm:order-2 flex flex-wrap justify-end gap-2 w-full sm:w-auto">
+    <div className="min-h-[calc(100vh-85px)] bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8">
+        {/* Page header */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+              Shopping bag
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              {(cartData ?? []).length} item
+              {(cartData ?? []).length === 1 ? "" : "s"}
+              {partnerCount > 1 && (
+                <>
+                  {" "}
+                  · {partnerCount} partners
+                </>
+              )}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <button
-              className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+              type="button"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50"
               onClick={() => router.push("/jewellery")}
             >
-              Continue Shopping
+              Continue shopping
             </button>
-
             {(cartData ?? []).length > 0 && (
               <>
                 <button
-                  className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+                  type="button"
+                  className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50"
                   onClick={DownloadClick}
                 >
-                  Export to Excel
+                  Export Excel
                 </button>
                 <button
+                  type="button"
                   onClick={handleSelectAll}
-                  className="h-10 px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black w-full sm:w-auto"
+                  className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
                 >
-                  Select All
+                  {selectedItems.length === (cartData ?? []).length
+                    ? "Deselect all"
+                    : "Select all"}
                 </button>
               </>
             )}
           </div>
-
-          {/* Shopping Bag Title */}
-          <h1 className="order-2 sm:order-1 text-base sm:text-xl font-semibold w-full sm:w-auto text-left sm:text-left">
-            Shopping Bag {"("} {(cartData ?? []).length} {" items )"}
-          </h1>
         </div>
-      </div>
 
+        <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8">
+          {/* Cart items grouped by partner */}
+          <div className="space-y-5 pb-32 lg:pb-0">
+            {(cartData ?? []).length > 0 ? (
+              partnerGroups.map(({ partner, items }) => {
+                const groupIds = items
+                  .map((item) => item.id)
+                  .filter((id): id is number => id !== undefined);
+                const selectedInGroup = groupIds.filter((id) =>
+                  selectedItems.includes(id),
+                ).length;
+                const allGroupSelected =
+                  groupIds.length > 0 &&
+                  selectedInGroup === groupIds.length;
 
-        {/* Cart Items Section */}
-        {/* <div className="flex-1 overflow-y-auto h-[90vh] px-2 sm:px-4 py-2"> */}
-        <div className="flex-1  py-2">
-          {(cartData ?? []).length > 0 ? (
-            cartData.map((item, index) => (
-              <div
-                key={index}
-                className="relative flex flex-col md:flex-row p-3 md:p-4 mb-4 gap-3 bg-white border rounded-md hover:shadow-lg transition-transform duration-300"
-              >
-                {/* Checkbox + mobile delete */}
-                <div className="flex items-center justify-between md:justify-start md:w-auto mb-2 md:mb-0">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(item.id ?? 0)}
-                    onChange={() => {
-                      const isValidSelection =
-                        (item.product_amt_min || 0) +
-                          (item.product_amt_max || 0) >
-                        0;
-
-                      if (isValidSelection) {
-                        handleSelectItem(item.id ?? 0);
-                      } else {
-                        alert(
-                          "Solitaire not selected for some products, please customize products",
-                        );
-                      }
-                    }}
-                    className="w-5 h-5"
-                  />
-                  {/* Mobile delete button */}
-                  <button
-                    onClick={() => handleDeleteItem(item?.id)}
-                    className="md:hidden ml-3 text-red-600 hover:text-red-800 font-semibold"
+                return (
+                  <section
+                    key={partner}
+                    className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
                   >
-                    X
-                  </button>
-                </div>
-
-                {/* Image Section */}
-                <div className="w-full md:w-1/3 overflow-hidden rounded-lg flex md:h-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      item.product_type.toLowerCase() === "jewellery"
-                        ? (item.image_url ?? "")
-                        : item.product_type.toLowerCase() === "solitaire" &&
-                            item.solitaire_shape === "Round"
-                          ? "/solitaire/image7.png"
-                          : item.product_type.toLowerCase() === "solitaire" &&
-                              item.solitaire_shape === "Princess"
-                            ? "/solitaire/image8.png"
-                            : item.solitaire_shape === "Oval"
-                              ? "/solitaire/image9.png"
-                              : "/solitaire/image_9.png"
-                    }
-                    alt=""
-                    width={200}
-                    height={60}
-                    onError={(event) => {
-                      const imgElement = event.target as HTMLImageElement;
-                      if (imgElement) {
-                        imgElement.src = "/jewellery/NoImageBig.jpg";
-                      }
-                    }}
-                    className=" object-contain w-full 
-                            h-40 sm:h-48          /* mobile/tablet */
-                            md:h-full             /* take full column height on md+ */
-                            transition-transform duration-300 hover:scale-105
-                          "
-                  />
-                </div>
-
-                {/* Data Section */}
-                <div className="w-full md:w-2/3 flex flex-col justify-between gap-1">
-                  <div className="flex flex-wrap items-center gap-x-1">
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-800">
-                      Partner Jewellers:
-                    </h2>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      {item.order_for === "Retail Customer"
-                        ? "Divine Solitaires"
-                        : item.customer_name || "-"}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Order For: {item.order_for || "-"}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Type: {item.order_type || "-"}
-                    </p>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    Store: {item.customer_branch || "-"}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    Customer:{" "}
-                    {item.order_for === "Retail Customer"
-                      ? item.customer_name
-                      : "-"}
-                  </p>
-
-                  {item.product_type === "jewellery" && (
-                    <>
-                      <div className="flex flex-wrap items-center gap-4">
-                        <p className="text-sm font-semibold text-gray-600">
-                          {item.product_code}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-600">
-                          Old: {item.old_varient}
+                    <div className="flex items-center justify-between gap-3 border-b border-gray-100 bg-gray-50 px-3 py-3 sm:px-4">
+                      <div className="min-w-0">
+                        <h2 className="truncate text-sm font-semibold text-gray-900 sm:text-base">
+                          {partner}
+                        </h2>
+                        <p className="text-xs text-gray-500">
+                          {items.length} item{items.length === 1 ? "" : "s"}
+                          {selectedInGroup > 0 &&
+                            ` · ${selectedInGroup} selected`}
                         </p>
                       </div>
-                      <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-600">
-                        <p>Collection: {item.collection}</p>
-                        <p>Sub Category: {item.product_sub_category}</p>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Diamond:{" "}
-                      {`${item.solitaire_slab || "-"} cts ${
-                        item.solitaire_shape || "-"
-                      } ${item.solitaire_color || "-"} ${
-                        item.solitaire_quality || "-"
-                      }`}
-                    </p>
-                    <div className="flex items-center gap-2">
                       <button
-                        className="w-8 h-8 bg-black text-white text-sm rounded flex items-center justify-center hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        onClick={() => handleQuantityChange(item?.id, false)}
-                        aria-label="Decrease quantity"
+                        type="button"
+                        onClick={() => handleSelectPartnerGroup(items)}
+                        className="shrink-0 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-100 sm:text-sm"
                       >
-                        -
-                      </button>
-                      <span className="flex items-center justify-center text-sm">
-                        {item.product_qty || 1}
-                      </span>
-                      <button
-                        className="w-8 h-8 bg-black text-white text-sm rounded flex items-center justify-center hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        onClick={() => handleQuantityChange(item?.id, true)}
-                        aria-label="Increase quantity"
-                      >
-                        +
+                        {allGroupSelected ? "Deselect" : "Select all"}
                       </button>
                     </div>
-                  </div>
-
-                  {item.product_type === "jewellery" && (
-                    <>
-                      {item.size_from !== "-" && Number(item.size_from) > 3 && (
-                        <p className="text-xs sm:text-sm text-gray-600">
-                          Size: {item.size_from || "-"}
-                        </p>
+                    <div className="space-y-2 p-2 sm:p-3">
+                      {items.map((item, index) =>
+                        renderCartLineItem(item, index),
                       )}
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        Metal Color: {item.metal_color || "-"}{" "}
-                        {item.metal_purity || "-"}
-                      </p>
-                      {item.side_stone_cts > 0 && (
-                        <p className="text-xs sm:text-sm text-gray-600">
-                          Side Diamonds:{" "}
-                          {item.side_stone_cts
-                            ? `${item.side_stone_cts.toFixed(2)} cts`
-                            : "-"}{" "}
-                          {item.side_stone_color || "-"}{" "}
-                          {item.side_stone_quality || "-"}
-                        </p>
-                      )}
-                      <p className="flex text-xs sm:text-sm text-gray-600">
-                        Metal Weight:&nbsp;
-                        <span className="font-semibold text-black">
-                          {item.metal_weight.toFixed(3) || "-"}
-                        </span>
-                      </p>
-                    </>
-                  )}
-
-                  <p className="flex flex-wrap items-center text-xs sm:text-sm text-gray-600">
-                    Amount: Min:&nbsp;
-                    <span className="font-semibold text-black">
-                      {formatByCurrencyINR(item.product_amt_min)}
-                    </span>
-                    &nbsp;Max:&nbsp;
-                    <span className="font-semibold text-black">
-                      {formatByCurrencyINR(item.product_amt_max)}
-                    </span>
-                  </p>
-
-                  <p className="flex flex-wrap items-center text-xs sm:text-sm text-gray-600">
-                    Expected Delivery Date:&nbsp;
-                    <span className="font-semibold text-black">
-                      {dayjs(item.exp_dlv_date).isValid()
-                        ? dayjs(item.exp_dlv_date).format("DD-MM-YYYY")
-                        : " "}
-                    </span>
-                  </p>
-
-                  <div className="flex items-center flex-wrap gap-1">
-                    <p
-                      className="text-xs sm:text-sm font-bold text-black cursor-pointer underline"
-                      onClick={() => handleRemarkClick(item, "cart")}
-                    >
-                      Add Remark
-                    </p>
-                    <p className="text-xs sm:text-sm">
-                      : {item.cart_remarks || ""}
-                    </p>
-                  </div>
-
-                  {item.product_type === "jewellery" && (
-                    <div className="w-full flex justify-end gap-2 mt-2">
-                      <button
-                        className="px-3 py-1 sm:px-4 sm:py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black text-xs sm:text-sm"
-                        onClick={() => handleCopyItem(item)}
-                      >
-                        Copy
-                      </button>
-                      <button
-                        className="px-3 py-1 sm:px-4 sm:py-1 bg-black text-white rounded-md border border-black hover:bg:white hover:text:black text-xs sm:text-sm"
-                        onClick={() => handleEdit(item?.id)}
-                      >
-                        Edit
-                      </button>
                     </div>
-                  )}
-                </div>
-
-                {/* Desktop delete button */}
+                  </section>
+                );
+              })
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+                <p className="text-lg font-medium text-gray-900">
+                  Your bag is empty
+                </p>
+                <p className="mt-1 max-w-sm text-sm text-gray-500">
+                  Browse jewellery and add items to your cart to place an order.
+                </p>
                 <button
-                  onClick={() => handleDeleteItem(item?.id)}
-                  className="hidden md:block absolute top-1 right-2 text-red-600 hover:text-red-800"
+                  type="button"
+                  onClick={() => router.push("/jewellery")}
+                  className="mt-6 rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
                 >
-                  X
+                  Browse jewellery
                 </button>
               </div>
-            ))
-          ) : (
-            <div className="flex justify-center items-center h-full">
-              <p className="text-lg font-medium text-gray-600">
-                Your cart is empty. Start adding items to see them here!
-              </p>
-            </div>
+            )}
+          </div>
+
+          {/* Order summary — desktop sidebar */}
+          {(cartData ?? []).length > 0 && (
+            <aside className="hidden lg:block">
+              <div className="sticky top-24 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Order summary
+                </h2>
+                <p className="mt-1 text-xs text-gray-500">
+                  {selectedItems.length} of {(cartData ?? []).length} selected
+                </p>
+
+                <dl className="mt-6 space-y-4 border-t border-gray-100 pt-4">
+                  <div className="flex justify-between text-sm">
+                    <dt className="text-gray-600">Total quantity</dt>
+                    <dd className="font-semibold text-gray-900">{totalQty}</dd>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <dt className="text-gray-600">Total amount</dt>
+                    <dd className="text-right font-semibold text-gray-900">
+                      {formatByCurrencyINR(totalAmtMin)} –{" "}
+                      {formatByCurrencyINR(totalAmtMax)}
+                    </dd>
+                  </div>
+                </dl>
+
+                <button
+                  type="button"
+                  className="mt-6 w-full rounded-lg bg-gray-900 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-50"
+                  onClick={handleProceedToCheckout}
+                  disabled={selectedItems.length === 0}
+                >
+                  Proceed to checkout
+                </button>
+
+                <button
+                  type="button"
+                  className="mt-4 w-full text-left text-sm font-medium text-gray-700 underline-offset-2 hover:underline"
+                  onClick={() =>
+                    handleRemarkClick(cartData[0], "order_summary")
+                  }
+                >
+                  {orderSummaryRemark ? "Edit order remark" : "Add order remark"}
+                </button>
+                {orderSummaryRemark && (
+                  <p className="mt-2 text-xs text-gray-500">{orderSummaryRemark}</p>
+                )}
+              </div>
+            </aside>
           )}
         </div>
       </div>
 
-      {/* Order Summary Section */}
+      {/* Mobile sticky checkout bar */}
       {(cartData ?? []).length > 0 && (
-        <div className="p-2 w-full md:w-1/3 lg:w-1/4 border rounded-lg shadow-md bg-white mt-4 md:mt-0">
-          <div className="flex flex-col gap-4 px-4 sm:px-6 mt-4">
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-center md:text-left">
-              Order Summary
-            </h2>
-
-            {/* Total Quantity Section */}
-            <div className="flex justify-between items-center py-2">
-              <span className="text-base sm:text-xl text-gray-600">
-                Total Quantity
-              </span>
-              <div className="text-lg font-semibold text-black">{totalQty}</div>
-            </div>
-
-            {/* Total Amount Section */}
-            <div className="flex justify-between items-center py-2">
-              <span className="text-base sm:text-xl text-gray-600">
-                Total Amount
-              </span>
-              <div className="text-lg font-semibold text-black text-right">
-                {formatByCurrencyINR(totalAmtMin)} -{" "}
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] lg:hidden">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs text-gray-500">{totalQty} items selected</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {formatByCurrencyINR(totalAmtMin)} –{" "}
                 {formatByCurrencyINR(totalAmtMax)}
-              </div>
+              </p>
             </div>
+            <button
+              type="button"
+              className="shrink-0 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              onClick={handleProceedToCheckout}
+              disabled={selectedItems.length === 0}
+            >
+              Checkout
+            </button>
+          </div>
+        </div>
+      )}
 
-            {/* Proceed to Checkout Button */}
-            <div className="mt-4 w-full flex items-center justify-center">
+      {isConfirmationModalVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Place this order?
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You cannot cancel the order once it is placed and the order will
+              be executed.
+            </p>
+            <div className="mt-6 flex gap-3">
               <button
-                className="w-full h-12 flex items-center justify-center px-6 py-3 border border-black bg-black text-white rounded-lg hover:bg-white hover:text-black transition duration-300"
-                onClick={handleProceedToCheckout}
+                type="button"
+                className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+                onClick={handlePlaceOrder}
               >
-                Proceed to Checkout
+                Place order
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onClick={handleGoBackToCart}
+              >
+                Go back
               </button>
             </div>
-
-            {/* Remark Section */}
-            <div className="flex flex-col items-start py-2">
-              <span
-                className="text-lg sm:text-xl text-black underline cursor-pointer"
-                onClick={() => handleRemarkClick(cartData[0], "order_summary")}
-              >
-                Add Remark
-              </span>
-              <div className="flex items-center mt-2">
-                <span className="text-sm font-bold text-black">
-                  Remark:&nbsp;
-                </span>
-                <p className="text-sm text-black cursor-pointer hover:underline">
-                  {orderSummaryRemark || ""}
-                </p>
-              </div>
-            </div>
           </div>
-
-          {/* Confirmation Modal */}
-          {isConfirmationModalVisible && (
-            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Are you sure you want to place the order?
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  You cannot cancel the order once it is placed and the order
-                  will be executed.
-                </p>
-                <div className="mt-4 flex gap-4">
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    onClick={handlePlaceOrder}
-                  >
-                    Place Order
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
-                    onClick={handleGoBackToCart}
-                  >
-                    Go back to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Checkout Error Modal */}
-          {isCheckoutModalVisible && (
-            <MessageModal
-              title="Proceed to Checkout"
-              onConfirm={closeCheckoutModal}
-            >
-              <p>{isMsg}</p>
-            </MessageModal>
-          )}
-
-          {/* Checkout Success Modal */}
-          {isCheckoutModalMessageVisible && (
-            <MessageModal title="Success" onConfirm={closeCheckoutMessageModal}>
-              <p>Your order has been created successfully.</p>
-              {Array.isArray(cartMsg) &&
-                cartMsg.length > 0 &&
-                cartMsg.map((item, index) => (
-                  <div key={index}>
-                    <p>Product Type: {item.product_type}</p>
-                    <p>Order Number: {item.orderno}</p>
-                  </div>
-                ))}
-            </MessageModal>
-          )}
         </div>
+      )}
+
+      {isCheckoutModalVisible && (
+        <MessageModal title="Proceed to Checkout" onConfirm={closeCheckoutModal}>
+          <p>{isMsg}</p>
+        </MessageModal>
+      )}
+
+      {isCheckoutModalMessageVisible && (
+        <MessageModal title="Success" onConfirm={closeCheckoutMessageModal}>
+          <p>Your order has been created successfully.</p>
+          {Array.isArray(cartMsg) &&
+            cartMsg.length > 0 &&
+            cartMsg.map((item, index) => (
+              <div key={index}>
+                <p>Product Type: {item.product_type}</p>
+                <p>Order Number: {item.orderno}</p>
+              </div>
+            ))}
+        </MessageModal>
       )}
 
       <AddRemarkModal
