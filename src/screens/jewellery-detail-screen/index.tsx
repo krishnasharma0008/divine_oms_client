@@ -64,7 +64,7 @@ function JewelleryDetailScreen() {
   const [soliPriceTo, setSoliPriceTo] = useState<number>(0);
   const [metalPrice, setMetalPrice] = useState<number>();
   const [metalAmtFrom, setMetalAmtFrom] = useState<number>();
-  const [sDiaPrice, setSDiaPrice] = useState<number>();
+  //const [sDiaPrice, setSDiaPrice] = useState<number>();
   const [sDiaAmt, setSDiaAmt] = useState<number>();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { notify, notifyErr } = useContext(NotificationContext);
@@ -1161,7 +1161,7 @@ function JewelleryDetailScreen() {
       const [color, clarity] = sideDiaColorClarity.split("-");
 
       const diamondPrice = await FetchPrice("DIAMOND", "", "", color, clarity);
-      setSDiaPrice(diamondPrice);
+      //setSDiaPrice(diamondPrice);
 
       const selectedQty = qty || 1;
 
