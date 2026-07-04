@@ -1,33 +1,54 @@
 "use client";
 
-//import { Switch } from "@material-tailwind/react";
 import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
-import CheckboxGroup from "@/components/common/checkbox";
 import JewelleryHomeDiv from "@/components/common/jewellery-home";
+import {
+  ActiveFilterChips,
+  ActiveFilterChip,
+  FilterSearchInput,
+  JewelleryFilterPanel,
+} from "@/components/common/jewellery-filter-panel";
 import { useSearchParams, useRouter } from "next/navigation";
 import PJDetailModal from "@/components/common/pj-detail-modal";
 import { Jewellery } from "@/interface";
-//import LoaderContext from "@/context/loader-context";
 import { getJewelleryDetailID } from "@/api/jewellery-detail";
 import NotificationContext from "@/context/notification-context";
-//import BulkImportModal from "@/components/common/bulk-import-modal";
 import { useCustomerOrderStore } from "@/store/customerorderStore";
 import MessageModal from "@/components/common/message-modal";
 import { ProductFilters } from "@/api/jewellery-filters";
 import Loader from "@/components/common/loader";
-//import { SingleSelectCheckbox } from "@/components";
 import { useUserFromToken } from "@/hook/useUserFromToken";
 import { getToken } from "@/local-storage";
 
 interface OptionType {
   value: string;
   label: string;
+}
+
+function getPriceRange(value: string) {
+  if (value === "100,000") {
+    return { fromPrice: 0, toPrice: 100000 };
+  }
+
+  if (value === "500,000") {
+    return { fromPrice: 500000, toPrice: null };
+  }
+
+  const match = value.match(/([\d,]+)\s*-\s*([\d,]+)/);
+  if (match) {
+    const fromPrice = parseInt(match[1].replace(/,/g, ""));
+    const toPrice = parseInt(match[2].replace(/,/g, ""));
+    return { fromPrice, toPrice };
+  }
+
+  return { fromPrice: null, toPrice: null };
 }
 
 function JewelleyScreen() {
@@ -40,9 +61,11 @@ function JewelleyScreen() {
   const [selectedPortfolio, setSelectedPortfolio] = useState<string[]>([]);
   const [selectedGender, setSelectedGender] = useState<string[]>([]);
   const [selectedPrice, setSelectedPrice] = useState<string>("");
+  const [selectedExclusive, setSelectedExclusive] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [selectedJewelleryItem, setSelectedJewelleryItem] = useState<
     Array<Jewellery>
   >([]);
@@ -88,9 +111,37 @@ function JewelleyScreen() {
     { label: "500,000 and above", value: "500,000 -10,00,00,000" },
   ];
 
-  const Discardoptions = [{ label: "Discarded", value: "Discarded" }];
+  const ExclusiveOptions = [
+    { label: "Yes", value: "Yes" },
+    { label: "No", value: "No" },
+  ];
 
-  // Memoized fetch function
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedPrice) count++;
+    if (selectedExclusive) count++;
+    if (selectedcategory.length) count++;
+    if (selectedSubcategory.length) count++;
+    if (selectedGender.length) count++;
+    if (selectedMetal.length) count++;
+    if (selectedcollection.length) count++;
+    if (selectedPortfolio.length) count++;
+    if (isDiscarded) count++;
+    if (searchText.trim()) count++;
+    return count;
+  }, [
+    selectedPrice,
+    selectedExclusive,
+    selectedcategory,
+    selectedSubcategory,
+    selectedGender,
+    selectedMetal,
+    selectedcollection,
+    selectedPortfolio,
+    isDiscarded,
+    searchText,
+  ]);
+
   const FetchListdata = useCallback(
     async (
       item_number: string,
@@ -104,7 +155,8 @@ function JewelleyScreen() {
       discarded: boolean,
       gender: string[] | string,
       price_from: string,
-      price_to: string
+      price_to: string,
+      exclusive: string
     ) => {
       try {
         setIsLoadingMore(true);
@@ -145,7 +197,8 @@ function JewelleyScreen() {
           genderParam,
           price_from,
           price_to,
-          Order_for
+          Order_for,
+          exclusive
         );
 
         if (newlaunch === false) {
@@ -167,7 +220,7 @@ function JewelleyScreen() {
         setIsLoadingMore(false);
       }
     },
-    [notifyErr]
+    [customerOrder?.order_for, notifyErr]
   );
 
   const FetchProductCategory = useCallback(async () => {
@@ -203,7 +256,41 @@ function JewelleyScreen() {
     }
   }, [notifyErr]);
 
-  // Initial load effect
+  const runSearch = useCallback(
+    (page = 1, switchState = isSwitchOn, discardedState = isDiscarded) => {
+      const { fromPrice, toPrice } = getPriceRange(selectedPrice);
+      return FetchListdata(
+        searchText,
+        selectedcategory,
+        selectedSubcategory,
+        selectedcollection,
+        selectedMetal,
+        selectedPortfolio,
+        page,
+        switchState,
+        discardedState,
+        selectedGender,
+        fromPrice?.toString() || "",
+        toPrice?.toString() || "",
+        selectedExclusive
+      );
+    },
+    [
+      FetchListdata,
+      searchText,
+      selectedcategory,
+      selectedSubcategory,
+      selectedcollection,
+      selectedMetal,
+      selectedPortfolio,
+      selectedGender,
+      selectedPrice,
+      selectedExclusive,
+      isSwitchOn,
+      isDiscarded,
+    ]
+  );
+
   useEffect(() => {
     const initialLoad = async () => {
       setCurrentPage(1);
@@ -220,6 +307,7 @@ function JewelleyScreen() {
         isDiscarded,
         "",
         "",
+        "",
         ""
       );
       await FetchProductCategory();
@@ -234,41 +322,12 @@ function JewelleyScreen() {
     isDiscarded,
   ]);
 
-  // Pagination effect
   useEffect(() => {
     if (currentPage > 1) {
-      const { fromPrice, toPrice } = getPriceRange(selectedPrice);
-      FetchListdata(
-        searchText,
-        selectedcategory,
-        selectedSubcategory,
-        selectedcollection,
-        selectedMetal,
-        selectedPortfolio,
-        currentPage,
-        isSwitchOn,
-        isDiscarded,
-        selectedGender,
-        fromPrice?.toString() || "",
-        toPrice?.toString() || ""
-      );
+      runSearch(currentPage);
     }
-  }, [
-    currentPage,
-    FetchListdata,
-    searchText,
-    selectedcategory,
-    selectedSubcategory,
-    selectedcollection,
-    selectedMetal,
-    selectedPortfolio,
-    isSwitchOn,
-    isDiscarded,
-    selectedGender,
-    selectedPrice,
-  ]);
+  }, [currentPage, runSearch]);
 
-  // Scroll effect
   useEffect(() => {
     if (selectedJewelleryItem.length > 0) {
       const objDiv = dataContainer.current;
@@ -289,39 +348,22 @@ function JewelleyScreen() {
     setIsDiscarded(false);
     setSelectedGender([]);
     setSelectedPrice("");
-    FetchListdata("", "", "", "", "", "", 1, isSwitchOn, false, "", "", "");
+    setSelectedExclusive("");
+    FetchListdata("", "", "", "", "", "", 1, isSwitchOn, false, "", "", "", "");
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setCurrentPage(1);
     setLoading(true);
-    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
-    FetchListdata(
-      searchText,
-      selectedcategory,
-      selectedSubcategory,
-      selectedcollection,
-      selectedMetal,
-      selectedPortfolio,
-      1,
-      isSwitchOn,
-      isDiscarded,
-      selectedGender,
-      fromPrice?.toString() || "",
-      toPrice?.toString() || ""
-    );
-
-    setTimeout(() => {
-      setLoading(false);
-    });
+    setIsFilterOpen(false);
+    await runSearch(1);
+    setLoading(false);
   };
 
   const handleLoadMore = () => {
-    setCurrentPage((prevPage) => prevPage + 1); // Increment page number
-
-    const objDiv = dataContainer.current; //document.getElementById("data-div");
+    setCurrentPage((prevPage) => prevPage + 1);
+    const objDiv = dataContainer.current;
     if (objDiv) {
-      //console.log("Height : ",objDiv.scrollHeight);
       objDiv.scrollTop = objDiv.scrollHeight;
     }
   };
@@ -331,7 +373,6 @@ function JewelleyScreen() {
   };
 
   const handleBulkImport = () => {
-    //setIsBulkImportOpen(true);
     router.push("/jewellery/jewellery-bulk-import");
   };
 
@@ -343,7 +384,6 @@ function JewelleyScreen() {
       setIsCheckoutModalVisible(true);
       return;
     }
-    //router.push(`/jewellery/jewellery-detail?id=${design_no}`);
     const queryParams = new URLSearchParams({
       id: design_no,
       ftype: "new",
@@ -353,8 +393,6 @@ function JewelleyScreen() {
   };
 
   const handleStockClick = (design_no: string) => {
-    //alert(customerOrder?.cust_name);customerOrder
-
     if (
       customerOrder?.cust_name === "" ||
       customerOrder?.cust_name === undefined
@@ -367,13 +405,14 @@ function JewelleyScreen() {
 
   const closeCheckoutModal = () => {
     setIsCheckoutModalVisible(false);
-    //console.log("Proceeding to checkout with selected items:");
   };
 
-  const handleAll = () => {
-    setIsSwitchOn(false); // MUI Switch sends `event` with `checked` value
-    console.log("Switch State:", false);
-    FetchListdata(
+  const handleAll = async () => {
+    setIsSwitchOn(false);
+    setCurrentPage(1);
+    setLoading(true);
+    const { fromPrice, toPrice } = getPriceRange(selectedPrice);
+    await FetchListdata(
       searchText,
       selectedcategory,
       selectedSubcategory,
@@ -384,16 +423,19 @@ function JewelleyScreen() {
       false,
       isDiscarded,
       selectedGender,
-      "",
-      ""
+      fromPrice?.toString() || "",
+      toPrice?.toString() || "",
+      selectedExclusive
     );
+    setLoading(false);
   };
 
-  const handleIsNew = () => {
-    setIsSwitchOn(true); // MUI Switch sends `event` with `checked` value
-    console.log("Switch State:", true);
+  const handleIsNew = async () => {
+    setIsSwitchOn(true);
+    setCurrentPage(1);
+    setLoading(true);
     const { fromPrice, toPrice } = getPriceRange(selectedPrice);
-    FetchListdata(
+    await FetchListdata(
       searchText,
       selectedcategory,
       selectedSubcategory,
@@ -405,239 +447,404 @@ function JewelleyScreen() {
       isDiscarded,
       selectedGender,
       fromPrice?.toString() || "",
-      toPrice?.toString() || ""
+      toPrice?.toString() || "",
+      selectedExclusive
     );
+    setLoading(false);
   };
 
-  // const handlePrice = (value: string) => {
-  //   console.log("Price :", value);
-  //   setSelectedPrice(value); // MUI Switch sends `event` with `checked` value
-  // };
+  const resultCount = isSwitchOn ? newLaunch : totRecords;
 
-  const handleIsDiscarded = (values: string[]): void => {
-    console.log("Discarded State:", values.includes("Discarded"));
-    setIsDiscarded(values.includes("Discarded"));
+  const filterPanelProps = {
+    priceOptions: Priceoptions,
+    exclusiveOptions: ExclusiveOptions,
+    genderOptions: Genderoptions,
+    metalOptions: metaloptions,
+    portfolioOptions: portfoliooptions,
+    productCategory,
+    productSubCategory,
+    productCollection,
+    showDiscarded: user?.designation === "Admin",
+    selectedPrice,
+    selectedExclusive,
+    selectedCategory: selectedcategory,
+    selectedSubcategory: selectedSubcategory,
+    selectedGender,
+    selectedMetal,
+    selectedCollection: selectedcollection,
+    selectedPortfolio,
+    isDiscarded,
+    onPriceChange: setSelectedPrice,
+    onExclusiveChange: setSelectedExclusive,
+    onCategoryChange: setSelectedCategory,
+    onSubcategoryChange: setSelectedSubCategory,
+    onGenderChange: setSelectedGender,
+    onMetalChange: setSelectedMetal,
+    onCollectionChange: setSelectedCollection,
+    onPortfolioChange: setSelectedPortfolio,
+    onDiscardedChange: setIsDiscarded,
   };
 
-  function getPriceRange(value: string) {
-    if (value === "100,000") {
-      return { fromPrice: 0, toPrice: 100000 };
+  const activeFilterChips = useMemo((): ActiveFilterChip[] => {
+    const chips: ActiveFilterChip[] = [];
+
+    if (searchText.trim()) {
+      chips.push({
+        id: "search",
+        label: `Code: ${searchText.trim()}`,
+        onRemove: () => setSearchText(""),
+      });
     }
 
-    if (value === "500,000") {
-      return { fromPrice: 500000, toPrice: null }; // null means no upper limit
+    if (selectedPrice) {
+      const priceLabel =
+        Priceoptions.find((o) => o.value === selectedPrice)?.label ??
+        selectedPrice;
+      chips.push({
+        id: "price",
+        label: priceLabel,
+        onRemove: () => setSelectedPrice(""),
+      });
     }
 
-    const match = value.match(/([\d,]+)\s*-\s*([\d,]+)/);
-    if (match) {
-      const fromPrice = parseInt(match[1].replace(/,/g, ""));
-      const toPrice = parseInt(match[2].replace(/,/g, ""));
-      return { fromPrice, toPrice };
+    selectedcategory.forEach((value) => {
+      chips.push({
+        id: `category-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedCategory((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    selectedSubcategory.forEach((value) => {
+      chips.push({
+        id: `subcategory-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedSubCategory((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    selectedGender.forEach((value) => {
+      chips.push({
+        id: `gender-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedGender((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    selectedMetal.forEach((value) => {
+      chips.push({
+        id: `metal-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedMetal((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    selectedcollection.forEach((value) => {
+      chips.push({
+        id: `collection-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedCollection((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    selectedPortfolio.forEach((value) => {
+      chips.push({
+        id: `portfolio-${value}`,
+        label: value,
+        onRemove: () =>
+          setSelectedPortfolio((prev) => prev.filter((v) => v !== value)),
+      });
+    });
+
+    if (selectedExclusive) {
+      chips.push({
+        id: "exclusive",
+        label: `Exclusive: ${selectedExclusive}`,
+        onRemove: () => setSelectedExclusive(""),
+      });
     }
 
-    return { fromPrice: null, toPrice: null }; // fallback
-  }
+    if (isDiscarded) {
+      chips.push({
+        id: "discarded",
+        label: "Discarded",
+        onRemove: () => setIsDiscarded(false),
+      });
+    }
+
+    return chips;
+  }, [
+    searchText,
+    selectedPrice,
+    selectedcategory,
+    selectedSubcategory,
+    selectedGender,
+    selectedMetal,
+    selectedcollection,
+    selectedPortfolio,
+    selectedExclusive,
+    isDiscarded,
+  ]);
 
   return (
-    <div className="flex max-h-[calc(100vh_-_85px)] overflow-y-auto gap-x-2 m-0.5">
-      {/* Left Div with 20% width */}
-      <div className="w-full sm:w-1/3 lg:w-1/5 flex flex-col bg-gray-100 text-black my-0.5 ml-0.5">
-        {/* Fixed Header */}
-        <div className="bg-gray-100 p-2 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-black">Filter By</h1>
-
-          <div className="flex space-x-2 mb-2 overflow-y-auto">
-            <button
-              onClick={handleClearAll}
-              className="flex-1 p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
-              Clear All
-            </button>
-            <button
-              onClick={handleSearch}
-              className="flex-1 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            >
-              Search
-            </button>
+    <div className="flex min-h-[calc(100vh-85px)] flex-col bg-gray-50 lg:flex-row">
+      {/* Desktop filter sidebar */}
+      <aside className="hidden shrink-0 flex-col border-r border-gray-200 bg-white lg:flex lg:w-[300px] xl:w-[320px]">
+        <div className="border-b border-gray-100 px-5 py-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-gray-900">Filters</h2>
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline"
+              >
+                Clear all
+              </button>
+            )}
           </div>
-          {/* Search Input with Spinner */}
-          <div className="relative mb-2">
-            <input
-              type="text"
-              placeholder="Search by product code"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-              className="w-full p-2 text-black border rounded-md pr-10"
-            />
-            {/* {loading && (
-              <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
-                <div className="loader"></div>
-              </div>
-            )} */}
-          </div>
+          <FilterSearchInput
+            value={searchText}
+            onChange={setSearchText}
+            onSubmit={handleSearch}
+            className="mt-3"
+          />
         </div>
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-auto p-2 space-y-4 ">
-          {/* Price Filter */}
-          <div>
-            <CheckboxGroup
-              title="Price"
-              options={Priceoptions}
-              selectedValues={selectedPrice ? [selectedPrice] : []}
-              onChange={(val: string[]) => {
-                const latestSelected = val[val.length - 1] || "";
-                //console.log("Price:", latestSelected);
-                setSelectedPrice(latestSelected);
-              }}
-            />
-          </div>
-
-          {/* Category Filter */}
-          <CheckboxGroup
-            title="Category"
-            options={productCategory}
-            selectedValues={selectedcategory}
-            onChange={setSelectedCategory}
-          />
-
-          {/* Category Filter */}
-          <CheckboxGroup
-            title="Sub Category"
-            options={productSubCategory}
-            selectedValues={selectedSubcategory}
-            onChange={setSelectedSubCategory}
-          />
-
-          {/* Gender Filter */}
-          <CheckboxGroup
-            title="Gender"
-            options={Genderoptions}
-            selectedValues={selectedGender}
-            onChange={setSelectedGender}
-          />
-
-          {/* Metal Filter */}
-          <CheckboxGroup
-            title="Metal"
-            options={metaloptions}
-            selectedValues={selectedMetal}
-            onChange={setSelectedMetal}
-          />
-
-          {/* Collection Filter */}
-          <CheckboxGroup
-            title="Collection"
-            options={productCollection}
-            selectedValues={selectedcollection}
-            onChange={setSelectedCollection}
-          />
-
-          {/* Portfolio Filter */}
-          <CheckboxGroup
-            title="Portfolio"
-            options={portfoliooptions}
-            selectedValues={selectedPortfolio}
-            onChange={setSelectedPortfolio}
-          />
-
-          {/* Price Filter */}
-
-          {user?.designation === "Admin" && (
-            <CheckboxGroup
-              title=""
-              options={Discardoptions} // should be like: ["Discarded"]
-              selectedValues={isDiscarded ? ["Discarded"] : []}
-              onChange={handleIsDiscarded}
-            />
-          )}
-          {/* {user?.designation === "Admin" && (
-            <button
-              className={`w-full px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black ${
-                isDiscarded ? "bg-gray-100 text-black" : ""
-              }`}
-              onClick={handleIsDiscarded}
-            >
-              Discarded
-            </button>
-          )} */}
+        <div className="flex-1 overflow-y-auto px-5 py-2">
+          <JewelleryFilterPanel {...filterPanelProps} />
         </div>
 
-        {/* Fixed Footer */}
-        {/* <div className="h-16 bg-blue-700 p-4">
-          <h1 className="text-xl font-bold">Left Footer</h1>
-        </div> */}
-      </div>
-      {/* Right Div with the remaining width (80%) */}
-      <div className="w-4/5 flex flex-col bg-white text-white shadow-md border my-0.5">
-        {/* Fixed Header */}
-        <div className="flex items-center  bg-white justify-between p-1 sticky top-0">
-          <div className="flex items-center space-x-2">
-            <button
-              className={`px-4 py-1 rounded-md border transition ${
-                !isSwitchOn ? "bg-[#A9C5C6] text-black" : "bg-white text-black"
-              }`}
-              onClick={handleAll}
-            >
-              All {!isSwitchOn && `(${totRecords})`}
-            </button>
-            <button
-              className={`px-4 py-1 rounded-md border transition ${
-                isSwitchOn ? "bg-[#A9C5C6] text-black" : "bg-white text-black"
-              }`}
-              onClick={handleIsNew}
-            >
-              New Launch {isSwitchOn && `(${newLaunch})`}
-            </button>
-          </div>
-
-          <div className="justify-end space-x-2 ">
-            <button
-              className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-              onClick={handleBulkImport}
-            >
-              Bulk Order Upload
-            </button>
-            <button
-              className="px-4 py-1 bg-black text-white rounded-md border border-black hover:bg-white hover:text-black"
-              onClick={() => handlePjDetailClick()}
-            >
-              Pj-Detail
-            </button>
-          </div>
+        <div className="border-t border-gray-100 bg-white p-4">
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="w-full rounded-lg bg-gray-900 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+          >
+            Show {resultCount} result{resultCount === 1 ? "" : "s"}
+          </button>
         </div>
+      </aside>
 
-        {/* Scrollable Body */}
-        {/* <div className="flex-1 overflow-auto p-4 h-[80vh]"></div> */}
-        <div
-          ref={dataContainer}
-          className="flex-1 overflow-y-auto "
-          style={{ maxHeight: "calc(100vh - 33px)" }}
-        >
-          {loading ? (
-            // Show spinner while loading
-            <div className="flex justify-center items-center h-full">
+      {/* Mobile filter drawer — slide-in from right */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+            aria-label="Close filters"
+            onClick={() => setIsFilterOpen(false)}
+          />
+          <div
+            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Product filters"
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
               <div>
-                <Loader />{" "}
+                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                <p className="text-xs text-gray-500">
+                  {activeFilterCount > 0
+                    ? `${activeFilterCount} selected`
+                    : "Refine your search"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+                className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
+                aria-label="Close filters"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="border-b border-gray-100 px-4 py-3">
+              <FilterSearchInput
+                value={searchText}
+                onChange={setSearchText}
+                onSubmit={handleSearch}
+                placeholder="Search product code"
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-2">
+              <JewelleryFilterPanel {...filterPanelProps} />
+            </div>
+
+            <div className="flex gap-3 border-t border-gray-100 bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="flex-1 rounded-lg border border-gray-300 py-3.5 text-sm font-semibold text-gray-700"
+              >
+                Clear all
+              </button>
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="flex-[1.5] rounded-lg bg-gray-900 py-3.5 text-sm font-semibold text-white"
+              >
+                Show {resultCount} result{resultCount === 1 ? "" : "s"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main content */}
+      <main className="flex min-w-0 flex-1 flex-col">
+        {/* Toolbar */}
+        <div className="sticky top-0 z-20 border-b border-gray-200 bg-white px-3 py-3 sm:px-4 lg:px-6">
+          <div className="flex flex-col gap-3">
+            {/* Mobile search + filter trigger */}
+            <div className="flex gap-2 lg:hidden">
+              <FilterSearchInput
+                value={searchText}
+                onChange={setSearchText}
+                onSubmit={handleSearch}
+                placeholder="Search product code"
+                className="min-w-0 flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(true)}
+                className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-800 shadow-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4 text-gray-600"
+                  aria-hidden
+                >
+                  <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+                </svg>
+                Filter
+                {activeFilterCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-900 px-1 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {activeFilterChips.length > 0 && (
+              <ActiveFilterChips
+                chips={activeFilterChips}
+                onClearAll={handleClearAll}
+              />
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                  <button
+                    type="button"
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition sm:px-4 ${
+                      !isSwitchOn
+                        ? "bg-[#A9C5C6] text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                    onClick={handleAll}
+                  >
+                    All {!isSwitchOn && `(${totRecords})`}
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition sm:px-4 ${
+                      isSwitchOn
+                        ? "bg-[#A9C5C6] text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                    onClick={handleIsNew}
+                  >
+                    New Launch {isSwitchOn && `(${newLaunch})`}
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-500 sm:text-sm">
+                  {resultCount} product{resultCount === 1 ? "" : "s"}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="flex-1 rounded-lg border border-gray-900 bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-800 sm:flex-none sm:px-4 sm:text-sm"
+                  onClick={handleBulkImport}
+                >
+                  Bulk Upload
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-800 transition hover:bg-gray-50 sm:flex-none sm:px-4 sm:text-sm"
+                  onClick={handlePjDetailClick}
+                >
+                  Pj-Detail
+                </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Product grid */}
+        <div
+          ref={dataContainer}
+          className="flex-1 overflow-y-auto px-3 py-4 sm:px-4 lg:px-6"
+        >
+          {loading ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <Loader />
+            </div>
+          ) : selectedJewelleryItem.length === 0 ? (
+            <div className="flex min-h-[40vh] flex-col items-center justify-center px-4 text-center">
+              <p className="text-base font-medium text-gray-900">
+                No jewellery found
+              </p>
+              <p className="mt-1 max-w-sm text-sm text-gray-500">
+                Try adjusting your filters or search for a different product
+                code.
+              </p>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Clear all filters
+              </button>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 px-2">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {selectedJewelleryItem.map((item, index) => (
                 <JewelleryHomeDiv
-                  key={index}
-                  //Item_id={item.Item_id}
+                  key={`${item.item_number}-${index}`}
                   olddesign_no={item.old_varient}
                   design_no={item.item_number}
                   g_wt={item.weight}
                   d_size={item.solitaire_slab}
                   imgurl={item.image_url}
                   isnew={item.isnew}
+                  isExclusive={item.is_exclusive}
                   onImgClick={() => handleImageClick(item.item_number)}
                   onStkClick={() => handleStockClick(item.item_number)}
                 />
@@ -646,62 +853,38 @@ function JewelleyScreen() {
           )}
         </div>
 
-        {/* Fixed Footer */}
-        {/* <div className="h-16 bg-green-700 p-4"></div> */}
-        {loading ? (
-          <div className="flex justify-center my-1"></div>
-        ) : (
-          <div className="flex justify-center my-1">
+        {/* Load more */}
+        {!loading && selectedJewelleryItem.length > 0 && (
+          <div className="border-t border-gray-200 bg-white px-4 py-4">
             <button
+              type="button"
               onClick={handleLoadMore}
-              className={`w-22 px-4 py-1 text-sm tracking-wide rounded-lg text-white bg-black focus:outline-none ${
-                isLoadingMore ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className="mx-auto flex min-h-[44px] min-w-[140px] items-center justify-center rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoadingMore}
               aria-busy={isLoadingMore}
-              aria-disabled={isLoadingMore}
             >
               {isLoadingMore ? (
-                // Spinner inside the button
-                <div className="w-5 h-5 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
+                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               ) : (
-                "Load More"
+                "Load more"
               )}
             </button>
           </div>
         )}
-      </div>
-      {/* Modal */}
+      </main>
+
       {isModalOpen && (
         <PJDetailModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
       )}
-      {/* Checkout Confirmation Modal */}
+
       {isCheckoutModalVisible && (
-        <MessageModal
-          title="Proceed"
-          //onClose={() => setIsCheckoutModalVisible(false)}
-          onConfirm={closeCheckoutModal}
-        >
+        <MessageModal title="Proceed" onConfirm={closeCheckoutModal}>
           <p>Please select customer for further process.....</p>
         </MessageModal>
       )}
-      {/* Bulk Import Modal */}
-      {/* <BulkImportModal
-        isOpen={isBulkImportOpen}
-        onClose={() => setIsBulkImportOpen(false)}
-      /> */}
-      {/* Modal */}
-      {/* {isJDetailModalOpen && (
-        <JewelDetailModal
-          isOpen={isJDetailModalOpen}
-          onClose={() => setIsJDetailModalOpen(false)}
-          //jewelleryItem={selectedJewelleryItem}
-          jewelleryItem={selectedJewellery}
-        />
-      )} */}
     </div>
   );
 }

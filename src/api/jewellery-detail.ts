@@ -40,7 +40,8 @@ const getJewelleryDetailID = (
   gender: string,
   price_from: string,
   price_to: string,
-  Order_for: string
+  Order_for: string,
+  exclusive: string
 ): Promise<AxiosResponse<GetJewelleryDetailResponse>> =>
   callWebService(getJewelleryProdctListEndpoint.url, {
     method: getJewelleryProdctListEndpoint.method,
@@ -62,6 +63,7 @@ const getJewelleryDetailID = (
       price_from: price_from === "" ? null : Number(price_from),
       price_to: price_to === "" ? null : Number(price_to),
       order_for: Order_for === "" ? null : Order_for,
+      exclusive: exclusive === "" ? null : exclusive,
     },
   });
 

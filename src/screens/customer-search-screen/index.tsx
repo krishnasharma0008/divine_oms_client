@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useContext, useState } from "react";
-import Image from "next/image";
 import CustomerCreateScreen from "./sub-components";
 import { CustomerDetail } from "@/interface";
 import NotificationContext from "@/context/notification-context";
-//import LoaderContext from "@/context/loader-context";
 import { getCustomerDetailValue } from "@/api/customer";
 
 const CustomerSearchScreen: React.FC = () => {
@@ -13,10 +11,9 @@ const CustomerSearchScreen: React.FC = () => {
   const [isAddingCustomer, setIsAddingCustomer] = useState<boolean>(false);
   const [isCustomerID, setIsCustomerID] = useState<string | null>(null);
   const { notifyErr } = useContext(NotificationContext);
-  //const { showLoader, hideLoader } = useContext(LoaderContext);
   const [customerData, setCustomerDetail] = useState<Array<CustomerDetail>>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false); // Control spinner visibility
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -29,7 +26,6 @@ const CustomerSearchScreen: React.FC = () => {
     }
 
     try {
-      //showLoader();
       const result = await getCustomerDetailValue(value);
       setCustomerDetail(result.data.data ?? []);
       setShowSuggestions(true);
@@ -37,7 +33,6 @@ const CustomerSearchScreen: React.FC = () => {
       notifyErr("An error occurred while fetching customer details.");
       console.error(error);
     } finally {
-      //hideLoader();
       setLoading(false);
     }
   };
@@ -45,7 +40,8 @@ const CustomerSearchScreen: React.FC = () => {
   const handleSuggestionClick = (id: string) => {
     setIsCustomerID(id);
     setShowSuggestions(false);
-    setSearchQuery(""); // Optionally clear the search query
+    setSearchQuery("");
+    setIsAddingCustomer(false);
   };
 
   const handleAddCustomerClick = () => {
@@ -61,110 +57,111 @@ const CustomerSearchScreen: React.FC = () => {
     setIsCustomerID(null);
   };
 
+  const showForm = isAddingCustomer || isCustomerID;
+
   return (
-    <div className="w-full min-h-screen bg-white flex justify-center">
-      <div className="w-full flex flex-col items-center p-8 gap-3">
-        <div className="w-full flex justify-between items-center mb-3 relative">
-          <div className="relative w-2/3">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-              {/* Magnifying glass SVG */}
-              <svg
-                width="35"
-                height="34"
-                viewBox="0 0 35 34"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlnsXlink="http://www.w3.org/1999/xlink"
-              >
-                <rect
-                  x="0.90918"
-                  y="7.51172"
-                  width="27.0468"
-                  height="27.0468"
-                  transform="rotate(-15 0.90918 7.51172)"
-                  fill="url(#pattern0_166_1548)"
-                />
-                <defs>
-                  <pattern
-                    id="pattern0_166_1548"
-                    patternContentUnits="objectBoundingBox"
-                    width="1"
-                    height="1"
-                  >
-                    <use xlinkHref="#image0_166_1548" transform="scale(0.02)" />
-                  </pattern>
-                  <image
-                    id="image0_166_1548"
-                    width="50"
-                    height="50"
-                    xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADuElEQVR4nN2aTahVVRTH96uslJAmTcykLyoqGmiEZhgEfQyKIroQYt3eu/v/2/c+u+IVBKnBnViDJkEQNUiKPqy0UMSkiQ0iApOgkAYFVmbq84NSotQsja3P2F3vPu9xzj7Xd/rDGj3e+q//2Wutvc4615gcaLfblzjnHpb0kqTPgDHgKHAqsJOSfpG0A3gfWNpqta4yUwHtdnsmsNoH2BP0pEzS38AWa+288yKg2+1eACwDDuYR0Mf8aa211s4emIjR0dHLJG2cILC/gE+AFcBD/ok3m80bgUXAYuBlYHef/xtzzi0sXYRz7krg6wwBRyW9MDw8fMUk3A055+6VtL0n3Y5JeqI0EcAM4MsMEZ/mLN4hSSNhc5B0ArivBBmnydZniFhTq9UuLkLgnLsD2Bv4/NWnYzoJxhhr7VMZIt71QlPwNBqN2yT9FpzMtlS+TafTmS7pp0j73O7/bhLC30e+iwUcjydxDKyMtUzg9iQk53J+EAjZWTRtPYaA7yOnsdaUBGvtDcCfAd8jRR3Oj9VG2f0e2Bw8tPeKOnsmImTM3+7Jou7PbQO+g4WKfny46yfk7aRR9+ee08M5J7ez3ls3sOdNyajVaheOjzqnOa219+R2BnwbKfSnk0Yd598T1ORjuR1J+m6qCKFI54qllqTnzABSS2dmrrO8d+V2BqyLCHnLlAw/gPJf3utyO5P0bETIvrLbr3OuEfDtL9R+Jd2ZMSwuSBr5udybAiHrU7zS7ooIeceUhFardS1wPOCqFXYKrMpYHMxNEnn2RbwHmJbC6QxJP0fEbKvX65eahLDWPhiO8cDyUgqvj72ZkOdmSUeCB/VVt9u9KJX/s7WyISZG0itFj9+nabhZkfRHKfsuvwaaYIOydWRkZFbOd54lwO9h/RUaSSaCn0AlfZMhxgezul6vXz5Jf4skfd5zuid8KptBrEklfZQh5tR46/zY73ettfdba29xzl3t7x7gUUkvRt48DwMPmEGhdmbEXhWmQ1GT9GHO1CwOv6sd38AfyRm8v4s2SLrbTAV0Op3p/vYFXgW+kHSoJ+BjESEbTZUADEeEHCp7+EwKa+01sfRqNpu3mioB+DEiZqmpEoA3IkLWmSrBxhfhB5ItqgeBPnuqf80Pi6ZKkPRDREzLVAnA65E2XGy3O2gA9YiQYsuFQaPPiie0m0yVQPx7izNVArBm0B+OSoFz7slIau01VUIro078JzdTJUjaGREiUyVIeu18fQlLCv9bk/9FnVhrZ8fqpNFoXJ+C5B9KiNaRUnbwoAAAAABJRU5ErkJggg=="
-                  />
-                </defs>
-              </svg>
-            </div>
+    <div className="min-h-[calc(100vh-85px)] bg-gray-50">
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:py-10">
+        <header className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            Customer search
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Find an existing customer or register a new one to continue
+          </p>
+        </header>
+
+        <div className="space-y-3">
+          <div className="relative">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+              aria-hidden
+            >
+              <path
+                fillRule="evenodd"
+                d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                clipRule="evenodd"
+              />
+            </svg>
             <input
-              type="text"
-              placeholder="Search customer here..."
+              type="search"
+              placeholder="Search by name or mobile..."
               value={searchQuery}
               onChange={handleSearch}
-              className="w-full p-3 pl-14 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-10 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
             />
             {loading && (
-              <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
-                <div className="loader"></div>
-              </div>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+              </span>
             )}
-            {/* Dropdown suggestion box */}
             {showSuggestions && customerData.length > 0 && (
-              <ul className="absolute left-0 top-full  w-full bg-white border border-gray-300 rounded-lg max-h-60 overflow-y-auto z-10">
+              <ul className="absolute left-0 right-0 top-full z-20 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                 {customerData.map((customer) => (
-                  <li
-                    key={customer.id}
-                    onClick={() => handleSuggestionClick(String(customer.id))}
-                    className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  >
-                    {customer.name} {/*({customer.email}) */}
+                  <li key={customer.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleSuggestionClick(String(customer.id))}
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-800 hover:bg-gray-50"
+                    >
+                      <span className="font-medium">{customer.name}</span>
+                      {customer.contactno && (
+                        <span className="ml-2 text-gray-500">
+                          {customer.contactno}
+                        </span>
+                      )}
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
           </div>
+
           <button
             type="button"
-            className="ml-4 py-3 px-6 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-50 sm:w-auto"
             onClick={handleAddCustomerClick}
           >
-            + Add New Customer
+            + Add new customer
           </button>
         </div>
 
-        {isAddingCustomer ? (
-          <div className="w-full rounded-lg shadow-md flex flex-col items-center">
+        {showForm ? (
+          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
             <CustomerCreateScreen
-              customerid={"new"}
-              onCustomerAdded={handleCustomerAdded}
-            />
-          </div>
-        ) : isCustomerID ? (
-          <div className="w-full rounded-lg shadow-md flex flex-col items-center">
-            <CustomerCreateScreen
-              customerid={isCustomerID}
+              customerid={isAddingCustomer ? "new" : isCustomerID}
               onCustomerAdded={handleCustomerAdded}
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center">
-            <h2 className="text-xl font-bold text-gray-700 mb-4">
-              Search for customer
+          <div className="mt-12 flex flex-col items-center px-4 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#A9C5C6]/30">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="h-8 w-8 text-gray-600"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+            </div>
+            <h2 className="mt-4 text-base font-medium text-gray-900">
+              Search for a customer
             </h2>
-            <Image
-              src="/3d-magnifying-glass.png"
-              alt="No results"
-              height={520}
-              width={612}
-              sizes="100vw"
-              className="w-auto object-contain"
-            />
+            <p className="mt-1 max-w-sm text-sm text-gray-500">
+              Type a name or mobile number above, or add a new customer to get
+              started.
+            </p>
           </div>
         )}
       </div>

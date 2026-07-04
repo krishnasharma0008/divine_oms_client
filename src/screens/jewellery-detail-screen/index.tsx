@@ -1690,285 +1690,308 @@ function JewelleryDetailScreen() {
     setIsCheckoutModalVisible(false);
   };
 
+  const selectClassName =
+    "rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10";
+
+  const totalMin =
+    jewelleryDetails?.Product_price == null ||
+    Number(jewelleryDetails?.Product_price) === 0
+      ? (soliAmtFrom ?? 0) + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+      : Number(jewelleryDetails?.Product_price ?? 0);
+
+  const totalMax =
+    jewelleryDetails?.Product_price == null ||
+    Number(jewelleryDetails?.Product_price) === 0
+      ? (soliAmtTo ?? 0) + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
+      : Number(jewelleryDetails?.Product_price ?? 0);
+
   return (
-    <div className="flex flex-col lg:flex-row bg-white min-h-screen">
-     {/* <div className="flex flex-col lg:flex-row bg-white"> */}
-      
-      {/* Image Gallery Section */}
-      <div className="bg-white p-4 w-full lg:w-1/2">
-        <ImageGallery
-          images={filterByColorAndFormat(metalColor)}
-          msg={ChkMsg()}
-          //msg={GetMsg()}
-        />
+    <div className="min-h-screen bg-gray-50 pb-28 lg:pb-8">
+      <div className="border-b border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:px-8">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-4 w-4"
+            >
+              <path
+                fillRule="evenodd"
+                d="M11.78 5.22a.75.75 0 011.06 0l3.25 3.25a.75.75 0 01-1.06 1.06l-2.22-2.22V15a.75.75 0 01-1.5 0V7.31l-2.22 2.22a.75.75 0 01-1.06-1.06l3.25-3.25a.75.75 0 010-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Back
+          </button>
+          <span className="text-sm text-gray-400">/</span>
+          <span className="truncate text-sm text-gray-600">Product detail</span>
+        </div>
       </div>
 
-      {/* Details Section */}
-      <div className="bg-white p-4 w-full lg:w-1/2">
-        <div className="flex justify-between items-center mb-4">
-          {/* <div className="flex space-x-6 text-center"> */}
-          <div className="flex flex-col sm:flex-row sm:space-x-6 text-left sm:text-center">
-            <h2 className="text-lg">
-              Product Code :{" "}
-              <span className="font-semibold">
-                {jewelleryDetails?.Item_number}
-              </span>
-            </h2>
-            <h2 className="text-lg">
-              Old Code :{" "}
-              <span className="font-semibold">
-                {jewelleryDetails?.Old_varient}
-              </span>
-            </h2>
-          </div>
-          {/* <div className="flex items-center space-x-2"> */}
-          <div className="flex items-center space-x-2 mt-2 sm:mt-0">
-            <label className="block font-medium text-gray-700">QTY</label>
-            <select
-              className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-              value={selectedQty}
-              onChange={handleQtyChange}
-            >
-              {Array.from({ length: 50 }, (_, i) => i + 1).map((qty) => (
-                <option key={qty} value={qty}>
-                  {qty}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-6 lg:grid-cols-2 lg:px-8 lg:py-10">
+        {/* Image gallery */}
+        <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm sm:p-4 lg:sticky lg:top-24 lg:self-start">
+          <ImageGallery
+            images={filterByColorAndFormat(metalColor)}
+            msg={ChkMsg()}
+          />
         </div>
-        <div className="flex">
-          <div className="flex flex-col sm:flex-row md:space-x-6 md:text-center mb-2">
-            <h2 className="text-lg">
-              Collection :{" "}
-              <span className="font-semibold">
-                {jewelleryDetails?.Collection}
-              </span>
-            </h2>
-            <h2 className="text-lg">
-              Sub Category :{" "}
-              <span className="font-semibold whitespace-nowrap">
-                {jewelleryDetails?.Product_sub_category}
-              </span>
-            </h2>
-          </div>
-        </div>
-        <div className="w-full p-4 mb-4 bg-[#F9F6ED] rounded-lg">
-          {/* <div className="flex justify-between items-center mb-6"> */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
-            <div className="flex flex-col">
-              <h2 className="text-lg font-semibold">Divine Solitaire</h2>
-              {/* comparing with total pcs to show This is a multi solitaire product */}
-              {/* {totalPcs > 1 && <h3>This is a multi solitaire product</h3>} */}
-            </div>
-            {(jewelleryDetails?.Product_price == null ||
-              Number(jewelleryDetails?.Product_price) === 0) && (
-              <div className="text-lg">
-                <span className="font-semibold">
-                  {formatByCurrencyINR(soliAmtFrom ?? 0)} apx -{" "}
-                </span>
-                <span className="font-semibold">
-                  {formatByCurrencyINR(soliAmtTo ?? 0)} apx
-                </span>
-              </div>
-            )}
-          </div>
 
-          <div className="w-full p-4 bg-[#F9F6ED] border border-gray-300 rounded-lg">
-            <div className="flex justify-between items-center">
+        {/* Product details */}
+        <div className="space-y-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="text-lg mb-2">
-                  <span>Shape : </span>
-                  <span className="font-semibold">{customisedData?.shape}</span>
-                </div>
-                <div className="text-lg mb-2">
-                  <span>Color : </span>
-                  <span className="font-semibold">{customisedData?.color}</span>
+                <h1 className="text-xl font-semibold text-gray-900 lg:text-2xl">
+                  {jewelleryDetails?.Item_number}
+                </h1>
+                {jewelleryDetails?.Old_varient && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    Old code: {jewelleryDetails.Old_varient}
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {jewelleryDetails?.Collection && (
+                    <span className="rounded-full bg-[#A9C5C6]/40 px-3 py-0.5 text-xs font-medium text-gray-800">
+                      {jewelleryDetails.Collection}
+                    </span>
+                  )}
+                  {jewelleryDetails?.Product_sub_category && (
+                    <span className="rounded-full bg-gray-100 px-3 py-0.5 text-xs text-gray-600">
+                      {jewelleryDetails.Product_sub_category}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div>
-                <div className="text-lg mb-2">
-                  <span>Carat : </span>
-                  <span className="font-semibold">{customisedData?.carat}</span>
-                </div>
-                <div className="text-lg mb-2">
-                  <span>Clarity : </span>
-                  <span className="font-semibold">
-                    {customisedData?.clarity}
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="qty-select"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Qty
+                </label>
+                <select
+                  id="qty-select"
+                  className={selectClassName}
+                  value={selectedQty}
+                  onChange={handleQtyChange}
+                >
+                  {Array.from({ length: 50 }, (_, i) => i + 1).map((qty) => (
+                    <option key={qty} value={qty}>
+                      {qty}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
-          <p className="my-4">
-            *The jewellery available in{" "}
-            {`${jewelleryDetails?.Product_range_from_min} to ${jewelleryDetails?.Product_range_to_max} carat range. Solitaire Pcs ${totalPcs}`}
-          </p>
-          <p className="my-4 hidden">
-            {`Solitaire price from ${soliPriceFrom} - ${soliPriceTo}`}
-          </p>
-          <div className="flex justify-between items-center mb-2">
-            {(jewelleryDetails?.Product_price == null ||
-              Number(jewelleryDetails?.Product_price) === 0) && (
-              <h2
-                className="text-lg text-blue-600 cursor-pointer"
-                onClick={() => setIsPopupOpen(true)}
-              >
-                Customise your Divine Solitaire
+          {/* Divine Solitaire */}
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-semibold text-gray-900">
+                Divine Solitaire
               </h2>
-            )}
+              {(jewelleryDetails?.Product_price == null ||
+                Number(jewelleryDetails?.Product_price) === 0) && (
+                <p className="text-sm font-semibold text-gray-900">
+                  {formatByCurrencyINR(soliAmtFrom ?? 0)} –{" "}
+                  {formatByCurrencyINR(soliAmtTo ?? 0)} apx
+                </p>
+              )}
+            </div>
 
-            <div className="text-lg underline text-blue-600"></div>
-          </div>
-        </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-gray-50 p-4 text-sm">
+              <div>
+                <p className="text-gray-500">Shape</p>
+                <p className="font-medium text-gray-900">
+                  {customisedData?.shape || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500">Carat</p>
+                <p className="font-medium text-gray-900">
+                  {customisedData?.carat || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500">Color</p>
+                <p className="font-medium text-gray-900">
+                  {customisedData?.color || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500">Clarity</p>
+                <p className="font-medium text-gray-900">
+                  {customisedData?.clarity || "—"}
+                </p>
+              </div>
+            </div>
 
-        <div className="w-full p-4 bg-[#F9F6ED] rounded-lg">
-          {/* <div className="flex justify-between items-center mb-6"> */}
-          <div className="flex flex-col lg:flex-row w-full gap-4 lg:gap-2 lg:justify-between mb-2">
-            <h2 className="text-lg font-semibold">Divine Mount</h2>
+            <p className="mt-3 text-xs text-gray-500">
+              Available in {jewelleryDetails?.Product_range_from_min} to{" "}
+              {jewelleryDetails?.Product_range_to_max} carat range ·{" "}
+              {totalPcs} solitaire piece{totalPcs === 1 ? "" : "s"}
+            </p>
+
             {(jewelleryDetails?.Product_price == null ||
               Number(jewelleryDetails?.Product_price) === 0) && (
-              <div className="text-lg">
-                <span className="font-semibold">
+              <div
+                className={`mt-4 rounded-lg border p-4 ${
+                  customisedData?.shape &&
+                  customisedData?.carat &&
+                  customisedData?.color &&
+                  customisedData?.clarity
+                    ? "border-gray-200 bg-gray-50"
+                    : "border-amber-200 bg-amber-50"
+                }`}
+              >
+                {!(
+                  customisedData?.shape &&
+                  customisedData?.carat &&
+                  customisedData?.color &&
+                  customisedData?.clarity
+                ) && (
+                  <p className="mb-3 text-sm text-amber-900">
+                    Solitaire options are required. Please select shape, carat,
+                    color and clarity before adding to cart.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 sm:w-auto"
+                  onClick={() => setIsPopupOpen(true)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="h-4 w-4"
+                    aria-hidden
+                  >
+                    <path d="M13.024 9.25c.966 0 1.75-.784 1.75-1.75S13.99 5.75 13.024 5.75 11.274 6.534 11.274 7.5s.784 1.75 1.75 1.75zM6.976 9.25c.966 0 1.75-.784 1.75-1.75S7.942 5.75 6.976 5.75 5.226 6.534 5.226 7.5s.784 1.75 1.75 1.75zM10 11.25a3.501 3.501 0 00-3.25 2.25.75.75 0 001.456.354.749.749 0 01.584-.492.75.75 0 01.698.492A.75.75 0 0010 14.25a3.501 3.501 0 003.25-2.25.75.75 0 00-1.5 0 2.001 2.001 0 01-3.5 0 .75.75 0 00-1.5 0z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M10 1.25a4.75 4.75 0 00-4.75 4.75v.325a41.053 41.053 0 00-2.384.298 1.75 1.75 0 00-1.402 1.651l-.424 4.214a1.75 1.75 0 001.316 1.856l4.853 1.213a6.721 6.721 0 013.792 0l4.853-1.213a1.75 1.75 0 001.316-1.856l-.424-4.214a1.75 1.75 0 00-1.402-1.651 41.053 41.053 0 00-2.384-.298V6A4.75 4.75 0 0010 1.25zM5.75 6a4.25 4.25 0 118.5 0v.325c0 .232.034.463.101.686l.424 4.214-4.853 1.213a5.221 5.221 0 01-2.844 0L4.675 11.225l.424-4.214a1.748 1.748 0 00.101-.686V6z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {customisedData?.shape &&
+                  customisedData?.carat &&
+                  customisedData?.color &&
+                  customisedData?.clarity
+                    ? "Change solitaire options"
+                    : "Select solitaire options"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Divine Mount */}
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-semibold text-gray-900">
+                Divine Mount
+              </h2>
+              {(jewelleryDetails?.Product_price == null ||
+                Number(jewelleryDetails?.Product_price) === 0) && (
+                <p className="text-sm font-semibold text-gray-900">
                   {formatByCurrencyINR((metalAmtFrom ?? 0) + (sDiaAmt ?? 0))}{" "}
                   apx
-                </span>{" "}
-                -
-                <span className="font-semibold">
-                  {" "}
-                  {formatByCurrencyINR(
-                    (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
-                  )}{" "}
-                  apx
-                </span>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">
+                  Metal
+                </label>
+                <select
+                  className={selectClassName}
+                  value={metalPurity}
+                  onChange={handleMetalPurity}
+                >
+                  {jewelleryDetails?.Metal_purity.split(",").map(
+                    (item: string, index) => (
+                      <option key={index} value={item}>
+                        {item.trim()}
+                      </option>
+                    )
+                  )}
+                </select>
+                <select
+                  className={selectClassName}
+                  value={metalColor}
+                  onChange={handleMetalColor}
+                >
+                  {Array.from(
+                    new Set(
+                      jewelleryDetails?.Metal_color?.split(",")
+                        .map((item) => item.trim())
+                        .filter((item) => {
+                          if (metalPurity.trim().toUpperCase() === "950PT") {
+                            return item.toLowerCase() === "white";
+                          }
+                          return true;
+                        })
+                    )
+                  ).map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-          </div>
-          {/* <div className="flex justify-between"> */}
-          <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <label className="block text-lg font-medium text-gray-700">
-                Metal :
-              </label>
-              <select
-                className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                value={metalPurity}
-                onChange={handleMetalPurity}
-              >
-                {jewelleryDetails?.Metal_purity.split(",").map(
-                  (item: string, index) => (
-                    <option key={index} value={item}>
-                      <span>{item.trim()}</span>
-                    </option>
-                  )
-                )}
-              </select>
-              <select
-                //className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                className="w-38 p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                value={metalColor}
-                onChange={handleMetalColor}
-              >
-                {Array.from(
-                  new Set(
-                    jewelleryDetails?.Metal_color?.split(",")
-                      .map((item) => item.trim()) // clean
-                      .filter((item) => {
-                        if (metalPurity.trim().toUpperCase() === "950PT") {
-                          return item.toLowerCase() === "white";
-                        }
-                        return true;
-                      })
-                  )
-                ).map((item, index) => (
-                  <option key={index} value={item}>
-                    {item}
-                  </option>
-                ))}
 
-                {/* {jewelleryDetails?.Metal_color.split(",")
-                  .filter((item: string) => {
-                    if (metalPurity.trim().toUpperCase() === "950PT") {
-                      return item.trim().toLowerCase() === "white";
-                    }
-                    return true;
-                  })
+              <p className="text-sm text-gray-600">
+                Metal weight:{" "}
+                <span className="font-semibold text-gray-900">
+                  {Metalweight.toFixed(3)} gms
+                </span>
+              </p>
 
-                  .map((item: string, index) => (
-                    <option key={index} value={item}>
-                      <span>{item.trim()}</span>
-                    </option>
-                  ))} */}
-              </select>
-            </div>
-
-            <div className="text-lg">
-              <span>Metal Weight : </span>
-              <span className="font-semibold">
-                {Metalweight.toFixed(3)} gms
-              </span>
-            </div>
-            <div className="text-lg hidden">
-              <span>Metal Price : </span>
-              <span className="font-semibold">{metalPrice}</span>
-            </div>
-          </div>
-          <div className="flex justify-between mt-4">
-            <div className="flex items-center space-x-4">
               {jewelleryDetails?.Product_size_from !== "-" &&
                 jewelleryDetails?.Product_size_to !== "-" && (
-                  <>
-                    {/* Ring Size From */}
-                    <div className="flex items-center space-x-2">
-                      <label className="block text-lg font-medium text-gray-700">
-                        Size :
-                      </label>
-                      <select
-                        className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
-                        value={ringSizeFrom}
-                        onChange={handleFromChange}
-                      >
-                        {generateRingSizes(
-                          Number(jewelleryDetails?.Product_size_from),
-                          Number(jewelleryDetails?.Product_size_to)
-                        ).map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Ring size
+                    </label>
+                    <select
+                      className={selectClassName}
+                      value={ringSizeFrom}
+                      onChange={handleFromChange}
+                    >
+                      {generateRingSizes(
+                        Number(jewelleryDetails?.Product_size_from),
+                        Number(jewelleryDetails?.Product_size_to)
+                      ).map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="text-xs text-gray-500">
+                      Range {jewelleryDetails?.Product_size_from} –{" "}
+                      {jewelleryDetails?.Product_size_to}
+                    </span>
+                  </div>
                 )}
-            </div>
-          </div>
-          {jewelleryDetails?.Product_size_from !== "-" &&
-            jewelleryDetails?.Product_size_to !== "-" && (
-              <div className="flex items-center">
-                <div className="inline-flex">
-                  <label className="block text-lg font-medium text-gray-700"></label>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Ring Size OP Range : {jewelleryDetails?.Product_size_from}{" "}
-                    to {jewelleryDetails?.Product_size_to}.
-                  </p>
-                </div>
-              </div>
-            )}
-          {sideDiaTotPcs > 0 && (
-            <div className="flex justify-between mt-4">
-              <div className="flex items-center space-x-2">
-                <div className="text-lg">
-                  <span>Side Daimond :</span>
-                  <span className="font-semibold">
-                    {sideDiaTotPcs}/ {sideDiaTotweight.toFixed(3)}
+
+              {sideDiaTotPcs > 0 && (
+                <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 pt-4">
+                  <span className="text-sm text-gray-600">
+                    Side diamonds:{" "}
+                    <span className="font-semibold text-gray-900">
+                      {sideDiaTotPcs} / {sideDiaTotweight.toFixed(3)} cts
+                    </span>
                   </span>
-                  <span className="hidden">
-                    Side diamond price :{sDiaPrice}
-                  </span>
-                </div>
-                <div className="flex">
                   <select
-                    className="p-2 border border-gray-300 rounded bg-[#F9F6ED]"
+                    className={selectClassName}
                     value={sideDiaColorClarity}
                     onChange={handleSideDiaClarityChange}
                   >
@@ -1979,67 +2002,53 @@ function JewelleryDetailScreen() {
                     ))}
                   </select>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* <div className="flex w-full space-x-2 justify-end"> */}
-        <div className="flex flex-col lg:flex-row w-full gap-4 lg:gap-2 lg:justify-end">
-          <div className="w-full p-2 md:my-4">
-            <div className="p-2 my-4 border border-black rounded-lg">
-              <div className="flex justify-between items-center text-center">
-                <h2 className="text-sm">Min</h2>
-                <h2 className="text-sm">Max</h2>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-lg">
-                  <span className="font-semibold">
-                    {/* {formatByCurrencyINR(
-                      soliAmtFrom + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
-                    )} */}
-                    {formatByCurrencyINR(
-                      jewelleryDetails?.Product_price == null ||
-                        Number(jewelleryDetails?.Product_price) === 0
-                        ? (soliAmtFrom ?? 0) +
-                            (metalAmtFrom ?? 0) +
-                            (sDiaAmt ?? 0)
-                        : Number(jewelleryDetails.Product_price)
-                    )}{" "}
-                    apx
-                  </span>
-                </div>
-                <div className="text-lg">
-                  <span className="font-semibold">
-                    {/* {formatByCurrencyINR(
-                      soliAmtTo + (metalAmtFrom ?? 0) + (sDiaAmt ?? 0)
-                    )}{" "} */}
-                    {formatByCurrencyINR(
-                      jewelleryDetails?.Product_price == null ||
-                        Number(jewelleryDetails?.Product_price) === 0
-                        ? (soliAmtTo ?? 0) +
-                            (metalAmtFrom ?? 0) +
-                            (sDiaAmt ?? 0)
-                        : Number(jewelleryDetails.Product_price)
-                    )}{" "}
-                    apx
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-          <div className="w-full p-4 md:my-4 flex items-center justify-center space-x-2">
-            <button
-              className="w-full flex items-center p-2 py-4 bg-black text-white rounded-lg space-x-2 justify-center"
-              onClick={handleCart}
-            >
-              <ShoppingCartIcon />
-              <span className="text-lg font-semibold">Add to Cart</span>
-            </button>
+
+          {/* Price summary — desktop */}
+          <div className="hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:block">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-500">
+                  Estimated price
+                </p>
+                <p className="mt-1 text-xl font-semibold text-gray-900">
+                  {formatByCurrencyINR(totalMin)} –{" "}
+                  {formatByCurrencyINR(totalMax)} apx
+                </p>
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+                onClick={handleCart}
+              >
+                <ShoppingCartIcon />
+                Add to cart
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
-
+      {/* Mobile sticky add-to-cart */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] lg:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-gray-500">Estimated price</p>
+            <p className="text-sm font-semibold text-gray-900">
+              {formatByCurrencyINR(totalMin)} – {formatByCurrencyINR(totalMax)}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="flex shrink-0 items-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white"
+            onClick={handleCart}
+          >
+            <ShoppingCartIcon />
+            Add to cart
+          </button>
+        </div>
       </div>
 
       {/* Popup */}

@@ -7,6 +7,7 @@ export interface JewelleryHomedivProps {
   d_size: string;
   imgurl: string;
   isnew: boolean;
+  isExclusive?: boolean;
   onImgClick?: () => void;
   onStkClick?: () => void;
 }
@@ -18,95 +19,75 @@ const JewelleryHomeDiv: React.FC<JewelleryHomedivProps> = ({
   d_size,
   imgurl,
   isnew,
+  isExclusive = false,
   onImgClick,
-  //onStkClick,
 }) => {
   return (
-    <div className="w-full border rounded-md group relative jewellery-item hover:shadow-lg transition-shadow">
-      {/* Ribbon for New Launch */}
-      {isnew && (
-        <>
-          <div className="absolute top-0 left-0 w-24 h-24 overflow-hidden z-10">
-            <div
-              className="absolute top-[18px] -left-8 w-36 bg-[#A9C5C6] text-black text-xs font-semibold py-[5px] text-center rotate-[-45deg] shadow-lg"
-              style={{
-                clipPath:
-                  "polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%, 7% 50%)",
-              }}
-            >
-              <span className="px-2">New Launch</span>
-
-              {/* Curved Ends */}
-            </div>
-          </div>
-          <div className="absolute left-[83px] top-[0px] w-2 h-px bg-[#A9C5C6] z-11" />
-          <div className="absolute -left-[0px] bottom-[125px] w-px h-2 bg-[#A9C5C6] transform z-11" />
-        </>
+    <article className="jewellery-item group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:border-gray-300 hover:shadow-md">
+      {(isnew || isExclusive) && (
+        <div className="absolute left-2 top-2 z-10 flex flex-col gap-1">
+          {isnew && (
+            <span className="rounded-full bg-[#A9C5C6] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-900">
+              New
+            </span>
+          )}
+          {isExclusive && (
+            <span className="rounded-full bg-gray-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+              Exclusive
+            </span>
+          )}
+        </div>
       )}
 
-      <div className="flex justify-center items-center relative p-1 overflow-hidden">
+      <button
+        type="button"
+        onClick={onImgClick}
+        className="relative flex aspect-square w-full items-center justify-center overflow-hidden bg-gray-50 p-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+        aria-label={`View details for ${design_no}`}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imgurl}
           alt={`Jewellery design ${design_no}`}
           width={200}
-          height={60}
+          height={200}
           onError={(event) => {
             const imgElement = event.target as HTMLImageElement;
             if (imgElement) {
               imgElement.src = "/jewellery/NoImageBig.jpg";
             }
           }}
-          onClick={onImgClick}
           loading="lazy"
-          className="object-contain w-full h-36 transition-transform duration-300 transform group-hover:scale-110 cursor-pointer"
+          className="h-full max-h-40 w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-44 lg:max-h-48"
         />
-      </div>
+      </button>
 
-      <div className="px-2 pb-2">
-        <div className="grid">
-          <div className="w-full flex justify-between">
-            <p className="text-left text-gray-700 font-Montserrat text-sm font-semibold">
-              {design_no}
+      <div className="flex flex-1 flex-col gap-2 border-t border-gray-100 px-3 py-3">
+        <div className="flex items-start justify-between gap-2">
+          <p className="truncate text-sm font-semibold text-gray-900">
+            {design_no}
+          </p>
+          {olddesign_no && (
+            <p className="shrink-0 text-[11px] text-gray-500">
+              Old: {olddesign_no}
             </p>
-            <p className="text-left text-gray-700 font-montserrat font-semibold text-sm">
-              Old :&nbsp; {olddesign_no}
+          )}
+        </div>
+
+        <div className="mt-auto grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] text-gray-600 sm:text-xs">
+          <div>
+            <span className="text-gray-400">G.WT</span>
+            <p className="font-medium text-gray-800">
+              {parseFloat(g_wt).toFixed(3)} apx.
             </p>
           </div>
-
-          {/* {onStkClick && (
-            <div className="flex justify-end">
-              <p
-                className="text-right text-sky-600 font-montserrat font-normal text-sm underline-offset-1 cursor-pointer"
-                onClick={onStkClick}
-                tabIndex={0}
-              >
-                In Stock
-              </p>
-            </div>
-          )} */}
-
-          <div className="flex justify-between mt-[2px]">
-            <div className="flex">
-              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
-                G.WT :&nbsp;
-              </p>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
-                {parseFloat(g_wt).toFixed(3)} apx.
-              </p>
-            </div>
-            <div className="flex">
-              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
-                D.SIZE :&nbsp;
-              </p>
-              <p className="text-left text-gray-700 font-montserrat font-normal text-xs">
-                {d_size}
-              </p>
-            </div>
+          <div className="text-right">
+            <span className="text-gray-400">D.SIZE</span>
+            <p className="font-medium text-gray-800">{d_size}</p>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

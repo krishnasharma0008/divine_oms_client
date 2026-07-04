@@ -212,167 +212,154 @@ const CustomerCreateScreen: React.FC<CustomerDetailProps> = ({
   };
 
   return (
-    <div className="flex-1 w-full  bg-gray-50 px-4 rounded-lg">
-      {customerid === "new" && (
-        <div>
-          <h1 className="py-2 font-extralight text-2xl leading-[18px]">
-            Please Fill Customer Details
-          </h1>
-        </div>
+    <div className="w-full">
+      {customerid === "new" ? (
+        <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+          New customer details
+        </h2>
+      ) : (
+        <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+          Customer profile
+        </h2>
       )}
+      <p className="mt-1 text-sm text-gray-500">
+        {editMode
+          ? "Fill in the required fields to continue."
+          : "Review details and apply to proceed."}
+      </p>
 
-      <div className="flex-row pt-5">
-        <div className="flex justify-between">
-          <InputText
-            containerClass="w-96"
-            label="Name"
-            name="Name"
-            onChange={onChangeHandlerCreator("name")}
-            placeholder="Name"
-            type="text"
-            value={state.name}
-            disabled={!editMode}
-            className={`w-96 ${errors.name ? "" : "border-red-500"}`}
-            errorText={errors.name}
-          />
-          <InputText
-            containerClass="w-96"
-            label="Address"
-            name="address"
-            onChange={onChangeHandlerCreator("address")}
-            placeholder="Address"
-            type="text"
-            value={state.address}
-            disabled={!editMode}
-            className={`w-96 ${errors.address ? "" : "border-red-500"}`}
-            errorText={errors.address}
-          />
-        </div>
-      </div>
-      <div className="flex-row pt-1">
-        <div className="flex justify-between">
-          <InputText
-            containerClass="w-96"
-            label="Mobile"
-            name="mobile"
-            onChange={onChangeHandlerCreator("contactno")}
-            placeholder="Contact No"
-            type="number"
-            value={state.contactno}
-            disabled={!editMode}
-            className={`w-96 ${errors.contactno ? "" : "border-red-500"}`}
-            errorText={errors.contactno}
-          />
-          <InputText
-            containerClass="w-96"
-            label="Pan Card"
-            name="pan"
-            onChange={onChangeHandlerCreator("pan")}
-            placeholder="Pan No"
-            type="text"
-            value={state.pan}
-            disabled={!editMode}
-            className={`w-96 ${errors.pan ? "" : "border-red-500"}`}
-            errorText={errors.pan}
-          />
-        </div>
-      </div>
-      <div className="flex-row pt-1">
-        <div className="flex justify-between">
-          <div className="flex flex-col w-96">
-            <label className="mb-2">Gender</label>
-            <div className="flex gap-2 justify-around">
-              {Object.values(CUSTOMER_GENDER).map((gender) => (
-                <button
-                  key={gender}
-                  onClick={() => changeGender(gender)}
-                  className={`py-2 px-4 rounded-md ${
-                    state.gender === gender
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-black"
-                  } ${errors.gender ? "border border-red-500" : ""}`}
-                  disabled={!editMode}
-                >
-                  {gender}
-                </button>
-              ))}
-            </div>
-            {errors.gender && (
-              <span className="text-red-500 text-xs mt-1">{errors.gender}</span>
-            )}{" "}
-            {/* Display error text */}
+      <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+        <InputText
+          containerClass="w-full"
+          label="Name"
+          name="Name"
+          onChange={onChangeHandlerCreator("name")}
+          placeholder="Name"
+          type="text"
+          value={state.name}
+          disabled={!editMode}
+          className={`w-full ${errors.name ? "border-red-500" : ""}`}
+          errorText={errors.name}
+        />
+        <InputText
+          containerClass="w-full"
+          label="Address"
+          name="address"
+          onChange={onChangeHandlerCreator("address")}
+          placeholder="Address"
+          type="text"
+          value={state.address}
+          disabled={!editMode}
+          className={`w-full ${errors.address ? "border-red-500" : ""}`}
+          errorText={errors.address}
+        />
+        <InputText
+          containerClass="w-full"
+          label="Mobile"
+          name="mobile"
+          onChange={onChangeHandlerCreator("contactno")}
+          placeholder="Contact No"
+          type="number"
+          value={state.contactno}
+          disabled={!editMode}
+          className={`w-full ${errors.contactno ? "border-red-500" : ""}`}
+          errorText={errors.contactno}
+        />
+        <InputText
+          containerClass="w-full"
+          label="Pan Card"
+          name="pan"
+          onChange={onChangeHandlerCreator("pan")}
+          placeholder="Pan No"
+          type="text"
+          value={state.pan}
+          disabled={!editMode}
+          className={`w-full ${errors.pan ? "border-red-500" : ""}`}
+          errorText={errors.pan}
+        />
+
+        <div className="mb-4 sm:col-span-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Gender
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {Object.values(CUSTOMER_GENDER).map((gender) => (
+              <button
+                key={gender}
+                type="button"
+                onClick={() => changeGender(gender)}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                  state.gender === gender
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                } ${errors.gender ? "ring-2 ring-red-500" : ""}`}
+                disabled={!editMode}
+              >
+                {gender}
+              </button>
+            ))}
           </div>
-          <DatePicker
-            onChange={onDateChangeHandler("dob")}
-            label="DOB"
-            value={
-              state.dob
-                ? new Date(dayjs.utc(state.dob).format(DateFormat))
-                : null
-            }
-            showIcon={editMode}
-            icon={CalendarIcon}
-            className={`w-96 ${errors.dob ? "border-red-500" : ""}`}
-            errorText={errors.dob}
-          />
+          {errors.gender && (
+            <span className="mt-1 block text-xs text-red-500">
+              {errors.gender}
+            </span>
+          )}
         </div>
-      </div>
-      <div className="flex-row pt-1">
-        <div className="flex justify-between">
-          <InputText
-            label="Pin Code"
-            name="pincode"
-            onChange={onChangeHandlerCreator("pincode")}
-            placeholder="Pin Code"
-            type="text"
-            value={state.pincode}
-            disabled={!editMode}
-            containerClass="w-96"
-            className={`w-96 ${errors.pincode ? "" : "border-red-500"}`}
-            errorText={errors.pincode}
-          />
-          <InputText
-            containerClass="w-96"
-            label="Email"
-            name="email"
-            onChange={onChangeHandlerCreator("email")}
-            placeholder="Email"
-            type="text"
-            value={state.email}
-            disabled={!editMode}
-            className={`w-96 ${errors.email ? "" : "border-red-500"}`}
-            errorText={errors.email}
-          />
-        </div>
+
+        <DatePicker
+          onChange={onDateChangeHandler("dob")}
+          label="DOB"
+          value={
+            state.dob
+              ? new Date(dayjs.utc(state.dob).format(DateFormat))
+              : null
+          }
+          showIcon={editMode}
+          icon={CalendarIcon}
+          className={`w-full ${errors.dob ? "border-red-500" : ""}`}
+          errorText={errors.dob}
+        />
+        <InputText
+          label="Pin Code"
+          name="pincode"
+          onChange={onChangeHandlerCreator("pincode")}
+          placeholder="Pin Code"
+          type="text"
+          value={state.pincode}
+          disabled={!editMode}
+          containerClass="w-full"
+          className={`w-full ${errors.pincode ? "border-red-500" : ""}`}
+          errorText={errors.pincode}
+        />
+        <InputText
+          containerClass="w-full sm:col-span-2"
+          label="Email"
+          name="email"
+          onChange={onChangeHandlerCreator("email")}
+          placeholder="Email"
+          type="text"
+          value={state.email}
+          disabled={!editMode}
+          className={`w-full ${errors.email ? "border-red-500" : ""}`}
+          errorText={errors.email}
+        />
       </div>
 
-      <div className="mt-6">
-        <div className="flex items-center justify-center gap-x-6 my-5 py-5">
-          <button
-            type="button"
-            onClick={onCloseHandler}
-            className="inline-flex items-center justify-center px-4 py-2 bg-black border border-transparent rounded-md font-semibold capitalize text-white hover:bg-Chinese-Black-sidebar active:bg-Chinese-Black-sidebar focus:outline-none focus:bg-Chinese-Black-sidebar focus:ring focus:ring-red-200 disabled:opacity-25 transition"
-          >
-            Close
-          </button>
-          {/* {customerid === "new" ? ( */}
-          <button
-            type="button"
-            onClick={editMode ? onSubmitHandler : onEditClickHandler}
-            className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-Chinese-Black-sidebar focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
-          >
-            {editMode ? "Submit Details" : "Apply"}
-          </button>
-          {/* ) : (
-            <button
-              type="button"
-              onClick={onEditClickHandler}
-              className="w-72 rounded-md bg-black py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-12"
-            >
-              Apply
-            </button>
-          )} */}
-        </div>
+      <div className="mt-8 flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          onClick={onCloseHandler}
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50 sm:w-auto"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          onClick={editMode ? onSubmitHandler : onEditClickHandler}
+          className="w-full rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 sm:w-auto"
+        >
+          {editMode ? "Submit details" : "Apply & continue"}
+        </button>
       </div>
     </div>
   );
