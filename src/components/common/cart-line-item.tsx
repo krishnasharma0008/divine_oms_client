@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import dayjs from "dayjs";
 import { CartDetail } from "@/interface";
 import { formatByCurrencyINR } from "@/util/format-inr";
-import { getCartPartnerLabel, groupCartByPartner } from "@/util/cart-partner";
+import { getCartPartnerLabel } from "@/util/cart-partner";//, groupCartByPartner
 
 function getProductImage(item: CartDetail): string {
   if (item.product_type.toLowerCase() === "jewellery") {
