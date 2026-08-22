@@ -203,61 +203,114 @@ function CartScreen() {
     }
   };
 
+  // const handleQuantityChange = async (
+  //   cartId: number | undefined,
+  //   increment: boolean,
+  // ) => {
+  //   if (!cartId) return;
+
+  //   // Compute the updated item first
+  //   let updatedItem: CartDetail | null = null;
+
+  //   const updatedCartData = cartData.map((item) => {
+  //     if (item.id === cartId) {
+  //       const newProductQty = Math.max(
+  //         1,
+  //         (item.product_qty || 1) + (increment ? 1 : -1),
+  //       );
+
+  //       // Calculate unit amounts
+  //       const unitAmtMin = item.product_amt_min / (item.product_qty || 1);
+  //       const unitAmtMax = item.product_amt_max / (item.product_qty || 1);
+
+  //       //console.log(`Updating item ${item.product_code}: qty ${item.product_qty} -> ${newProductQty}, amt_min ${item.product_amt_min} -> ${unitAmtMin * newProductQty}, amt_max ${item.product_amt_max} -> ${unitAmtMax * newProductQty}`);
+
+  //       // Construct updated item
+  //       updatedItem = {
+  //         ...item,
+  //         product_qty: newProductQty,
+  //         product_amt_min: unitAmtMin * newProductQty,
+  //         product_amt_max: unitAmtMax * newProductQty,
+  //       };
+
+  //       return updatedItem; // Update this item in the array
+  //     }
+  //     return item;
+  //   });
+
+  //   // Update the state with the modified cart data
+  //   setCartData(updatedCartData);
+
+  //   // Log and proceed with the updated item
+  //   if (updatedItem) {
+  //     console.log("Updated item:", updatedItem);
+
+  //     try {
+  //       showLoader();
+
+  //       // Send the updated item to the server
+  //       await EditCart(updatedItem);
+  //       console.log("Cart updated successfully");
+  //     } catch (err) {
+  //       console.error("Error updating cart:", err);
+  //     } finally {
+  //       hideLoader();
+  //     }
+  //   } else {
+  //     console.error("Error: Updated item not found");
+  //   }
+  // };
+
   const handleQuantityChange = async (
-    cartId: number | undefined,
-    increment: boolean,
-  ) => {
-    if (!cartId) return;
+  cartId: number | undefined,
+  increment: boolean,
+) => {
+  if (!cartId) return;
 
-    // Compute the updated item first
-    let updatedItem: CartDetail | null = null;
+  let updatedItem: CartDetail | null = null;
 
-    const updatedCartData = cartData.map((item) => {
-      if (item.id === cartId) {
-        const newProductQty = Math.max(
-          1,
-          (item.product_qty || 1) + (increment ? 1 : -1),
-        );
+  const updatedCartData = cartData.map((item) => {
+    if (item.id === cartId) {
+      const oldQty = item.product_qty || 1;
+      const newProductQty = Math.max(1, oldQty + (increment ? 1 : -1));
+      const ratio = newProductQty / oldQty;
 
-        // Calculate unit amounts
-        const unitAmtMin = item.product_amt_min / (item.product_qty || 1);
-        const unitAmtMax = item.product_amt_max / (item.product_qty || 1);
+      const scale = (val: number | undefined) =>
+        parseFloat(((val || 0) * ratio).toFixed(2));
 
-        // Construct updated item
-        updatedItem = {
-          ...item,
-          product_qty: newProductQty,
-          product_amt_min: unitAmtMin * newProductQty,
-          product_amt_max: unitAmtMax * newProductQty,
-        };
+      updatedItem = {
+        ...item,
+        product_qty: newProductQty,
+        product_amt_min: scale(item.product_amt_min),
+        product_amt_max: scale(item.product_amt_max),
+        solitaire_amt_min: scale(item.solitaire_amt_min),
+        solitaire_amt_max: scale(item.solitaire_amt_max),
+        metal_amt: scale(item.metal_amt),
+        mount_amt_min: scale(item.mount_amt_min),
+        mount_amt_max: scale(item.mount_amt_max),
+        // metal_weight, metal_price, side_stone_pcs, side_stone_cts are per-unit — do not scale
+      };
 
-        return updatedItem; // Update this item in the array
-      }
-      return item;
-    });
-
-    // Update the state with the modified cart data
-    setCartData(updatedCartData);
-
-    // Log and proceed with the updated item
-    if (updatedItem) {
-      console.log("Updated item:", updatedItem);
-
-      try {
-        showLoader();
-
-        // Send the updated item to the server
-        await EditCart(updatedItem);
-        console.log("Cart updated successfully");
-      } catch (err) {
-        console.error("Error updating cart:", err);
-      } finally {
-        hideLoader();
-      }
-    } else {
-      console.error("Error: Updated item not found");
+      return updatedItem;
     }
-  };
+    return item;
+  });
+
+  setCartData(updatedCartData);
+
+  if (updatedItem) {
+    try {
+      showLoader();
+      await EditCart(updatedItem);
+    } catch (err) {
+      console.error("Error updating cart:", err);
+    } finally {
+      hideLoader();
+    }
+  } else {
+    console.error("Error: Updated item not found");
+  }
+};
 
   //const handleCopyItem = async (item: CartDetail) => {
   const handleCopyItem = async (item: CartDetail) => {
@@ -312,6 +365,7 @@ function CartScreen() {
       order_remarks: item.order_remarks || "",
       metal_type: item.metal_type || "",
       metal_price: item.metal_price || 0,
+      metal_amt: item.metal_amt || 0,
       mount_amt_min: item.mount_amt_min || 0,
       mount_amt_max: item.mount_amt_max || 0,
       image_url: item.image_url ?? "",
