@@ -481,6 +481,7 @@ const RegularConfirmOrderScreen = () => {
         metal_color: "",
         metal_weight: 0,
         metal_price: 0,
+        metal_amt: 0,
         mount_amt_min: 0,
         mount_amt_max: 0,
         size_from: "-",
