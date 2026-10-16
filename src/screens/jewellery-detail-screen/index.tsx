@@ -1232,6 +1232,8 @@ function JewelleryDetailScreen() {
         ? "CUSQ"
         : data.shape === "Heart"
         ? "HRT"
+         : data.shape === "Emerald"
+        ? "EME"
         : "";
 
     const carat = data.carat?.split("-") || ["0", "0"];
