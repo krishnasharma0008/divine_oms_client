@@ -45,6 +45,7 @@ const shapeMap: Record<string, string> = {
   CUSQ: "Cushion",
   HRT: "Heart",
   MAQ: "Marquise",
+  EME: "Emerald",
 };
 
 const selectClassName =
