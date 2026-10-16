@@ -35,6 +35,7 @@ export interface CartDetail {
   metal_color: string;
   metal_weight: number;
   metal_price: number; //new
+  metal_amt: number; //new
   mount_amt_min: number; //new
   mount_amt_max: number; //new
   size_from: string;

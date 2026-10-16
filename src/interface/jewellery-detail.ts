@@ -35,6 +35,7 @@ export interface JewelleryDetail {
   Gender: string;
   Variant_approved_date: string; //null
   Metal_price_lessonegms: string; // new
+  Metal_price_less_0_5gms: string; // new
   Product_price: string; // new
   // solitaire_slab: string;
   // weight: string;

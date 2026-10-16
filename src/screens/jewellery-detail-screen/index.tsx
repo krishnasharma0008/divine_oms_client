@@ -410,7 +410,7 @@ function JewelleryDetailScreen() {
     console.log("Form Type :", formType);
     if (jewelleryDetails) {
       if (formType === "new") {
-        //resetCartDetail();
+        resetCartDetail();
         handleAddCart();
       } else if (formType === "Edit") {
         handleEditCart();
@@ -1017,8 +1017,10 @@ function JewelleryDetailScreen() {
           goldColor,
           getValidPurity("gold", metalPurity)
         );
-      } else if (goldWeight > 0 && goldWeight <= 1) {
+      } else if (goldWeight > 0.5 && goldWeight <= 1) {
         goldPrice = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
+      } else if (goldWeight > 0 && goldWeight <= 0.5) {
+        goldPrice = Number(jewelleryDetails?.Metal_price_less_0_5gms) || 0;
       }
 
       // Platinum pricing
@@ -1028,36 +1030,33 @@ function JewelleryDetailScreen() {
           "",
           "",
           getMetalColor("PLATINUM", metalColor),
-          metalPurity
+          "950PT",//metalPurity
         );
       }
 
       console.log("Gold Price : ", goldPrice);
       console.log("platinum Price : ", platinumPrice);
-      // Calculations
-      let goldAmount =
-        goldWeight > 0 ? goldWeight * goldPrice * selectedQty : 0;
 
-      const platinumAmount =
-        platinumWeight > 0 ? platinumWeight * platinumPrice * selectedQty : 0;
+      // Calculations — unit amounts first (qty-independent), then scale for totals
+      // Sub-1gm gold: flat fixed amount, NOT weight × price
+      const unitGoldAmount =
+        goldWeight > 0 && goldWeight <= 1
+          ? goldPrice
+          : goldWeight > 0
+          ? goldWeight * goldPrice
+          : 0;
 
-      // logic for less than or equal to 1 gm
-      if (goldWeight > 0 && goldWeight <= 1) {
-        goldAmount = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
-      }
+      const unitPlatinumAmount =
+        platinumWeight > 0 ? platinumWeight * platinumPrice : 0;
 
-      // Minimum gold amount rule
-      // if (
-      //   goldWeight > 0 &&
-      //   goldWeight <= 1 &&
-      //   goldPrice > 0 &&
-      //   goldAmount < 7800
-      // ) {
-      //   goldAmount = 7800;
-      // }
+      const unitTotalMetalAmount = unitGoldAmount + unitPlatinumAmount;
+
+      const goldAmount = unitGoldAmount * selectedQty;
+      const platinumAmount = unitPlatinumAmount * selectedQty;
 
       console.log("Gold Amt : ", goldAmount);
-      console.log("platinum Amt : ", platinumWeight);
+      console.log("platinum Amt : ", platinumAmount);
+
       const totalMetalAmount = goldAmount + platinumAmount;
       const metalWeight = (goldWeight ?? 0) + (platinumWeight ?? 0);
 
@@ -1065,19 +1064,19 @@ function JewelleryDetailScreen() {
       console.log("Total Metal Amt : ", totalMetalAmount);
       console.log("Metal Weight : ", metalWeight);
 
-      // if (metalWeight > 0) {
-      //   setMetalPrice(totalMetalAmount / metalWeight);
-      // } else {
-      //   setMetalPrice(0);
-      // }
       let perGram = 0;
-      //if (Metalweight > 0) {
-      perGram = totalMetalAmount / metalWeight;
+      if (goldWeight > 0.5 && goldWeight <= 1) {
+        // Fixed rate for 0.5–1gm items — don't derive from amount/weight
+        perGram = Number(jewelleryDetails?.Metal_price_lessonegms) || 0;
+      } else if (goldWeight > 0 && goldWeight <= 0.5) {
+        // Fixed rate for sub-0.5gm items — don't derive from amount/weight
+        perGram = Number(jewelleryDetails?.Metal_price_less_0_5gms) || 0;
+      } else {
+        // Use UNIT total (not qty-scaled) so per-gram rate stays constant across qty
+        perGram = metalWeight > 0 ? unitTotalMetalAmount / metalWeight : 0;
+      }
+
       setMetalPrice(Number(perGram.toFixed(2)));
-      console.log("Metal Price per gm : ", perGram);
-      //} else {
-      //  setMetalPrice(0);
-      //}
       console.log("Metal Price per gm : ", perGram);
     } catch (error) {
       console.error("Error in CalculateMetalAmount:", error);
@@ -1573,6 +1572,7 @@ function JewelleryDetailScreen() {
       metal_color: metalColor,
       metal_weight: Metalweight ?? 0,
       metal_price: metalPrice ?? 0,
+      metal_amt: metalAmtFrom ?? 0,
       mount_amt_min: (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
       mount_amt_max: (metalAmtFrom ?? 0) + (sDiaAmt ?? 0),
       size_from:

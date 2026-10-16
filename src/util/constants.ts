@@ -4,6 +4,7 @@ export const Solitaire_shape = [
   "Oval",
   "Pear",
   "Marquise",
+  "Emerald"
 ];
 export const Solus_shape = ["Radiant", "Cushion", "Heart"];
 
