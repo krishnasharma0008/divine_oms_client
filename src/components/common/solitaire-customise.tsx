@@ -95,7 +95,8 @@ const SolitaireCustomisationPopup: React.FC<
     return caratVal >= 0.1 && caratVal <= 0.17
       ? otherRoundColorsCarat
       : colors.filter(
-          (color) => color !== "I" && color !== "J" && color !== "K"
+          //(color) => color !== "I" && color !== "J" && color !== "K"
+          (color) => color !== "J" && color !== "K"
         );
   };
 
