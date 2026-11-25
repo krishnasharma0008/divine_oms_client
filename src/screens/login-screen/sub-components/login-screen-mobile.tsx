@@ -136,7 +136,8 @@ const LoginScreenMobileInput: React.FC = () => {
           <div className="w-full text-base bg-[#F3F9FA] font-normal leading-4 tracking-normal text-center p-3 rounded-md">
             <p className="text-gray-500 whitespace-nowrap">
               Not Registered Yet? Please Contact{" "}
-              <strong className="text-blue-700">+91 9518373847</strong>
+              {/* <strong className="text-blue-700">+91 9518373847</strong> */}
+              <strong className="text-blue-700">App-helpdesk@divinesolitaires.com</strong>
             </p>
           </div>
         </div>
